@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,12 @@ namespace CarService.Controllers
     {
         // GET: TestMVC
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        // GET: TestMVC
+        public ActionResult BrandListView()
         {
             return View();
         }

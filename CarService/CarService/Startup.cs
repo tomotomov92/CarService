@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using BusinessLogic;
+using BusinessLogic.BLs;
+using BusinessLogic.DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +23,13 @@ namespace CarService
         {
             services.AddControllersWithViews();
             services.AddTransient<AppDb>(_ => new AppDb(Configuration["ConnectionStrings:DefaultConnection"]));
+
+            services.AddTransient<IBaseBL<CarBrandDTO>, CarBrandBL>();
+            services.AddTransient<IBaseBL<ClientDTO>, ClientBL>();
+            services.AddTransient<IBaseBL<ClientCarDTO>, ClientCarBL>();
+            services.AddTransient<IBaseBL<EmployeeDTO>, EmployeeBL>();
+            services.AddTransient<IBaseBL<InspectionHoursDTO>, InspectionHoursBL>();
+            services.AddTransient<IBaseBL<ScheduleDTO>, ScheduleBL>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

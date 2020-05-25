@@ -1,7 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 
-namespace CarService
+namespace BusinessLogic
 {
     public class AppDb : IDisposable
     {
