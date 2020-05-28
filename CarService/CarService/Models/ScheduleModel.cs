@@ -1,5 +1,7 @@
 ﻿using BusinessLogic.DTOs;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CarService.Models
 {
@@ -25,6 +27,18 @@ namespace CarService.Models
                 HourEnd = dto.HourEnd,
                 EmployeeId = dto.EmployeeId,
             };
+        }
+
+        public static IEnumerable<ScheduleModel> FromDtos(IEnumerable<ScheduleDTO> dtos)
+        {
+            return dtos.Select(dto => new ScheduleModel
+            {
+                Id = dto.Id,
+                ForDate = dto.ForDate,
+                HourBegin = dto.HourBegin,
+                HourEnd = dto.HourEnd,
+                EmployeeId = dto.EmployeeId,
+            });
         }
 
         public static ScheduleDTO ToDto(ScheduleModel model)

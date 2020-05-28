@@ -1,48 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BusinessLogic.BLs;
+using BusinessLogic.DTOs;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
-    public class TestMVCController : Controller
+    public class CarBrandController : Controller
     {
-        // GET: TestMVC
-        public ActionResult Index()
+        private readonly ILogger<HomeController> _logger;
+        private readonly IBaseBL<CarBrandDTO> _bl;
+
+        public CarBrandController(ILogger<HomeController> logger, IBaseBL<CarBrandDTO> bl)
         {
-            return View();
+            _logger = logger;
+            _bl = bl;
         }
 
-        // GET: TestMVC
-        public ActionResult BrandListView()
+        // GET: CarBrandController
+        public async Task<ActionResult> Index()
         {
-            return View();
+            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
+            return View("CarBrandListView", resultsAsModel);
         }
 
-        // GET: TestMVC/Details/5
+        // GET: CarBrandController/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: TestMVC/Create
+        // GET: CarBrandController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: TestMVC/Create
+        // POST: CarBrandController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
         {
             try
             {
-                // TODO: Add insert logic here
-
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -51,21 +54,19 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: TestMVC/Edit/5
+        // GET: CarBrandController/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: TestMVC/Edit/5
+        // POST: CarBrandController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
         {
             try
             {
-                // TODO: Add update logic here
-
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -74,21 +75,19 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: TestMVC/Delete/5
+        // GET: CarBrandController/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: TestMVC/Delete/5
+        // POST: CarBrandController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try
             {
-                // TODO: Add delete logic here
-
                 return RedirectToAction(nameof(Index));
             }
             catch

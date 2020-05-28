@@ -1,4 +1,6 @@
 ﻿using BusinessLogic.DTOs;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CarService.Models
 {
@@ -21,6 +23,17 @@ namespace CarService.Models
                 CarBrandId = dto.CarBrandId,
                 Mileage = dto.Mileage,
             };
+        }
+
+        public static IEnumerable<ClientCarModel> FromDtos(IEnumerable<ClientCarDTO> dtos)
+        {
+            return dtos.Select(dto => new ClientCarModel
+            {
+                Id = dto.Id,
+                ClientId = dto.ClientId,
+                CarBrandId = dto.CarBrandId,
+                Mileage = dto.Mileage,
+            });
         }
 
         public static ClientCarDTO ToDto(ClientCarModel model)

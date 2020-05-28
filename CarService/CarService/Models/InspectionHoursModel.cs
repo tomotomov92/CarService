@@ -1,5 +1,7 @@
 ﻿using BusinessLogic.DTOs;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CarService.Models
 {
@@ -22,6 +24,17 @@ namespace CarService.Models
                 CarId = dto.CarId,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
             };
+        }
+
+        public static IEnumerable<InspectionHoursModel> FromDtos(IEnumerable<InspectionHoursDTO> dtos)
+        {
+            return dtos.Select(dto => new InspectionHoursModel
+            {
+                Id = dto.Id,
+                ClientId = dto.ClientId,
+                CarId = dto.CarId,
+                DateTimeOfInspection = dto.DateTimeOfInspection,
+            });
         }
 
         public static InspectionHoursDTO ToDto(InspectionHoursModel model)

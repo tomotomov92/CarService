@@ -1,4 +1,6 @@
 ﻿using BusinessLogic.DTOs;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CarService.Models
 {
@@ -18,6 +20,16 @@ namespace CarService.Models
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
             };
+        }
+
+        public static IEnumerable<ClientModel> FromDtos(IEnumerable<ClientDTO> dtos)
+        {
+            return dtos.Select(dto => new ClientModel
+            {
+                Id = dto.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+            });
         }
 
         public static ClientDTO ToDto(ClientModel model)
