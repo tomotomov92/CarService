@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.DTOs;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CarService.Models
@@ -10,8 +11,21 @@ namespace CarService.Models
 
         public int ClientId { get; set; }
 
+        [DisplayName("Client First Name")]
+        public string ClientFirstName { get; set; }
+
+        [DisplayName("Client Last Name")]
+        public string ClientLastName { get; set; }
+
+        [DisplayName("Client Full Name")]
+        public string ClientFullName => $"{ClientLastName}, {ClientFirstName}";
+
         public int CarBrandId { get; set; }
 
+        [DisplayName("Car Brand")]
+        public string CarBrandName { get; set; }
+
+        [DisplayName("Mileage")]
         public int Mileage { get; set; }
 
         public static ClientCarModel FromDto(ClientCarDTO dto)
@@ -20,7 +34,10 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
+                ClientFirstName = dto.ClientFirstName,
+                ClientLastName = dto.ClientLastName,
                 CarBrandId = dto.CarBrandId,
+                CarBrandName = dto.CarBrandName,
                 Mileage = dto.Mileage,
             };
         }
@@ -31,7 +48,10 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
+                ClientFirstName = dto.ClientFirstName,
+                ClientLastName = dto.ClientLastName,
                 CarBrandId = dto.CarBrandId,
+                CarBrandName = dto.CarBrandName,
                 Mileage = dto.Mileage,
             });
         }
@@ -42,7 +62,10 @@ namespace CarService.Models
             {
                 Id = model.Id,
                 ClientId = model.ClientId,
+                ClientFirstName = model.ClientFirstName,
+                ClientLastName = model.ClientLastName,
                 CarBrandId = model.CarBrandId,
+                CarBrandName = model.CarBrandName,
                 Mileage = model.Mileage,
             };
         }

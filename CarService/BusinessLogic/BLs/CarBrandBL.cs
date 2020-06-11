@@ -29,7 +29,10 @@ namespace BusinessLogic.BLs
             var results = new List<CarBrandDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT `Id`, `BrandName` FROM `CarBrand`;";
+            cmd.CommandText = @"
+SELECT `CarBrand`.`Id`,
+       `CarBrand`.`BrandName`
+FROM `CarBrand`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

@@ -10,7 +10,13 @@ namespace BusinessLogic.DTOs
 
         public int ClientId { get; set; }
 
+        public string ClientFirstName { get; set; }
+
+        public string ClientLastName { get; set; }
+
         public int CarId { get; set; }
+
+        public string CarBrandName { get; set; }
 
         public DateTime DateTimeOfInspection { get; set; }
     }

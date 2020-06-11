@@ -29,7 +29,18 @@ namespace BusinessLogic.BLs
             var results = new List<InspectionHoursDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT `Id`, `ClientId`, `CarId`, `DateTimeOfInspection` FROM `InspectionHours`;";
+            cmd.CommandText = @"
+SELECT `InspectionHours`.`Id`,
+       `InspectionHours`.`ClientId`,
+       `Client`.`FirstName` AS `ClientFirstName`,
+       `Client`.`LastName` AS `ClientLastName`,
+       `InspectionHours`.`CarId`,
+       `InspectionHours`.`DateTimeOfInspection`,
+       `CarBrand`.`BrandName` AS `CarBrandName`
+FROM `InspectionHours`
+INNER JOIN `Client` ON `Client`.`Id` = `InspectionHours`.`ClientId`
+INNER JOIN `ClientCar` ON `ClientCar`.`Id` = `InspectionHours`.`CarId`
+INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -37,7 +48,10 @@ namespace BusinessLogic.BLs
                 {
                     Id = reader.GetInt32("Id"),
                     ClientId = reader.GetInt32("ClientId"),
+                    ClientFirstName = reader.GetString("ClientFirstName"),
+                    ClientLastName = reader.GetString("ClientLastName"),
                     CarId = reader.GetInt32("CarId"),
+                    CarBrandName = reader.GetString("CarBrandName"),
                     DateTimeOfInspection = reader.GetDateTime("DateTimeOfInspection"),
                 });
             }
@@ -49,19 +63,19 @@ namespace BusinessLogic.BLs
         {
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@firstName",
+                ParameterName = "@clientId",
                 DbType = DbType.String,
                 Value = dto.ClientId,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@lastName",
+                ParameterName = "@carId",
                 DbType = DbType.String,
                 Value = dto.CarId,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@dateOfStart",
+                ParameterName = "@dateTimeOfInspection",
                 DbType = DbType.DateTime,
                 Value = dto.DateTimeOfInspection,
             });

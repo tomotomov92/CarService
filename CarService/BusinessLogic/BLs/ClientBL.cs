@@ -29,7 +29,11 @@ namespace BusinessLogic.BLs
             var results = new List<ClientDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT `Id`, `FirstName`, `LastName` FROM `Client`;";
+            cmd.CommandText = @"
+SELECT `Client`.`Id`,
+       `Client`.`FirstName`,
+       `Client`.`LastName`
+FROM `Client`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

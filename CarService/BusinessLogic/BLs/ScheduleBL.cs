@@ -31,7 +31,16 @@ namespace BusinessLogic.BLs
             var results = new List<ScheduleDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT `Id`, `ForDate`, `HourBegin`, `HourEnd`, `EmployeeId` FROM `Schedule`;";
+            cmd.CommandText = @"
+SELECT `Schedule`.`Id`,
+       `Schedule`.`ForDate`,
+       `Schedule`.`HourBegin`,
+       `Schedule`.`HourEnd`,
+       `Schedule`.`EmployeeId`,
+       `Employee`.`FirstName` AS `EmployeeFirstName`,
+       `Employee`.`LastName` AS `EmployeeLastName`
+FROM `Schedule`
+INNER JOIN `Employee` ON `Schedule`.`EmployeeId` = `Employee`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -39,9 +48,11 @@ namespace BusinessLogic.BLs
                 {
                     Id = reader.GetInt32("Id"),
                     ForDate = reader.GetDateTime("ForDate"),
-                    HourBegin = reader.GetInt32("HourBegin"),
-                    HourEnd = reader.GetInt32("HourEnd"),
+                    HourBegin = reader.GetDecimal("HourBegin"),
+                    HourEnd = reader.GetDecimal("HourEnd"),
                     EmployeeId = reader.GetInt32("EmployeeId"),
+                    EmployeeFirstName = reader.GetString("EmployeeFirstName"),
+                    EmployeeLastName = reader.GetString("EmployeeLastName"),
                 });
             }
 

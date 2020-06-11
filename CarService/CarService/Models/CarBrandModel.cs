@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.DTOs;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CarService.Models
@@ -8,6 +9,7 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [DisplayName("Car Brand")]
         public string BrandName { get; set; }
 
         public static CarBrandModel FromDto(CarBrandDTO dto)

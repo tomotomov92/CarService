@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.DTOs;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CarService.Models
@@ -13,6 +14,10 @@ namespace CarService.Models
 
         public string LastName { get; set; }
 
+        [DisplayName("Employee Full Name")]
+        public string FullName => $"{LastName}, {FirstName}";
+
+        [DisplayName("Employee Hire Date")]
         public DateTime DateOfStart { get; set; }
 
         public static EmployeeModel FromDto(EmployeeDTO dto)

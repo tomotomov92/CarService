@@ -29,7 +29,18 @@ namespace BusinessLogic.BLs
             var results = new List<ClientCarDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT `Id`, `ClientId`, `CarBrandId`, `Mileage` FROM `ClientCar`;";
+            cmd.CommandText = @"
+SELECT `ClientCar`.`Id`,
+       `ClientCar`.`ClientId`,
+       `Client`.`FirstName` AS `ClientFirstName`,
+       `Client`.`LastName` AS `ClientLastName`,
+       `ClientCar`.`CarBrandId`,
+       `CarBrand`.`BrandName` AS `CarBrandName`,
+       `ClientCar`.`Mileage`
+FROM `ClientCar`
+INNER JOIN `Client` ON `Client`.`Id` = `ClientCar`.`ClientId`
+INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`
+ORDER BY `ClientCar`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -37,7 +48,10 @@ namespace BusinessLogic.BLs
                 {
                     Id = reader.GetInt32("Id"),
                     ClientId = reader.GetInt32("ClientId"),
+                    ClientFirstName = reader.GetString("ClientFirstName"),
+                    ClientLastName = reader.GetString("ClientLastName"),
                     CarBrandId = reader.GetInt32("CarBrandId"),
+                    CarBrandName = reader.GetString("CarBrandName"),
                     Mileage = reader.GetInt32("Mileage"),
                 });
             }
