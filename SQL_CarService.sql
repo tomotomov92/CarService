@@ -248,8 +248,8 @@ VALUES
 CREATE TABLE `CarService`.`Schedule` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `ForDate` date NOT NULL,
-  `HourBegin` decimal NOT NULL,
-  `HourEnd` decimal NOT NULL,
+  `HourBegin` decimal(6,2) NOT NULL,
+  `HourEnd` decimal(6,2) NOT NULL,
   `EmployeeId` int(11) NOT NULL,
   PRIMARY KEY (`Id`),
   KEY `fk_Schedule_Employee_idx` (`EmployeeId`),
