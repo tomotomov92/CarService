@@ -36,6 +36,7 @@ SELECT `InspectionHours`.`Id`,
        `Client`.`LastName` AS `ClientLastName`,
        `InspectionHours`.`CarId`,
        `InspectionHours`.`DateTimeOfInspection`,
+       `ClientCar`.`LicensePlate` AS `CarLicensePlate`,
        `CarBrand`.`BrandName` AS `CarBrandName`
 FROM `InspectionHours`
 INNER JOIN `Client` ON `Client`.`Id` = `InspectionHours`.`ClientId`
@@ -52,6 +53,7 @@ INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
                     ClientLastName = reader.GetString("ClientLastName"),
                     CarId = reader.GetInt32("CarId"),
                     CarBrandName = reader.GetString("CarBrandName"),
+                    CarLicensePlate = reader.GetString("CarLicensePlate"),
                     DateTimeOfInspection = reader.GetDateTime("DateTimeOfInspection"),
                 });
             }

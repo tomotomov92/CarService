@@ -23,6 +23,7 @@ CREATE TABLE `carservice`.`ClientCar` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `ClientId` int(11) NOT NULL,
   `CarBrandId` int(11) NOT NULL,
+  `LicensePlate` varchar(50) NOT NULL,
   `Mileage` int(11) NOT NULL,
   PRIMARY KEY (`Id`),
   KEY `fk_ClientCar_Client_idx` (`ClientId`),

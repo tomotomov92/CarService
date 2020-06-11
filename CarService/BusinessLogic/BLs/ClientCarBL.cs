@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<ClientCarDTO> AddAsync(ClientCarDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `ClientCar` (`ClientId`, `CarBrandId`, `Mileage`) VALUES (@clientId, @carBrandId, @mileage);";
+            cmd.CommandText = @"INSERT INTO `ClientCar` (`ClientId`, `CarBrandId`, `LicensePlate`, `Mileage`) VALUES (@clientId, @carBrandId, @licensePlate, @mileage);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -36,6 +36,7 @@ SELECT `ClientCar`.`Id`,
        `Client`.`LastName` AS `ClientLastName`,
        `ClientCar`.`CarBrandId`,
        `CarBrand`.`BrandName` AS `CarBrandName`,
+       `ClientCar`.`LicensePlate`,
        `ClientCar`.`Mileage`
 FROM `ClientCar`
 INNER JOIN `Client` ON `Client`.`Id` = `ClientCar`.`ClientId`
@@ -52,6 +53,7 @@ ORDER BY `ClientCar`.`Id`;";
                     ClientLastName = reader.GetString("ClientLastName"),
                     CarBrandId = reader.GetInt32("CarBrandId"),
                     CarBrandName = reader.GetString("CarBrandName"),
+                    LicensePlate = reader.GetString("LicensePlate"),
                     Mileage = reader.GetInt32("Mileage"),
                 });
             }
@@ -72,6 +74,12 @@ ORDER BY `ClientCar`.`Id`;";
                 ParameterName = "@carBrandId",
                 DbType = DbType.Int32,
                 Value = dto.CarBrandId,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@licensePlate",
+                DbType = DbType.String,
+                Value = dto.LicensePlate,
             });
             cmd.Parameters.Add(new MySqlParameter
             {

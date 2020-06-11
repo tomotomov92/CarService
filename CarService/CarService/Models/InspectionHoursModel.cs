@@ -21,6 +21,9 @@ namespace CarService.Models
 
         public int CarId { get; set; }
 
+        [DisplayName("Car Licenses Plate")]
+        public string CarLicensePlate { get; set; }
+
         [DisplayName("Car Brand")]
         public string CarBrandName { get; set; }
 
@@ -36,6 +39,7 @@ namespace CarService.Models
                 ClientFirstName = dto.ClientFirstName,
                 ClientLastName = dto.ClientLastName,
                 CarId = dto.CarId,
+                CarLicensePlate = dto.CarLicensePlate,
                 CarBrandName = dto.CarBrandName,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
             };
@@ -50,6 +54,7 @@ namespace CarService.Models
                 ClientFirstName = dto.ClientFirstName,
                 ClientLastName = dto.ClientLastName,
                 CarId = dto.CarId,
+                CarLicensePlate = dto.CarLicensePlate,
                 CarBrandName = dto.CarBrandName,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
             });
@@ -64,6 +69,7 @@ namespace CarService.Models
                 ClientFirstName = model.ClientFirstName,
                 ClientLastName = model.ClientLastName,
                 CarId = model.CarId,
+                CarLicensePlate = model.CarLicensePlate,
                 CarBrandName = model.CarBrandName,
                 DateTimeOfInspection = model.DateTimeOfInspection,
             };

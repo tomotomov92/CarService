@@ -18,6 +18,8 @@ namespace BusinessLogic.DTOs
 
         public string CarBrandName { get; set; }
 
+        public string LicensePlate { get; set; }
+
         public int Mileage { get; set; }
     }
 }

@@ -25,6 +25,9 @@ namespace CarService.Models
         [DisplayName("Car Brand")]
         public string CarBrandName { get; set; }
 
+        [DisplayName("License Plate")]
+        public string LicensePlate { get; set; }
+
         [DisplayName("Mileage")]
         public int Mileage { get; set; }
 
@@ -38,6 +41,7 @@ namespace CarService.Models
                 ClientLastName = dto.ClientLastName,
                 CarBrandId = dto.CarBrandId,
                 CarBrandName = dto.CarBrandName,
+                LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
             };
         }
@@ -52,6 +56,7 @@ namespace CarService.Models
                 ClientLastName = dto.ClientLastName,
                 CarBrandId = dto.CarBrandId,
                 CarBrandName = dto.CarBrandName,
+                LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
             });
         }
@@ -66,6 +71,7 @@ namespace CarService.Models
                 ClientLastName = model.ClientLastName,
                 CarBrandId = model.CarBrandId,
                 CarBrandName = model.CarBrandName,
+                LicensePlate = model.LicensePlate,
                 Mileage = model.Mileage,
             };
         }
