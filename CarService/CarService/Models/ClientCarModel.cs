@@ -31,6 +31,8 @@ namespace CarService.Models
         [DisplayName("Mileage")]
         public int Mileage { get; set; }
 
+        public bool Archived { get; set; }
+
         public static ClientCarModel FromDto(ClientCarDTO dto)
         {
             return new ClientCarModel
@@ -43,6 +45,7 @@ namespace CarService.Models
                 CarBrandName = dto.CarBrandName,
                 LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
+                Archived = dto.Archived,
             };
         }
 
@@ -58,6 +61,7 @@ namespace CarService.Models
                 CarBrandName = dto.CarBrandName,
                 LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
+                Archived = dto.Archived,
             });
         }
 
@@ -73,6 +77,7 @@ namespace CarService.Models
                 CarBrandName = model.CarBrandName,
                 LicensePlate = model.LicensePlate,
                 Mileage = model.Mileage,
+                Archived = model.Archived,
             };
         }
     }

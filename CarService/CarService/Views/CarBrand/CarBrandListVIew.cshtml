@@ -19,6 +19,9 @@
                 @Html.DisplayNameFor(model => model.BrandName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Archived)
+            </th>
+            <th>
             <th></th>
         </tr>
     </thead>
@@ -30,6 +33,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BrandName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Archived)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |

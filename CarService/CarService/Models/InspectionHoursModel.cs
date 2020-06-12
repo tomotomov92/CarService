@@ -27,8 +27,15 @@ namespace CarService.Models
         [DisplayName("Car Brand")]
         public string CarBrandName { get; set; }
 
+        [DisplayName("Car Mileage")]
+        public int Mileage { get; set; }
+
         [DisplayName("Inspection Date")]
         public DateTime DateTimeOfInspection { get; set; }
+
+        public string Description { get; set; }
+
+        public bool Archived { get; set; }
 
         public static InspectionHoursModel FromDto(InspectionHoursDTO dto)
         {
@@ -41,7 +48,10 @@ namespace CarService.Models
                 CarId = dto.CarId,
                 CarLicensePlate = dto.CarLicensePlate,
                 CarBrandName = dto.CarBrandName,
+                Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
+                Description = dto.Description,
+                Archived = dto.Archived,
             };
         }
 
@@ -56,7 +66,10 @@ namespace CarService.Models
                 CarId = dto.CarId,
                 CarLicensePlate = dto.CarLicensePlate,
                 CarBrandName = dto.CarBrandName,
+                Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
+                Description = dto.Description,
+                Archived = dto.Archived,
             });
         }
 
@@ -71,7 +84,10 @@ namespace CarService.Models
                 CarId = model.CarId,
                 CarLicensePlate = model.CarLicensePlate,
                 CarBrandName = model.CarBrandName,
+                Mileage = model.Mileage,
                 DateTimeOfInspection = model.DateTimeOfInspection,
+                Description = model.Description,
+                Archived = model.Archived,
             };
         }
     }

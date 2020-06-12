@@ -10,14 +10,11 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        [DisplayName("Schedule Date")]
-        public DateTime ForDate { get; set; }
+        [DisplayName("Schedule Start Date")]
+        public DateTime DateBegin { get; set; }
 
-        [DisplayName("Schedule Start Time")]
-        public decimal HourBegin { get; set; }
-
-        [DisplayName("Schedule End Time")]
-        public decimal HourEnd { get; set; }
+        [DisplayName("Schedule End Date")]
+        public DateTime DateEnd { get; set; }
 
         public int EmployeeId { get; set; }
 
@@ -33,9 +30,8 @@ namespace CarService.Models
             return new ScheduleModel
             {
                 Id = dto.Id,
-                ForDate = dto.ForDate,
-                HourBegin = dto.HourBegin,
-                HourEnd = dto.HourEnd,
+                DateBegin = dto.DateBegin,
+                DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
                 EmployeeFirstName = dto.EmployeeFirstName,
                 EmployeeLastName = dto.EmployeeLastName,
@@ -47,9 +43,8 @@ namespace CarService.Models
             return dtos.Select(dto => new ScheduleModel
             {
                 Id = dto.Id,
-                ForDate = dto.ForDate,
-                HourBegin = dto.HourBegin,
-                HourEnd = dto.HourEnd,
+                DateBegin = dto.DateBegin,
+                DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
                 EmployeeFirstName = dto.EmployeeFirstName,
                 EmployeeLastName = dto.EmployeeLastName,
@@ -61,9 +56,8 @@ namespace CarService.Models
             return new ScheduleDTO
             {
                 Id = model.Id,
-                ForDate = model.ForDate,
-                HourBegin = model.HourBegin,
-                HourEnd = model.HourEnd,
+                DateBegin = model.DateBegin,
+                DateEnd = model.DateEnd,
                 EmployeeId = model.EmployeeId,
                 EmployeeFirstName = model.EmployeeFirstName,
                 EmployeeLastName = model.EmployeeLastName,

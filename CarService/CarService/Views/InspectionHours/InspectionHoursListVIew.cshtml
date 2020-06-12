@@ -25,7 +25,16 @@
                 @Html.DisplayNameFor(model => model.CarBrandName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Mileage)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.DateTimeOfInspection)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Archived)
             </th>
             <th>
             <th></th>
@@ -47,7 +56,16 @@
                 @Html.DisplayFor(modelItem => item.CarBrandName)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Mileage)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.DateTimeOfInspection)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Archived)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |

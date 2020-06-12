@@ -19,7 +19,16 @@
                 @Html.DisplayNameFor(model => model.FullName)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.EmailAddress)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.DateOfStart)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeRoleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Archived)
             </th>
             <th>
             <th></th>
@@ -35,7 +44,16 @@
                 @Html.DisplayFor(modelItem => item.FullName)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.EmailAddress)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.DateOfStart)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployeeRoleName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Archived)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |

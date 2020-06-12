@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<CarBrandDTO> AddAsync(CarBrandDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `CarBrand` (`BrandName`) VALUES (@brandName);";
+            cmd.CommandText = @"INSERT INTO `CarBrand` (`BrandName`, `Archived`) VALUES (@brandName, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -31,7 +31,8 @@ namespace BusinessLogic.BLs
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
 SELECT `CarBrand`.`Id`,
-       `CarBrand`.`BrandName`
+       `CarBrand`.`BrandName`,
+       `CarBrand`.`Archived`
 FROM `CarBrand`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -40,6 +41,7 @@ FROM `CarBrand`;";
                 {
                     Id = reader.GetInt32("Id"),
                     BrandName = reader.GetString("BrandName"),
+                    Archived = reader.GetBoolean("Archived"),
                 });
             }
 
@@ -53,6 +55,12 @@ FROM `CarBrand`;";
                 ParameterName = "@brandName",
                 DbType = DbType.String,
                 Value = dto.BrandName,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@archived",
+                DbType = DbType.Boolean,
+                Value = dto.Archived,
             });
         }
     }

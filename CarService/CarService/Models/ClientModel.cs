@@ -16,6 +16,13 @@ namespace CarService.Models
         [DisplayName("Client Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
 
+        [DisplayName("Email Address")]
+        public string EmailAddress { get; set; }
+
+        public string Password { get; set; }
+
+        public bool Archived { get; set; }
+
         public static ClientModel FromDto(ClientDTO dto)
         {
             return new ClientModel
@@ -23,6 +30,9 @@ namespace CarService.Models
                 Id = dto.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
+                EmailAddress = dto.EmailAddress,
+                Password = dto.Password,
+                Archived = dto.Archived,
             };
         }
 
@@ -33,6 +43,9 @@ namespace CarService.Models
                 Id = dto.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
+                EmailAddress = dto.EmailAddress,
+                Password = dto.Password,
+                Archived = dto.Archived,
             });
         }
 
@@ -43,6 +56,9 @@ namespace CarService.Models
                 Id = model.Id,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
+                EmailAddress = model.EmailAddress,
+                Password = model.Password,
+                Archived = model.Archived,
             };
         }
     }

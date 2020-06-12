@@ -20,6 +20,12 @@ namespace BusinessLogic.DTOs
 
         public string CarLicensePlate { get; set; }
 
+        public int Mileage { get; set; }
+
         public DateTime DateTimeOfInspection { get; set; }
+
+        public string Description { get; set; }
+
+        public bool Archived { get; set; }
     }
 }

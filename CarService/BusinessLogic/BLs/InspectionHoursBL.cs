@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<InspectionHoursDTO> AddAsync(InspectionHoursDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `InspectionHours` (`ClientId`, `CarId`, `DateTimeOfInspection`) VALUES (@clientId, @carId, @dateTimeOfInspection);";
+            cmd.CommandText = @"INSERT INTO `InspectionHours` (`ClientId`, `CarId`, `Mileage`, `DateTimeOfInspection`, `Description`, `Archived`) VALUES (@clientId, @carId, @mileage, @dateTimeOfInspection, @description, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -35,9 +35,12 @@ SELECT `InspectionHours`.`Id`,
        `Client`.`FirstName` AS `ClientFirstName`,
        `Client`.`LastName` AS `ClientLastName`,
        `InspectionHours`.`CarId`,
+       `InspectionHours`.`Mileage`,
        `InspectionHours`.`DateTimeOfInspection`,
        `ClientCar`.`LicensePlate` AS `CarLicensePlate`,
-       `CarBrand`.`BrandName` AS `CarBrandName`
+       `CarBrand`.`BrandName` AS `CarBrandName`,
+       `InspectionHours`.`Description`,
+       `InspectionHours`.`Archived`
 FROM `InspectionHours`
 INNER JOIN `Client` ON `Client`.`Id` = `InspectionHours`.`ClientId`
 INNER JOIN `ClientCar` ON `ClientCar`.`Id` = `InspectionHours`.`CarId`
@@ -54,7 +57,10 @@ INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
                     CarId = reader.GetInt32("CarId"),
                     CarBrandName = reader.GetString("CarBrandName"),
                     CarLicensePlate = reader.GetString("CarLicensePlate"),
+                    Mileage = reader.GetInt32("Mileage"),
                     DateTimeOfInspection = reader.GetDateTime("DateTimeOfInspection"),
+                    Description = reader.IsDBNull("Description") ? null : reader.GetString("Description"),
+                    Archived = reader.GetBoolean("Archived"),
                 });
             }
 
@@ -66,20 +72,38 @@ INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@clientId",
-                DbType = DbType.String,
+                DbType = DbType.Int32,
                 Value = dto.ClientId,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@carId",
-                DbType = DbType.String,
+                DbType = DbType.Int32,
                 Value = dto.CarId,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@mileage",
+                DbType = DbType.Int32,
+                Value = dto.Mileage,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@dateTimeOfInspection",
                 DbType = DbType.DateTime,
                 Value = dto.DateTimeOfInspection,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@description",
+                DbType = DbType.String,
+                Value = dto.Description,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@archived",
+                DbType = DbType.Boolean,
+                Value = dto.Archived,
             });
         }
     }

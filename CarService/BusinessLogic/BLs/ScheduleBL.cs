@@ -19,7 +19,7 @@ namespace BusinessLogic.BLs
         public override async Task<ScheduleDTO> AddAsync(ScheduleDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `Schedule` (`ForDate`, `HourBegin`, `HourEnd`, `EmployeeId`) VALUES (@forDate, @hourBegin, @hourEnd, @employeeId);";
+            cmd.CommandText = @"INSERT INTO `Schedule` (`DateBegin`, `DateEnd`, `EmployeeId`) VALUES (@dateBegin, @dateEnd, @employeeId);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -33,9 +33,8 @@ namespace BusinessLogic.BLs
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
 SELECT `Schedule`.`Id`,
-       `Schedule`.`ForDate`,
-       `Schedule`.`HourBegin`,
-       `Schedule`.`HourEnd`,
+       `Schedule`.`DateBegin`,
+       `Schedule`.`DateEnd`,
        `Schedule`.`EmployeeId`,
        `Employee`.`FirstName` AS `EmployeeFirstName`,
        `Employee`.`LastName` AS `EmployeeLastName`
@@ -47,9 +46,8 @@ INNER JOIN `Employee` ON `Schedule`.`EmployeeId` = `Employee`.`Id`;";
                 results.Add(new ScheduleDTO
                 {
                     Id = reader.GetInt32("Id"),
-                    ForDate = reader.GetDateTime("ForDate"),
-                    HourBegin = reader.GetDecimal("HourBegin"),
-                    HourEnd = reader.GetDecimal("HourEnd"),
+                    DateBegin = reader.GetDateTime("DateBegin"),
+                    DateEnd = reader.GetDateTime("DateEnd"),
                     EmployeeId = reader.GetInt32("EmployeeId"),
                     EmployeeFirstName = reader.GetString("EmployeeFirstName"),
                     EmployeeLastName = reader.GetString("EmployeeLastName"),
@@ -63,21 +61,15 @@ INNER JOIN `Employee` ON `Schedule`.`EmployeeId` = `Employee`.`Id`;";
         {
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@forDate",
+                ParameterName = "@dateBegin",
                 DbType = DbType.DateTime,
-                Value = dto.ForDate,
+                Value = dto.DateBegin,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@hourBegin",
-                DbType = DbType.Decimal,
-                Value = dto.HourBegin,
-            });
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@hourEnd",
-                DbType = DbType.Decimal,
-                Value = dto.HourEnd,
+                ParameterName = "@dateEnd",
+                DbType = DbType.DateTime,
+                Value = dto.DateEnd,
             });
             cmd.Parameters.Add(new MySqlParameter
             {

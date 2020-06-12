@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<EmployeeDTO> AddAsync(EmployeeDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `Employee` (`FirstName`, `LastName`, `DateOfStart`) VALUES (@firstName, @lastName, @dateOfStart);";
+            cmd.CommandText = @"INSERT INTO `Employee` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -33,8 +33,14 @@ namespace BusinessLogic.BLs
 SELECT `Employee`.`Id`,
        `Employee`.`FirstName`,
        `Employee`.`LastName`,
-       `Employee`.`DateOfStart`
-FROM `Employee`;";
+       `Employee`.`EmailAddress`,
+       `Employee`.`Password`,
+       `Employee`.`DateOfStart`,
+       `Employee`.`EmployeeRoleId`,
+       `EmployeeRoles`.`EmployeeRoleName`,
+       `Employee`.`Archived`
+FROM `Employee`
+INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employee`.`EmployeeRoleId`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -43,7 +49,12 @@ FROM `Employee`;";
                     Id = reader.GetInt32("Id"),
                     FirstName = reader.GetString("FirstName"),
                     LastName = reader.GetString("LastName"),
+                    EmailAddress = reader.GetString("EmailAddress"),
+                    Password = reader.GetString("Password"),
                     DateOfStart = reader.GetDateTime("DateOfStart"),
+                    EmployeeRoleId = reader.GetInt32("EmployeeRoleId"),
+                    EmployeeRoleName = reader.GetString("EmployeeRoleName"),
+                    Archived = reader.GetBoolean("Archived"),
                 });
             }
 
@@ -66,9 +77,33 @@ FROM `Employee`;";
             });
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@emailAddress",
+                DbType = DbType.String,
+                Value = dto.EmailAddress,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@password",
+                DbType = DbType.String,
+                Value = dto.Password,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@dateOfStart",
                 DbType = DbType.DateTime,
                 Value = dto.DateOfStart,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@employeeRoleId",
+                DbType = DbType.Int32,
+                Value = dto.EmployeeRoleId,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@archived",
+                DbType = DbType.Boolean,
+                Value = dto.Archived,
             });
         }
     }

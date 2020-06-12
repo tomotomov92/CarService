@@ -12,12 +12,15 @@ namespace CarService.Models
         [DisplayName("Car Brand")]
         public string BrandName { get; set; }
 
+        public bool Archived { get; set; }
+
         public static CarBrandModel FromDto(CarBrandDTO dto)
         {
             return new CarBrandModel
             {
                 Id = dto.Id,
                 BrandName = dto.BrandName,
+                Archived = dto.Archived,
             };
         }
 
@@ -27,6 +30,7 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 BrandName = dto.BrandName,
+                Archived = dto.Archived,
             });
         }
 
@@ -36,6 +40,7 @@ namespace CarService.Models
             {
                 Id = model.Id,
                 BrandName = model.BrandName,
+                Archived = model.Archived,
             };
         }
     }

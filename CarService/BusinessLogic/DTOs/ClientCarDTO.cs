@@ -21,5 +21,7 @@ namespace BusinessLogic.DTOs
         public string LicensePlate { get; set; }
 
         public int Mileage { get; set; }
+
+        public bool Archived { get; set; }
     }
 }
