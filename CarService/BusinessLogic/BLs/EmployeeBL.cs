@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<EmployeeDTO> AddAsync(EmployeeDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `Employee` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @archived);";
+            cmd.CommandText = @"INSERT INTO `Employees` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -30,17 +30,17 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT `Employee`.`Id`,
-       `Employee`.`FirstName`,
-       `Employee`.`LastName`,
-       `Employee`.`EmailAddress`,
-       `Employee`.`Password`,
-       `Employee`.`DateOfStart`,
-       `Employee`.`EmployeeRoleId`,
+SELECT `Employees`.`Id`,
+       `Employees`.`FirstName`,
+       `Employees`.`LastName`,
+       `Employees`.`EmailAddress`,
+       `Employees`.`Password`,
+       `Employees`.`DateOfStart`,
+       `Employees`.`EmployeeRoleId`,
        `EmployeeRoles`.`EmployeeRoleName`,
-       `Employee`.`Archived`
-FROM `Employee`
-INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employee`.`EmployeeRoleId`;";
+       `Employees`.`Archived`
+FROM `Employees`
+INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employees`.`EmployeeRoleId`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

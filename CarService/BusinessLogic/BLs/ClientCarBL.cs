@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<ClientCarDTO> AddAsync(ClientCarDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `ClientCar` (`ClientId`, `CarBrandId`, `LicensePlate`, `Mileage`, `Archived`) VALUES (@clientId, @carBrandId, @licensePlate, @mileage, @archived);";
+            cmd.CommandText = @"INSERT INTO `ClientCars` (`ClientId`, `CarBrandId`, `LicensePlate`, `Mileage`, `Archived`) VALUES (@clientId, @carBrandId, @licensePlate, @mileage, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -30,19 +30,19 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT `ClientCar`.`Id`,
-       `ClientCar`.`ClientId`,
-       `Client`.`FirstName` AS `ClientFirstName`,
-       `Client`.`LastName` AS `ClientLastName`,
-       `ClientCar`.`CarBrandId`,
-       `CarBrand`.`BrandName` AS `CarBrandName`,
-       `ClientCar`.`LicensePlate`,
-       `ClientCar`.`Mileage`,
-       `ClientCar`.`Archived`
-FROM `ClientCar`
-INNER JOIN `Client` ON `Client`.`Id` = `ClientCar`.`ClientId`
-INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`
-ORDER BY `ClientCar`.`Id`;";
+SELECT `ClientCars`.`Id`,
+       `ClientCars`.`ClientId`,
+       `Clients`.`FirstName` AS `ClientFirstName`,
+       `Clients`.`LastName` AS `ClientLastName`,
+       `ClientCars`.`CarBrandId`,
+       `CarBrands`.`BrandName` AS `CarBrandName`,
+       `ClientCars`.`LicensePlate`,
+       `ClientCars`.`Mileage`,
+       `ClientCars`.`Archived`
+FROM `ClientCars`
+INNER JOIN `Clients` ON `Clients`.`Id` = `ClientCars`.`ClientId`
+INNER JOIN `CarBrands` ON `CarBrands`.`Id` = `ClientCars`.`CarBrandId`
+ORDER BY `ClientCars`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

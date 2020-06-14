@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BusinessLogic.DTOs
 {
-    public class EmployeeRolesDTO : IBaseDTO
+    public class EmployeeRoleDTO : IBaseDTO
     {
         public int Id { get; set; }
 

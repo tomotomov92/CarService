@@ -1,4 +1,4 @@
-INSERT INTO `CarService`.`CarBrand` (`BrandName`, `Archived`)
+INSERT INTO `CarService`.`CarBrands` (`BrandName`, `Archived`)
 VALUES
 ('Alfa Romeo', 0),
 ('Aston Martin', 1),
@@ -79,7 +79,7 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Employee` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`)
+INSERT INTO `CarService`.`Employees` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`)
 VALUES
 ('Spas', 'Ivanov', 's.ivanov@email.com', 'Qwerty1!', '2020-01-01', 1, 0),
 ('Staiko', 'Metodiev', 's.metodiev@email.com', 'Qwerty1!', '2019-03-15', 2, 0),
@@ -104,7 +104,7 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Schedule` (`DateBegin`, `DateEnd`, `EmployeeId`)
+INSERT INTO `CarService`.`Schedules` (`DateBegin`, `DateEnd`, `EmployeeId`)
 VALUES
 ('2020-01-12 08:30:00.000000', '2020-01-12 17:30:00.000000', 1),
 ('2020-01-30 08:30:00.000000', '2020-01-30 17:30:00.000000', 2),
@@ -132,7 +132,7 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Client` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `Archived`)
+INSERT INTO `CarService`.`Clients` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `Archived`)
 VALUES
 ('Vasil', 'Yanev', 'v.yanev@email.com', 'Qwerty1!', 0),
 ('Tomo', 'Tomov', 't.tomov@email.com', 'Qwerty1!', 0),
@@ -158,7 +158,7 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`ClientCar` (`ClientId`, `CarBrandId`, `LicensePlate`, `Mileage`, `Archived`)
+INSERT INTO `CarService`.`ClientCars` (`ClientId`, `CarBrandId`, `LicensePlate`, `Mileage`, `Archived`)
 VALUES
 (1, 1, 'HP16-WHR', 100000, 0),
 (2, 35, 'HV58-SIM', 39000, 0),
@@ -203,7 +203,7 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`InspectionHours` (`ClientID`, `CarID`, `Mileage`, `DateTimeOfInspection`, `Archived`)
+INSERT INTO `CarService`.`Inspections` (`ClientID`, `CarID`, `Mileage`, `DateTimeOfInspection`, `Archived`)
 VALUES
 (1, 1, 100000, '2020-01-12', 0),
 (2, 2, 39000, '2020-01-30', 0),

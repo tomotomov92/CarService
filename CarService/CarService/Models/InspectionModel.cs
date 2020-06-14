@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace CarService.Models
 {
-    public class InspectionHoursModel
+    public class InspectionModel
     {
         public int Id { get; set; }
 
@@ -37,9 +37,9 @@ namespace CarService.Models
 
         public bool Archived { get; set; }
 
-        public static InspectionHoursModel FromDto(InspectionHoursDTO dto)
+        public static InspectionModel FromDto(InspectionDTO dto)
         {
-            return new InspectionHoursModel
+            return new InspectionModel
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
@@ -55,9 +55,9 @@ namespace CarService.Models
             };
         }
 
-        public static IEnumerable<InspectionHoursModel> FromDtos(IEnumerable<InspectionHoursDTO> dtos)
+        public static IEnumerable<InspectionModel> FromDtos(IEnumerable<InspectionDTO> dtos)
         {
-            return dtos.Select(dto => new InspectionHoursModel
+            return dtos.Select(dto => new InspectionModel
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
@@ -73,9 +73,9 @@ namespace CarService.Models
             });
         }
 
-        public static InspectionHoursDTO ToDto(InspectionHoursModel model)
+        public static InspectionDTO ToDto(InspectionModel model)
         {
-            return new InspectionHoursDTO
+            return new InspectionDTO
             {
                 Id = model.Id,
                 ClientId = model.ClientId,

@@ -17,7 +17,7 @@ namespace BusinessLogic.BLs
         public override async Task<ClientDTO> AddAsync(ClientDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `Client` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `Archived`) VALUES (@firstName, @lastName, @emailAddress, @password, @archived);";
+            cmd.CommandText = @"INSERT INTO `Clients` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `Archived`) VALUES (@firstName, @lastName, @emailAddress, @password, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
@@ -30,13 +30,13 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT `Client`.`Id`,
-       `Client`.`FirstName`,
-       `Client`.`LastName`,
-       `Client`.`EmailAddress`,
-       `Client`.`Password`,
-       `Client`.`Archived`
-FROM `Client`;";
+SELECT `Clients`.`Id`,
+       `Clients`.`FirstName`,
+       `Clients`.`LastName`,
+       `Clients`.`EmailAddress`,
+       `Clients`.`Password`,
+       `Clients`.`Archived`
+FROM `Clients`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

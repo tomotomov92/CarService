@@ -32,14 +32,14 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT `Schedule`.`Id`,
-       `Schedule`.`DateBegin`,
-       `Schedule`.`DateEnd`,
-       `Schedule`.`EmployeeId`,
-       `Employee`.`FirstName` AS `EmployeeFirstName`,
-       `Employee`.`LastName` AS `EmployeeLastName`
-FROM `Schedule`
-INNER JOIN `Employee` ON `Schedule`.`EmployeeId` = `Employee`.`Id`;";
+SELECT `Schedules`.`Id`,
+       `Schedules`.`DateBegin`,
+       `Schedules`.`DateEnd`,
+       `Schedules`.`EmployeeId`,
+       `Employees`.`FirstName` AS `EmployeeFirstName`,
+       `Employees`.`LastName` AS `EmployeeLastName`
+FROM `Schedules`
+INNER JOIN `Employees` ON `Schedules`.`EmployeeId` = `Employees`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {

@@ -6,49 +6,49 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
 {
-    public class InspectionHoursBL : BaseBL<InspectionHoursDTO>
+    public class InspectioBL : BaseBL<InspectionDTO>
     {
-        public InspectionHoursBL(AppDb db)
+        public InspectioBL(AppDb db)
             : base(db)
         {
 
         }
 
-        public override async Task<InspectionHoursDTO> AddAsync(InspectionHoursDTO dto)
+        public override async Task<InspectionDTO> AddAsync(InspectionDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO `InspectionHours` (`ClientId`, `CarId`, `Mileage`, `DateTimeOfInspection`, `Description`, `Archived`) VALUES (@clientId, @carId, @mileage, @dateTimeOfInspection, @description, @archived);";
+            cmd.CommandText = @"INSERT INTO `Inspections` (`ClientId`, `CarId`, `Mileage`, `DateTimeOfInspection`, `Description`, `Archived`) VALUES (@clientId, @carId, @mileage, @dateTimeOfInspection, @description, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
             return dto;
         }
 
-        public override async Task<IEnumerable<InspectionHoursDTO>> GetAllAsync()
+        public override async Task<IEnumerable<InspectionDTO>> GetAllAsync()
         {
-            var results = new List<InspectionHoursDTO>();
+            var results = new List<InspectionDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT `InspectionHours`.`Id`,
-       `InspectionHours`.`ClientId`,
-       `Client`.`FirstName` AS `ClientFirstName`,
-       `Client`.`LastName` AS `ClientLastName`,
-       `InspectionHours`.`CarId`,
-       `InspectionHours`.`Mileage`,
-       `InspectionHours`.`DateTimeOfInspection`,
-       `ClientCar`.`LicensePlate` AS `CarLicensePlate`,
-       `CarBrand`.`BrandName` AS `CarBrandName`,
-       `InspectionHours`.`Description`,
-       `InspectionHours`.`Archived`
-FROM `InspectionHours`
-INNER JOIN `Client` ON `Client`.`Id` = `InspectionHours`.`ClientId`
-INNER JOIN `ClientCar` ON `ClientCar`.`Id` = `InspectionHours`.`CarId`
-INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
+SELECT `Inspections`.`Id`,
+       `Inspections`.`ClientId`,
+       `Clients`.`FirstName` AS `ClientFirstName`,
+       `Clients`.`LastName` AS `ClientLastName`,
+       `Inspections`.`CarId`,
+       `Inspections`.`Mileage`,
+       `Inspections`.`DateTimeOfInspection`,
+       `ClientCars`.`LicensePlate` AS `CarLicensePlate`,
+       `CarBrands`.`BrandName` AS `CarBrandName`,
+       `Inspections`.`Description`,
+       `Inspections`.`Archived`
+FROM `Inspections`
+INNER JOIN `Clients` ON `Clients`.`Id` = `Inspections`.`ClientId`
+INNER JOIN `ClientCars` ON `ClientCars`.`Id` = `Inspections`.`CarId`
+INNER JOIN `CarBrands` ON `CarBrands`.`Id` = `ClientCars`.`CarBrandId`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                results.Add(new InspectionHoursDTO
+                results.Add(new InspectionDTO
                 {
                     Id = reader.GetInt32("Id"),
                     ClientId = reader.GetInt32("ClientId"),
@@ -67,7 +67,7 @@ INNER JOIN `CarBrand` ON `CarBrand`.`Id` = `ClientCar`.`CarBrandId`;";
             return results;
         }
 
-        protected override void BindParams(MySqlCommand cmd, InspectionHoursDTO dto)
+        protected override void BindParams(MySqlCommand cmd, InspectionDTO dto)
         {
             cmd.Parameters.Add(new MySqlParameter
             {

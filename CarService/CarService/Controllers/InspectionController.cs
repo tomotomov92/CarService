@@ -8,38 +8,38 @@ using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
-    public class InspectionHoursController : Controller
+    public class InspectionController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IBaseBL<InspectionHoursDTO> _bl;
+        private readonly IBaseBL<InspectionDTO> _bl;
 
-        public InspectionHoursController(ILogger<HomeController> logger, IBaseBL<InspectionHoursDTO> bl)
+        public InspectionController(ILogger<HomeController> logger, IBaseBL<InspectionDTO> bl)
         {
             _logger = logger;
             _bl = bl;
         }
 
-        // GET: InspectionHoursController
+        // GET: InspectionController
         public async Task<ActionResult> Index()
         {
             var resultsAsDTO = await _bl.GetAllAsync();
-            var resultsAsModel = InspectionHoursModel.FromDtos(resultsAsDTO);
-            return View("InspectionHoursListView", resultsAsModel);
+            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+            return View("InspectionListView", resultsAsModel);
         }
 
-        // GET: InspectionHoursController/Details/5
+        // GET: InspectionController/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: InspectionHoursController/Create
+        // GET: InspectionController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: InspectionHoursController/Create
+        // POST: InspectionController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -54,13 +54,13 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: InspectionHoursController/Edit/5
+        // GET: InspectionController/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: InspectionHoursController/Edit/5
+        // POST: InspectionController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -75,13 +75,13 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: InspectionHoursController/Delete/5
+        // GET: InspectionController/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: InspectionHoursController/Delete/5
+        // POST: InspectionController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
