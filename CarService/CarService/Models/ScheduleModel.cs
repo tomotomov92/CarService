@@ -18,12 +18,7 @@ namespace CarService.Models
 
         public int EmployeeId { get; set; }
 
-        public string EmployeeFirstName { get; set; }
-
-        public string EmployeeLastName { get; set; }
-
-        [DisplayName("Employee Full Name")]
-        public string EmployeeFullName => $"{EmployeeLastName}, {EmployeeFirstName}";
+        public EmployeeModel Employee { get; set; }
 
         public static ScheduleModel FromDto(ScheduleDTO dto)
         {
@@ -33,8 +28,7 @@ namespace CarService.Models
                 DateBegin = dto.DateBegin,
                 DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
-                EmployeeFirstName = dto.EmployeeFirstName,
-                EmployeeLastName = dto.EmployeeLastName,
+                Employee = EmployeeModel.FromDto(dto.Employee),
             };
         }
 
@@ -46,8 +40,7 @@ namespace CarService.Models
                 DateBegin = dto.DateBegin,
                 DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
-                EmployeeFirstName = dto.EmployeeFirstName,
-                EmployeeLastName = dto.EmployeeLastName,
+                Employee = EmployeeModel.FromDto(dto.Employee),
             });
         }
 
@@ -59,8 +52,7 @@ namespace CarService.Models
                 DateBegin = model.DateBegin,
                 DateEnd = model.DateEnd,
                 EmployeeId = model.EmployeeId,
-                EmployeeFirstName = model.EmployeeFirstName,
-                EmployeeLastName = model.EmployeeLastName,
+                Employee = EmployeeModel.ToDto(model.Employee),
             };
         }
     }

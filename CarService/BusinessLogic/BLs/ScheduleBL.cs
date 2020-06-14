@@ -36,10 +36,20 @@ SELECT `Schedules`.`Id`,
        `Schedules`.`DateBegin`,
        `Schedules`.`DateEnd`,
        `Schedules`.`EmployeeId`,
-       `Employees`.`FirstName` AS `EmployeeFirstName`,
-       `Employees`.`LastName` AS `EmployeeLastName`
+       `Employees`.`Id` AS `Employee_Id`,
+       `Employees`.`FirstName` AS `Employee_FirstName`,
+       `Employees`.`LastName` AS `Employee_LastName`,
+       `Employees`.`EmailAddress` AS `Employee_EmailAddress`,
+       `Employees`.`DateOfStart` AS `Employee_DateOfStart`,
+       `Employees`.`EmployeeRoleId` AS `Employee_EmployeeRoleId`,
+       `EmployeeRoles`.`Id` AS `EmployeeRole_Id`,
+       `EmployeeRoles`.`EmployeeRoleName` AS `EmployeeRole_EmployeeRoleName`,
+       `EmployeeRoles`.`Archived` AS `EmployeeRole_Archived`,
+       `Employees`.`Archived` AS `Employee_Archived`
 FROM `Schedules`
-INNER JOIN `Employees` ON `Schedules`.`EmployeeId` = `Employees`.`Id`;";
+INNER JOIN `Employees` ON `Schedules`.`EmployeeId` = `Employees`.`Id`
+INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employees`.`EmployeeRoleId`
+ORDER BY `Schedules`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -49,8 +59,22 @@ INNER JOIN `Employees` ON `Schedules`.`EmployeeId` = `Employees`.`Id`;";
                     DateBegin = reader.GetDateTime("DateBegin"),
                     DateEnd = reader.GetDateTime("DateEnd"),
                     EmployeeId = reader.GetInt32("EmployeeId"),
-                    EmployeeFirstName = reader.GetString("EmployeeFirstName"),
-                    EmployeeLastName = reader.GetString("EmployeeLastName"),
+                    Employee = new EmployeeDTO
+                    {
+                        Id = reader.GetInt32("Employee_Id"),
+                        FirstName = reader.GetString("Employee_FirstName"),
+                        LastName = reader.GetString("Employee_LastName"),
+                        EmailAddress = reader.GetString("Employee_EmailAddress"),
+                        DateOfStart = reader.GetDateTime("Employee_DateOfStart"),
+                        EmployeeRoleId = reader.GetInt32("Employee_EmployeeRoleId"),
+                        EmployeeRole = new EmployeeRoleDTO
+                        {
+                            Id = reader.GetInt32("EmployeeRole_Id"),
+                            EmployeeRoleName = reader.GetString("EmployeeRole_EmployeeRoleName"),
+                            Archived = reader.GetBoolean("EmployeeRole_Archived"),
+                        },
+                        Archived = reader.GetBoolean("Employee_Archived"),
+                    }
                 });
             }
 

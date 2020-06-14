@@ -10,7 +10,9 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        public int InvoiceId { get; set; }
+        public int InspectionId { get; set; }
+
+        public InspectionModel Inspection { get; set; }
 
         public DateTime InvoiceDate { get; set; }
 
@@ -25,7 +27,8 @@ namespace CarService.Models
             return new InvoiceModel
             {
                 Id = dto.Id,
-                InvoiceId = dto.InvoiceId,
+                InspectionId = dto.InspectionId,
+                Inspection = InspectionModel.FromDto(dto.Inspection),
                 InvoiceSum = dto.InvoiceSum,
                 InvoiceDate = dto.InvoiceDate,
                 Description = dto.Description,
@@ -38,7 +41,8 @@ namespace CarService.Models
             return dtos.Select(dto => new InvoiceModel
             {
                 Id = dto.Id,
-                InvoiceId = dto.InvoiceId,
+                InspectionId = dto.InspectionId,
+                Inspection = InspectionModel.FromDto(dto.Inspection),
                 InvoiceSum = dto.InvoiceSum,
                 InvoiceDate = dto.InvoiceDate,
                 Description = dto.Description,
@@ -51,7 +55,8 @@ namespace CarService.Models
             return new InvoiceDTO
             {
                 Id = model.Id,
-                InvoiceId = model.InvoiceId,
+                InspectionId = model.InspectionId,
+                Inspection = InspectionModel.ToDto(model.Inspection),
                 InvoiceSum = model.InvoiceSum,
                 InvoiceDate = model.InvoiceDate,
                 Description = model.Description,

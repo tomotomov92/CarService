@@ -8,7 +8,9 @@ namespace BusinessLogic.DTOs
     {
         public int Id { get; set; }
 
-        public int InvoiceId { get; set; }
+        public int InspectionId { get; set; }
+
+        public InspectionDTO Inspection { get; set; }
 
         public DateTime InvoiceDate { get; set; }
 

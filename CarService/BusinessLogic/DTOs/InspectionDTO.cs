@@ -10,15 +10,11 @@ namespace BusinessLogic.DTOs
 
         public int ClientId { get; set; }
 
-        public string ClientFirstName { get; set; }
-
-        public string ClientLastName { get; set; }
+        public ClientDTO Client { get; set; }
 
         public int CarId { get; set; }
 
-        public string CarBrandName { get; set; }
-
-        public string CarLicensePlate { get; set; }
+        public ClientCarDTO ClientCar { get; set; }
 
         public int Mileage { get; set; }
 

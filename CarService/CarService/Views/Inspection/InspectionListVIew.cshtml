@@ -16,13 +16,13 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ClientFullName)
+                @Html.DisplayNameFor(model => model.Client.FullName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CarLicensePlate)
+                @Html.DisplayNameFor(model => model.ClientCar.LicensePlate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CarBrandName)
+                @Html.DisplayNameFor(model => model.ClientCar.CarBrand.BrandName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Mileage)
@@ -47,13 +47,13 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ClientFullName)
+                @Html.DisplayFor(modelItem => item.Client.FullName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CarLicensePlate)
+                @Html.DisplayFor(modelItem => item.ClientCar.LicensePlate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CarBrandName)
+                @Html.DisplayFor(modelItem => item.ClientCar.CarBrand.BrandName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Mileage)

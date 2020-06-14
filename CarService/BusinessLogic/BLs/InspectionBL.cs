@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
 {
-    public class InspectioBL : BaseBL<InspectionDTO>
+    public class InspectionBL : BaseBL<InspectionDTO>
     {
-        public InspectioBL(AppDb db)
+        public InspectionBL(AppDb db)
             : base(db)
         {
 
@@ -32,19 +32,35 @@ namespace BusinessLogic.BLs
             cmd.CommandText = @"
 SELECT `Inspections`.`Id`,
        `Inspections`.`ClientId`,
-       `Clients`.`FirstName` AS `ClientFirstName`,
-       `Clients`.`LastName` AS `ClientLastName`,
+       `Clients`.`Id` AS `Client_Id`,
+       `Clients`.`FirstName` AS `Client_FirstName`,
+       `Clients`.`LastName` AS `Client_LastName`,
+       `Clients`.`EmailAddress` AS `Client_EmailAddress`,
+       `Clients`.`Archived` AS `Client_Archived`,
        `Inspections`.`CarId`,
+       `ClientCars`.`Id` AS `ClientCar_Id`,
+       `ClientCars`.`ClientId` AS `ClientCar_ClientId`,
+       `Clients`.`Id` AS `ClientCar_Client_Id`,
+       `Clients`.`FirstName` AS `ClientCar_Client_FirstName`,
+       `Clients`.`LastName` AS `ClientCar_Client_LastName`,
+       `Clients`.`EmailAddress` AS `ClientCar_Client_EmailAddress`,
+       `Clients`.`Archived` AS `ClientCar_Client_Archived`,
+       `ClientCars`.`CarBrandId` AS `ClientCar_CarBrandId`,
+       `CarBrands`.`Id` AS `CarBrand_Id`,
+       `CarBrands`.`BrandName` AS `CarBrand_BrandName`,
+       `CarBrands`.`Archived` AS `CarBrand_Archived`,
+       `ClientCars`.`LicensePlate` AS `ClientCar_LicensePlate`,
+       `ClientCars`.`Mileage` AS `ClientCar_Mileage`,
+       `ClientCars`.`Archived` AS `ClientCar_Archived`,
        `Inspections`.`Mileage`,
        `Inspections`.`DateTimeOfInspection`,
-       `ClientCars`.`LicensePlate` AS `CarLicensePlate`,
-       `CarBrands`.`BrandName` AS `CarBrandName`,
        `Inspections`.`Description`,
        `Inspections`.`Archived`
 FROM `Inspections`
 INNER JOIN `Clients` ON `Clients`.`Id` = `Inspections`.`ClientId`
 INNER JOIN `ClientCars` ON `ClientCars`.`Id` = `Inspections`.`CarId`
-INNER JOIN `CarBrands` ON `CarBrands`.`Id` = `ClientCars`.`CarBrandId`;";
+INNER JOIN `CarBrands` ON `CarBrands`.`Id` = `ClientCars`.`CarBrandId`
+ORDER BY `Inspections`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -52,11 +68,38 @@ INNER JOIN `CarBrands` ON `CarBrands`.`Id` = `ClientCars`.`CarBrandId`;";
                 {
                     Id = reader.GetInt32("Id"),
                     ClientId = reader.GetInt32("ClientId"),
-                    ClientFirstName = reader.GetString("ClientFirstName"),
-                    ClientLastName = reader.GetString("ClientLastName"),
+                    Client = new ClientDTO
+                    {
+                        Id = reader.GetInt32("Client_Id"),
+                        FirstName = reader.GetString("Client_FirstName"),
+                        LastName = reader.GetString("Client_LastName"),
+                        EmailAddress = reader.GetString("Client_LastName"),
+                        Archived = reader.GetBoolean("Client_Archived"),
+                    },
                     CarId = reader.GetInt32("CarId"),
-                    CarBrandName = reader.GetString("CarBrandName"),
-                    CarLicensePlate = reader.GetString("CarLicensePlate"),
+                    ClientCar = new ClientCarDTO
+                    {
+                        Id = reader.GetInt32("ClientCar_Id"),
+                        ClientId = reader.GetInt32("ClientCar_ClientId"),
+                        Client = new ClientDTO
+                        {
+                            Id = reader.GetInt32("ClientCar_Client_Id"),
+                            FirstName = reader.GetString("ClientCar_Client_FirstName"),
+                            LastName = reader.GetString("ClientCar_Client_LastName"),
+                            EmailAddress = reader.GetString("ClientCar_Client_LastName"),
+                            Archived = reader.GetBoolean("ClientCar_Client_Archived"),
+                        },
+                        CarBrandId = reader.GetInt32("ClientCar_CarBrandId"),
+                        CarBrand = new CarBrandDTO
+                        {
+                            Id = reader.GetInt32("CarBrand_Id"),
+                            BrandName = reader.GetString("CarBrand_BrandName"),
+                            Archived = reader.GetBoolean("CarBrand_Archived"),
+                        },
+                        LicensePlate = reader.GetString("ClientCar_LicensePlate"),
+                        Mileage = reader.GetInt32("ClientCar_Mileage"),
+                        Archived = reader.GetBoolean("ClientCar_Archived"),
+                    },
                     Mileage = reader.GetInt32("Mileage"),
                     DateTimeOfInspection = reader.GetDateTime("DateTimeOfInspection"),
                     Description = reader.IsDBNull("Description") ? null : reader.GetString("Description"),

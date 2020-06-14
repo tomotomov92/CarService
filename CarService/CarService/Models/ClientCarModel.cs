@@ -11,19 +11,11 @@ namespace CarService.Models
 
         public int ClientId { get; set; }
 
-        [DisplayName("Client First Name")]
-        public string ClientFirstName { get; set; }
-
-        [DisplayName("Client Last Name")]
-        public string ClientLastName { get; set; }
-
-        [DisplayName("Client Full Name")]
-        public string ClientFullName => $"{ClientLastName}, {ClientFirstName}";
+        public ClientModel Client { get; set; }
 
         public int CarBrandId { get; set; }
 
-        [DisplayName("Car Brand")]
-        public string CarBrandName { get; set; }
+        public CarBrandModel CarBrand { get; set; }
 
         [DisplayName("License Plate")]
         public string LicensePlate { get; set; }
@@ -39,10 +31,9 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
-                ClientFirstName = dto.ClientFirstName,
-                ClientLastName = dto.ClientLastName,
+                Client = ClientModel.FromDto(dto.Client),
                 CarBrandId = dto.CarBrandId,
-                CarBrandName = dto.CarBrandName,
+                CarBrand = CarBrandModel.FromDto(dto.CarBrand),
                 LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
                 Archived = dto.Archived,
@@ -55,10 +46,9 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
-                ClientFirstName = dto.ClientFirstName,
-                ClientLastName = dto.ClientLastName,
+                Client = ClientModel.FromDto(dto.Client),
                 CarBrandId = dto.CarBrandId,
-                CarBrandName = dto.CarBrandName,
+                CarBrand = CarBrandModel.FromDto(dto.CarBrand),
                 LicensePlate = dto.LicensePlate,
                 Mileage = dto.Mileage,
                 Archived = dto.Archived,
@@ -71,10 +61,9 @@ namespace CarService.Models
             {
                 Id = model.Id,
                 ClientId = model.ClientId,
-                ClientFirstName = model.ClientFirstName,
-                ClientLastName = model.ClientLastName,
+                Client = ClientModel.ToDto(model.Client),
                 CarBrandId = model.CarBrandId,
-                CarBrandName = model.CarBrandName,
+                CarBrand = CarBrandModel.ToDto(model.CarBrand),
                 LicensePlate = model.LicensePlate,
                 Mileage = model.Mileage,
                 Archived = model.Archived,

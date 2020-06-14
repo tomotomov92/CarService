@@ -37,10 +37,13 @@ SELECT `Employees`.`Id`,
        `Employees`.`Password`,
        `Employees`.`DateOfStart`,
        `Employees`.`EmployeeRoleId`,
-       `EmployeeRoles`.`EmployeeRoleName`,
+       `EmployeeRoles`.`Id` AS `EmployeeRole_Id`,
+       `EmployeeRoles`.`EmployeeRoleName` AS `EmployeeRole_EmployeeRoleName`,
+       `EmployeeRoles`.`Archived` AS `EmployeeRole_Archived`,
        `Employees`.`Archived`
 FROM `Employees`
-INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employees`.`EmployeeRoleId`;";
+INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employees`.`EmployeeRoleId`
+ORDER BY `Employees`.`Id`;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
@@ -53,7 +56,12 @@ INNER JOIN `EmployeeRoles` ON `EmployeeRoles`.`Id` = `Employees`.`EmployeeRoleId
                     Password = reader.GetString("Password"),
                     DateOfStart = reader.GetDateTime("DateOfStart"),
                     EmployeeRoleId = reader.GetInt32("EmployeeRoleId"),
-                    EmployeeRoleName = reader.GetString("EmployeeRoleName"),
+                    EmployeeRole = new EmployeeRoleDTO
+                    {
+                        Id = reader.GetInt32("EmployeeRole_Id"),
+                        EmployeeRoleName = reader.GetString("EmployeeRole_EmployeeRoleName"),
+                        Archived = reader.GetBoolean("EmployeeRole_Archived"),
+                    },
                     Archived = reader.GetBoolean("Archived"),
                 });
             }

@@ -14,8 +14,6 @@ namespace BusinessLogic.DTOs
 
         public int EmployeeId { get; set; }
 
-        public string EmployeeFirstName { get; set; }
-
-        public string EmployeeLastName { get; set; }
+        public EmployeeDTO Employee { get; set; }
     }
 }

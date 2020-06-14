@@ -20,7 +20,7 @@ namespace BusinessLogic.DTOs
 
         public int EmployeeRoleId { get; set; }
 
-        public string EmployeeRoleName { get; set; }
+        public EmployeeRoleDTO EmployeeRole { get; set; }
 
         public bool Archived { get; set; }
     }

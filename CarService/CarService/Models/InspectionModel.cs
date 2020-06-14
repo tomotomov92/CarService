@@ -12,22 +12,13 @@ namespace CarService.Models
 
         public int ClientId { get; set; }
 
-        public string ClientFirstName { get; set; }
-
-        public string ClientLastName { get; set; }
-
-        [DisplayName("Client Full Name")]
-        public string ClientFullName => $"{ClientLastName}, {ClientFirstName}";
+        public ClientModel Client { get; set; }
 
         public int CarId { get; set; }
 
-        [DisplayName("Car Licenses Plate")]
-        public string CarLicensePlate { get; set; }
+        public ClientCarModel ClientCar { get; set; }
 
-        [DisplayName("Car Brand")]
-        public string CarBrandName { get; set; }
-
-        [DisplayName("Car Mileage")]
+        [DisplayName("Inspection Car Mileage")]
         public int Mileage { get; set; }
 
         [DisplayName("Inspection Date")]
@@ -43,11 +34,9 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
-                ClientFirstName = dto.ClientFirstName,
-                ClientLastName = dto.ClientLastName,
+                Client = ClientModel.FromDto(dto.Client),
                 CarId = dto.CarId,
-                CarLicensePlate = dto.CarLicensePlate,
-                CarBrandName = dto.CarBrandName,
+                ClientCar = ClientCarModel.FromDto(dto.ClientCar),
                 Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
@@ -61,11 +50,9 @@ namespace CarService.Models
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
-                ClientFirstName = dto.ClientFirstName,
-                ClientLastName = dto.ClientLastName,
+                Client = ClientModel.FromDto(dto.Client),
                 CarId = dto.CarId,
-                CarLicensePlate = dto.CarLicensePlate,
-                CarBrandName = dto.CarBrandName,
+                ClientCar = ClientCarModel.FromDto(dto.ClientCar),
                 Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
@@ -79,11 +66,9 @@ namespace CarService.Models
             {
                 Id = model.Id,
                 ClientId = model.ClientId,
-                ClientFirstName = model.ClientFirstName,
-                ClientLastName = model.ClientLastName,
+                Client = ClientModel.ToDto(model.Client),
                 CarId = model.CarId,
-                CarLicensePlate = model.CarLicensePlate,
-                CarBrandName = model.CarBrandName,
+                ClientCar = ClientCarModel.ToDto(model.ClientCar),
                 Mileage = model.Mileage,
                 DateTimeOfInspection = model.DateTimeOfInspection,
                 Description = model.Description,

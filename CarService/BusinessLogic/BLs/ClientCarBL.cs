@@ -32,10 +32,15 @@ namespace BusinessLogic.BLs
             cmd.CommandText = @"
 SELECT `ClientCars`.`Id`,
        `ClientCars`.`ClientId`,
-       `Clients`.`FirstName` AS `ClientFirstName`,
-       `Clients`.`LastName` AS `ClientLastName`,
+       `Clients`.`Id` AS `Client_Id`,
+       `Clients`.`FirstName` AS `Client_FirstName`,
+       `Clients`.`LastName` AS `Client_LastName`,
+       `Clients`.`EmailAddress` AS `Client_EmailAddress`,
+       `Clients`.`Archived` AS `Client_Archived`,
        `ClientCars`.`CarBrandId`,
-       `CarBrands`.`BrandName` AS `CarBrandName`,
+       `CarBrands`.`Id` AS `CarBrand_Id`,
+       `CarBrands`.`BrandName` AS `CarBrand_BrandName`,
+       `CarBrands`.`Archived` AS `CarBrand_Archived`,
        `ClientCars`.`LicensePlate`,
        `ClientCars`.`Mileage`,
        `ClientCars`.`Archived`
@@ -50,10 +55,21 @@ ORDER BY `ClientCars`.`Id`;";
                 {
                     Id = reader.GetInt32("Id"),
                     ClientId = reader.GetInt32("ClientId"),
-                    ClientFirstName = reader.GetString("ClientFirstName"),
-                    ClientLastName = reader.GetString("ClientLastName"),
+                    Client = new ClientDTO
+                    {
+                        Id = reader.GetInt32("Client_Id"),
+                        FirstName = reader.GetString("Client_FirstName"),
+                        LastName = reader.GetString("Client_LastName"),
+                        EmailAddress = reader.GetString("Client_LastName"),
+                        Archived = reader.GetBoolean("Client_Archived"),
+                    },
                     CarBrandId = reader.GetInt32("CarBrandId"),
-                    CarBrandName = reader.GetString("CarBrandName"),
+                    CarBrand = new CarBrandDTO
+                    {
+                        Id = reader.GetInt32("CarBrand_Id"),
+                        BrandName = reader.GetString("CarBrand_BrandName"),
+                        Archived = reader.GetBoolean("CarBrand_Archived"),
+                    },
                     LicensePlate = reader.GetString("LicensePlate"),
                     Mileage = reader.GetInt32("Mileage"),
                     Archived = reader.GetBoolean("Archived"),

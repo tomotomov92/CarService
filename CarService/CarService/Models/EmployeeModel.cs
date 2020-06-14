@@ -27,8 +27,7 @@ namespace CarService.Models
 
         public int EmployeeRoleId { get; set; }
 
-        [DisplayName("Employee Role")]
-        public string EmployeeRoleName { get; set; }
+        public EmployeeRoleModel EmployeeRole { get; set; }
 
         public bool Archived { get; set; }
 
@@ -43,7 +42,7 @@ namespace CarService.Models
                 Password = dto.Password,
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
-                EmployeeRoleName = dto.EmployeeRoleName,
+                EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
                 Archived = dto.Archived,
             };
         }
@@ -59,7 +58,7 @@ namespace CarService.Models
                 Password = dto.Password,
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
-                EmployeeRoleName = dto.EmployeeRoleName,
+                EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
                 Archived = dto.Archived,
             });
         }
@@ -75,7 +74,7 @@ namespace CarService.Models
                 Password = model.Password,
                 DateOfStart = model.DateOfStart,
                 EmployeeRoleId = model.EmployeeRoleId,
-                EmployeeRoleName = model.EmployeeRoleName,
+                EmployeeRole = EmployeeRoleModel.ToDto(model.EmployeeRole),
                 Archived = model.Archived,
             };
         }
