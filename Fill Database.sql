@@ -238,7 +238,24 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Invoices` (`InvoiceId`, `InvoiceDate`, `InvoiceSum`, `Description`, `Archived`)
+INSERT INTO `CarService`.`InspectionEmployees` (`InspectionId`, `EmployeeId`)
+VALUES
+(1, 2),
+(1, 9),
+(1, 5),
+(4, 3),
+(4, 12),
+(9, 4),
+(9, 2),
+(9, 9),
+(9, 16),
+(13, 15),
+(13, 16),
+(4, 16);
+/*END*/
+
+
+INSERT INTO `CarService`.`Invoices` (`InspectionId`, `InvoiceDate`, `InvoiceSum`, `Description`, `Archived`)
 VALUES
 (1, '2020-01-12', 13.6, 'Invoice for Inspection 1', 0),
 (4, '2020-01-30', 505.88, 'The brakes needed change', 0),

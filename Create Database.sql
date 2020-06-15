@@ -19,7 +19,7 @@ CREATE TABLE `carservice`.`Clients` (
   `Password` varchar(200) NOT NULL,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
-	UNIQUE INDEX `EmailAddress` (`EmailAddress`)
+	UNIQUE INDEX `ui_Clients_EmailAddress_idx` (`EmailAddress`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -59,7 +59,7 @@ CREATE TABLE `carservice`.`Employees` (
   `EmployeeRoleId` int(11) NOT NULL,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
-	UNIQUE INDEX `EmailAddress` (`EmailAddress`),
+	UNIQUE INDEX `ui_Employees_EmailAddress_idx` (`EmailAddress`),
   KEY `fk_Employees_EmployeeRoles_idx` (`EmployeeRoleId`),
   CONSTRAINT `fk_Employees_EmployeeRoles` FOREIGN KEY (`EmployeeRoleId`) REFERENCES `EmployeeRoles` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -83,16 +83,28 @@ CREATE TABLE `carservice`.`Inspections` (
 
 
 
+CREATE TABLE `carservice`.`InspectionEmployees` (
+  `InspectionId` int(11) NOT NULL,
+  `EmployeeId` int(11) NOT NULL,
+	UNIQUE INDEX `ui_InspectionEmployees_InspectionId_EmployeeId_idx` (`InspectionId`, `EmployeeId`),
+  KEY `fk_InspectionEmployees_Inspections_idx` (`InspectionId`),
+  KEY `fk_InspectionEmployees_Employees_idx` (`EmployeeId`),
+  CONSTRAINT `fk_InspectionEmployees_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_InspectionEmployees_Employees_idx` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
 CREATE TABLE `carservice`.`Invoices` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `InvoiceId` int(11) NOT NULL,
+  `InspectionId` int(11) NOT NULL,
   `InvoiceDate` datetime(6) NOT NULL,
   `InvoiceSum` decimal(16,4) NOT NULL,
   `Description` varchar(500) NULL,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
-  KEY `fk_Invoices_Inspections_idx` (`InvoiceId`),
-  CONSTRAINT `fk_Invoices_Inspections_idx` FOREIGN KEY (`InvoiceId`) REFERENCES `Inspections` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `fk_Invoices_Inspections_idx` (`InspectionId`),
+  CONSTRAINT `fk_Invoices_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
