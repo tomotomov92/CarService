@@ -7,50 +7,50 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
 {
-    public class CarBrandBL : BaseBL<CarBrandDTO>
+    public class EmployeeRoleBL : BaseBL<EmployeeRoleDTO>
     {
-        public CarBrandBL(AppDb db)
+        public EmployeeRoleBL(AppDb db)
             : base(db)
         {
 
         }
 
-        public override async Task<CarBrandDTO> AddAsync(CarBrandDTO dto)
+        public override async Task<EmployeeRoleDTO> AddAsync(EmployeeRoleDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO CarBrands (BrandName, Archived) VALUES (@brandName, @archived);";
+            cmd.CommandText = @"INSERT INTO EmployeeRoles (EmployeeRoleName, Archived) VALUES (@employeeRoleName, @archived);";
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             dto.Id = (int)cmd.LastInsertedId;
             return dto;
         }
 
-        public override async Task<CarBrandDTO> UpdateAsync(CarBrandDTO dto)
+        public override async Task<EmployeeRoleDTO> UpdateAsync(EmployeeRoleDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"UPDATE CarBrands SET BrandName = @brandName, Archived = @archived WHERE Id = @id;";
+            cmd.CommandText = @"UPDATE EmployeeRoles SET EmployeeRoleName = @employeeRoleName, Archived = @archived WHERE Id = @id;";
             BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             return dto;
         }
 
-        public override CarBrandDTO Get(int id)
+        public override EmployeeRoleDTO Get(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT CarBrands.Id,
-       CarBrands.BrandName,
-       CarBrands.Archived
-FROM CarBrands
-WHERE CarBrands.Id = @id;";
+SELECT EmployeeRoles.Id,
+       EmployeeRoles.EmployeeRoleName,
+       EmployeeRoles.Archived
+FROM EmployeeRoles
+WHERE EmployeeRoles.Id = @id;";
             BindId(cmd, id);
             var reader = cmd.ExecuteReader();
             reader.Read();
-            return new CarBrandDTO
+            return new EmployeeRoleDTO
             {
                 Id = reader.GetInt32("Id"),
-                BrandName = reader.GetString("BrandName"),
+                EmployeeRoleName = reader.GetString("EmployeeRoleName"),
                 Archived = reader.GetBoolean("Archived"),
             };
         }
@@ -58,28 +58,28 @@ WHERE CarBrands.Id = @id;";
         public override async Task DeleteAsync(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"DELETE FROM CarBrands WHERE Id = @id;";
+            cmd.CommandText = @"DELETE FROM EmployeeRoles WHERE Id = @id;";
             BindId(cmd, id);
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public override async Task<IEnumerable<CarBrandDTO>> GetAllAsync()
+        public override async Task<IEnumerable<EmployeeRoleDTO>> GetAllAsync()
         {
-            var results = new List<CarBrandDTO>();
+            var results = new List<EmployeeRoleDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"
-SELECT CarBrands.Id,
-       CarBrands.BrandName,
-       CarBrands.Archived
-FROM CarBrands;";
+SELECT EmployeeRoles.Id,
+       EmployeeRoles.EmployeeRoleName,
+       EmployeeRoles.Archived
+FROM EmployeeRoles;";
             var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                results.Add(new CarBrandDTO
+                results.Add(new EmployeeRoleDTO
                 {
                     Id = reader.GetInt32("Id"),
-                    BrandName = reader.GetString("BrandName"),
+                    EmployeeRoleName = reader.GetString("EmployeeRoleName"),
                     Archived = reader.GetBoolean("Archived"),
                 });
             }
@@ -87,20 +87,20 @@ FROM CarBrands;";
             return results;
         }
 
-        public override async Task<IEnumerable<CarBrandDTO>> GetAllActiveAsync()
+        public override async Task<IEnumerable<EmployeeRoleDTO>> GetAllActiveAsync()
         {
             var activeResults = await GetAllAsync();
             activeResults = activeResults.Where(x => x.Archived == false);
             return activeResults;
         }
 
-        protected override void BindParams(MySqlCommand cmd, CarBrandDTO dto)
+        protected override void BindParams(MySqlCommand cmd, EmployeeRoleDTO dto)
         {
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@brandName",
+                ParameterName = "@employeeRoleName",
                 DbType = DbType.String,
-                Value = dto.BrandName,
+                Value = dto.EmployeeRoleName,
             });
             cmd.Parameters.Add(new MySqlParameter
             {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -10,18 +11,20 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public int ClientId { get; set; }
 
         public ClientModel Client { get; set; }
 
+        [Required]
         public int CarId { get; set; }
 
         public ClientCarModel ClientCar { get; set; }
 
-        [DisplayName("Inspection Car Mileage")]
+        [Required, DisplayName("Inspection Car Mileage")]
         public int Mileage { get; set; }
 
-        [DisplayName("Inspection Date")]
+        [Required, DisplayName("Inspection Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime DateTimeOfInspection { get; set; }
 
         public string Description { get; set; }

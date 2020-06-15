@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -10,12 +11,15 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public int InspectionId { get; set; }
 
         public InspectionModel Inspection { get; set; }
 
+        [Required, DisplayName("Invoice Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime InvoiceDate { get; set; }
 
+        [Required, DisplayName("Invoice Sum")]
         public decimal InvoiceSum { get; set; }
 
         public string Description { get; set; }

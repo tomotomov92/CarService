@@ -4,48 +4,55 @@ using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
     public class ScheduleController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<ScheduleController> _logger;
         private readonly IBaseBL<ScheduleDTO> _bl;
 
-        public ScheduleController(ILogger<HomeController> logger, IBaseBL<ScheduleDTO> bl)
+        public ScheduleController(ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl)
         {
             _logger = logger;
             _bl = bl;
         }
 
-        // GET: ScheduleController
         public async Task<ActionResult> Index()
         {
             var resultsAsDTO = await _bl.GetAllAsync();
             var resultsAsModel = ScheduleModel.FromDtos(resultsAsDTO);
-            return View("ScheduleListView", resultsAsModel);
+            return View(resultsAsModel);
         }
 
-        // GET: ScheduleController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // GET: ScheduleController/Create
-        public ActionResult Create()
+        public ActionResult Create(int employeeId)
         {
-            return View();
+            var model = new ScheduleModel
+            {
+                EmployeeId = employeeId,
+            };
+            return View(model);
         }
 
-        // POST: ScheduleController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(IFormCollection collection)
         {
             try
             {
+                await _bl.AddAsync(new ScheduleDTO
+                {
+                    DateBegin = DateTime.Parse(collection["DateBegin"]),
+                    DateEnd = DateTime.Parse(collection["DateEnd"]),
+                    EmployeeId = int.Parse(collection["EmployeeId"]),
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -54,46 +61,57 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: ScheduleController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: ScheduleController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.UpdateAsync(new ScheduleDTO
+                {
+                    Id = id,
+                    DateBegin = DateTime.Parse(collection["DateBegin"]),
+                    DateEnd = DateTime.Parse(collection["DateEnd"]),
+                    EmployeeId = int.Parse(collection["EmployeeId"]),
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
         }
 
-        // GET: ScheduleController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: ScheduleController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
+        }
+
+        private ActionResult GetRecordById(int id)
+        {
+            var resultAsDTO = _bl.Get(id);
+            var resultAsModel = ScheduleModel.FromDto(resultAsDTO);
+            return View(resultAsModel);
         }
     }
 }

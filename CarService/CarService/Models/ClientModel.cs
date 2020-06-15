@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.DTOs;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -9,16 +10,19 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public string FirstName { get; set; }
 
+        [Required]
         public string LastName { get; set; }
 
         [DisplayName("Client Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
 
-        [DisplayName("Email Address")]
+        [Required, DisplayName("Email Address")]
         public string EmailAddress { get; set; }
 
+        [Required]
         public string Password { get; set; }
 
         public bool Archived { get; set; }

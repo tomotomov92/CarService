@@ -20,7 +20,15 @@ namespace BusinessLogic.BLs
 
         public abstract Task<T> AddAsync(T dto);
 
+        public abstract Task<T> UpdateAsync(T dto);
+
+        public abstract T Get(int id);
+
+        public abstract Task DeleteAsync(int id);
+
         public abstract Task<IEnumerable<T>> GetAllAsync();
+
+        public abstract Task<IEnumerable<T>> GetAllActiveAsync();
 
         protected void BindId(MySqlCommand cmd, T dto)
         {
@@ -29,6 +37,16 @@ namespace BusinessLogic.BLs
                 ParameterName = "@id",
                 DbType = DbType.Int32,
                 Value = dto.Id,
+            });
+        }
+
+        protected void BindId(MySqlCommand cmd, int id)
+        {
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = id,
             });
         }
 

@@ -3,29 +3,26 @@ using BusinessLogic.DTOs;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
-    public class ClientCarController : Controller
+    public class EmployeeRoleController : Controller
     {
-        private readonly ILogger<ClientCarController> _logger;
-        private readonly IBaseBL<ClientCarDTO> _bl;
-        private readonly IBaseBL<CarBrandDTO> _carBrandBl;
+        private readonly ILogger<EmployeeRoleController> _logger;
+        private readonly IBaseBL<EmployeeRoleDTO> _bl;
 
-        public ClientCarController(ILogger<ClientCarController> logger, IBaseBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl)
+        public EmployeeRoleController(ILogger<EmployeeRoleController> logger, IBaseBL<EmployeeRoleDTO> bl)
         {
             _logger = logger;
             _bl = bl;
-            _carBrandBl = carBrandBl;
         }
 
         public async Task<ActionResult> Index()
         {
             var resultsAsDTO = await _bl.GetAllAsync();
-            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
+            var resultsAsModel = EmployeeRoleModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
 
@@ -34,16 +31,9 @@ namespace CarService.Controllers
             return GetRecordById(id);
         }
 
-        public async Task<ActionResult> Create(int clientId)
+        public ActionResult Create()
         {
-            var activeEmployeeRoles = await _carBrandBl.GetAllActiveAsync();
-            var employeeRolesOptions = new SelectList(activeEmployeeRoles, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
-            var model = new ClientCarModel
-            {
-                ClientId = clientId,
-                CarBrandOptions = employeeRolesOptions,
-            };
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -52,12 +42,9 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.AddAsync(new ClientCarDTO
+                await _bl.AddAsync(new EmployeeRoleDTO
                 {
-                    ClientId = int.Parse(collection["ClientId"]),
-                    CarBrandId = int.Parse(collection["CarBrandId"]),
-                    LicensePlate = collection["LicensePlate"],
-                    Mileage = int.Parse(collection["Mileage"]),
+                    EmployeeRoleName = collection["EmployeeRoleName"],
                 });
                 return RedirectToAction(nameof(Index));
             }
@@ -78,13 +65,10 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.UpdateAsync(new ClientCarDTO
+                await _bl.UpdateAsync(new EmployeeRoleDTO
                 {
                     Id = id,
-                    ClientId = int.Parse(collection["ClientId"]),
-                    CarBrandId = int.Parse(collection["CarBrandId"]),
-                    LicensePlate = collection["LicensePlate"],
-                    Mileage = int.Parse(collection["Mileage"]),
+                    EmployeeRoleName = collection["EmployeeRoleName"],
                     Archived = bool.Parse(collection["Archived"][0]),
                 });
                 return RedirectToAction(nameof(Index));
@@ -118,7 +102,7 @@ namespace CarService.Controllers
         private ActionResult GetRecordById(int id)
         {
             var resultAsDTO = _bl.Get(id);
-            var resultAsModel = ClientCarModel.FromDto(resultAsDTO);
+            var resultAsModel = EmployeeRoleModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }
     }

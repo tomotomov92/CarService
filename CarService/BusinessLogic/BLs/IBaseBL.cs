@@ -11,6 +11,14 @@ namespace BusinessLogic.BLs
 
         Task<T> AddAsync(T dto);
 
+        Task<T> UpdateAsync(T dto);
+
+        T Get(int id);
+
+        Task DeleteAsync(int id);
+
         Task<IEnumerable<T>> GetAllAsync();
+
+        Task<IEnumerable<T>> GetAllActiveAsync();
     }
 }

@@ -1,14 +1,14 @@
-﻿@model IEnumerable<CarService.Models.EmployeeModel>
+﻿@model IEnumerable<CarService.Models.InvoiceModel>
 
 @{
-    ViewData["Title"] = "EmployeeListView";
+    ViewData["Title"] = "Invoices";
 }
 
-<h1>BrandListView</h1>
+<h1>Invoices</h1>
 
-<p>
+@*<p>
     <a asp-action="Create">Create New</a>
-</p>
+</p>*@
 <table class="table">
     <thead>
         <tr>
@@ -16,16 +16,22 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FullName)
+                @Html.DisplayNameFor(model => model.Inspection.Client.FullName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EmailAddress)
+                @Html.DisplayNameFor(model => model.Inspection.ClientCar.LicensePlate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DateOfStart)
+                @Html.DisplayNameFor(model => model.Inspection.ClientCar.CarBrand.BrandName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EmployeeRole.EmployeeRoleName)
+                @Html.DisplayNameFor(model => model.InvoiceSum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InvoiceDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
@@ -41,16 +47,22 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FullName)
+                @Html.DisplayFor(modelItem => item.Inspection.Client.FullName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EmailAddress)
+                @Html.DisplayFor(modelItem => item.Inspection.ClientCar.LicensePlate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateOfStart)
+                @Html.DisplayFor(modelItem => item.Inspection.ClientCar.CarBrand.BrandName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EmployeeRole.EmployeeRoleName)
+                @Html.DisplayFor(modelItem => item.InvoiceSum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InvoiceDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Archived)

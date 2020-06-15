@@ -1,7 +1,10 @@
 ﻿using BusinessLogic.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -10,26 +13,32 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public string FirstName { get; set; }
 
+        [Required]
         public string LastName { get; set; }
 
         [DisplayName("Employee Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
 
-        [DisplayName("Email Address")]
+        [Required, DisplayName("Email Address")]
         public string EmailAddress { get; set; }
 
+        [Required]
         public string Password { get; set; }
 
-        [DisplayName("Employee Hire Date")]
+        [Required, DisplayName("Employee Hire Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:d}")]
         public DateTime DateOfStart { get; set; }
 
+        [Required, BindProperty, DisplayName("Employee Role")]
         public int EmployeeRoleId { get; set; }
 
         public EmployeeRoleModel EmployeeRole { get; set; }
 
         public bool Archived { get; set; }
+
+        public SelectList EmployeeRoleOptions { get; set; }
 
         public static EmployeeModel FromDto(EmployeeDTO dto)
         {

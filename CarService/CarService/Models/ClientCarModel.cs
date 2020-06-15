@@ -1,6 +1,9 @@
 ﻿using BusinessLogic.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -9,21 +12,25 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public int ClientId { get; set; }
 
         public ClientModel Client { get; set; }
 
+        [Required, BindProperty, DisplayName("Car Brand")]
         public int CarBrandId { get; set; }
 
         public CarBrandModel CarBrand { get; set; }
 
-        [DisplayName("License Plate")]
+        [Required, DisplayName("License Plate")]
         public string LicensePlate { get; set; }
 
-        [DisplayName("Mileage")]
+        [Required, DisplayName("Mileage")]
         public int Mileage { get; set; }
 
         public bool Archived { get; set; }
+
+        public SelectList CarBrandOptions { get; set; }
 
         public static ClientCarModel FromDto(ClientCarDTO dto)
         {

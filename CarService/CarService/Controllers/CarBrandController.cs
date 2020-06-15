@@ -10,42 +10,42 @@ namespace CarService.Controllers
 {
     public class CarBrandController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<CarBrandController> _logger;
         private readonly IBaseBL<CarBrandDTO> _bl;
 
-        public CarBrandController(ILogger<HomeController> logger, IBaseBL<CarBrandDTO> bl)
+        public CarBrandController(ILogger<CarBrandController> logger, IBaseBL<CarBrandDTO> bl)
         {
             _logger = logger;
             _bl = bl;
         }
 
-        // GET: CarBrandController
         public async Task<ActionResult> Index()
         {
             var resultsAsDTO = await _bl.GetAllAsync();
             var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
-            return View("CarBrandListView", resultsAsModel);
+            return View(resultsAsModel);
         }
 
-        // GET: CarBrandController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // GET: CarBrandController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: CarBrandController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(IFormCollection collection)
         {
             try
             {
+                await _bl.AddAsync(new CarBrandDTO
+                {
+                    BrandName = collection["BrandName"],
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -54,46 +54,56 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: CarBrandController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: CarBrandController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.UpdateAsync(new CarBrandDTO
+                {
+                    Id = id,
+                    BrandName = collection["BrandName"],
+                    Archived = bool.Parse(collection["Archived"][0]),
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
         }
 
-        // GET: CarBrandController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: CarBrandController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
+        }
+
+        private ActionResult GetRecordById(int id)
+        {
+            var resultAsDTO = _bl.Get(id);
+            var resultAsModel = CarBrandModel.FromDto(resultAsDTO);
+            return View(resultAsModel);
         }
     }
 }

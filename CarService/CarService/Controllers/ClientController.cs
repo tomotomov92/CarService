@@ -10,42 +10,45 @@ namespace CarService.Controllers
 {
     public class ClientController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<ClientController> _logger;
         private readonly IBaseBL<ClientDTO> _bl;
 
-        public ClientController(ILogger<HomeController> logger, IBaseBL<ClientDTO> bl)
+        public ClientController(ILogger<ClientController> logger, IBaseBL<ClientDTO> bl)
         {
             _logger = logger;
             _bl = bl;
         }
 
-        // GET: ClientController
         public async Task<ActionResult> Index()
         {
             var resultsAsDTO = await _bl.GetAllAsync();
             var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
-            return View("ClientListView", resultsAsModel);
+            return View(resultsAsModel);
         }
 
-        // GET: ClientController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // GET: ClientController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: ClientController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(IFormCollection collection)
         {
             try
             {
+                await _bl.AddAsync(new ClientDTO
+                {
+                    FirstName = collection["FirstName"],
+                    LastName = collection["LastName"],
+                    EmailAddress = collection["EmailAddress"],
+                    Password = collection["Password"],
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -54,46 +57,59 @@ namespace CarService.Controllers
             }
         }
 
-        // GET: ClientController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: ClientController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.UpdateAsync(new ClientDTO
+                {
+                    Id = id,
+                    FirstName = collection["FirstName"],
+                    LastName = collection["LastName"],
+                    EmailAddress = collection["EmailAddress"],
+                    Password = collection["Password"],
+                    Archived = bool.Parse(collection["Archived"][0]),
+                });
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
         }
 
-        // GET: ClientController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return GetRecordById(id);
         }
 
-        // POST: ClientController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
         {
             try
             {
+                await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return GetRecordById(id);
             }
+        }
+
+        private ActionResult GetRecordById(int id)
+        {
+            var resultAsDTO = _bl.Get(id);
+            var resultAsModel = ClientModel.FromDto(resultAsDTO);
+            return View(resultAsModel);
         }
     }
 }

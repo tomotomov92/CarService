@@ -1,10 +1,10 @@
-﻿@model IEnumerable<CarService.Models.CarBrandModel>
+﻿@model IEnumerable<CarService.Models.EmployeeRoleModel>
 
 @{
-    ViewData["Title"] = "CarBrandListView";
+    ViewData["Title"] = "Employee Roles";
 }
 
-<h1>BrandListView</h1>
+<h1>Employee Roles</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -16,7 +16,7 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BrandName)
+                @Html.DisplayNameFor(model => model.EmployeeRoleName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
@@ -32,7 +32,7 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BrandName)
+                @Html.DisplayFor(modelItem => item.EmployeeRoleName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Archived)

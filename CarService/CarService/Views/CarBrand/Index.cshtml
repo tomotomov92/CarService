@@ -1,10 +1,10 @@
-﻿@model IEnumerable<CarService.Models.ClientModel>
+﻿@model IEnumerable<CarService.Models.CarBrandModel>
 
 @{
-    ViewData["Title"] = "ClientListView";
+    ViewData["Title"] = "Car Brands";
 }
 
-<h1>BrandListView</h1>
+<h1>Car Brands</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -16,10 +16,7 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EmailAddress)
+                @Html.DisplayNameFor(model => model.BrandName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Archived)
@@ -35,10 +32,7 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EmailAddress)
+                @Html.DisplayFor(modelItem => item.BrandName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Archived)

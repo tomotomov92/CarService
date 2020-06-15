@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
@@ -10,12 +11,13 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        [DisplayName("Schedule Start Date")]
+        [Required, DisplayName("Schedule Start Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime DateBegin { get; set; }
 
-        [DisplayName("Schedule End Date")]
+        [Required, DisplayName("Schedule End Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime DateEnd { get; set; }
 
+        [Required]
         public int EmployeeId { get; set; }
 
         public EmployeeModel Employee { get; set; }
