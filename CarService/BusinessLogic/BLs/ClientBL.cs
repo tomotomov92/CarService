@@ -28,7 +28,7 @@ namespace BusinessLogic.BLs
         public override async Task<ClientDTO> UpdateAsync(ClientDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"UPDATE Clients SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, Password = @password, Archived = @archived WHERE Id = @id;";
+            cmd.CommandText = @"UPDATE Clients SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, Archived = @archived WHERE Id = @id;";
             BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
@@ -124,13 +124,13 @@ FROM Clients;";
             {
                 ParameterName = "@emailAddress",
                 DbType = DbType.String,
-                Value = dto.FirstName,
+                Value = dto.EmailAddress,
             });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@password",
                 DbType = DbType.String,
-                Value = dto.LastName,
+                Value = dto.Password,
             });
             cmd.Parameters.Add(new MySqlParameter
             {

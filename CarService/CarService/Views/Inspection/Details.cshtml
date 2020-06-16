@@ -1,0 +1,59 @@
+﻿@model CarService.Models.InspectionModel
+
+@{
+    ViewData["Title"] = "Inspection Details";
+}
+
+<h1>Inspection Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Client.FullName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Client.FullName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ClientCar.LicensePlate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ClientCar.LicensePlate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ClientCar.CarBrand.BrandName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ClientCar.CarBrand.BrandName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Mileage)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Mileage)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DateTimeOfInspection)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DateTimeOfInspection)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Archived)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Archived)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    <a asp-action="Index">Back to List</a>
+</div>

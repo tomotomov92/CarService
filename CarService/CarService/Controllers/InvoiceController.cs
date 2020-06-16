@@ -47,18 +47,23 @@ namespace CarService.Controllers
         {
             try
             {
+                var dateForInvoice = DateTime.Parse(collection["DateForInvoice"]);
+                var timeForInvoice = TimeSpan.Parse(collection["TimeForInvoice"]);
+
+                var invoiceDate = dateForInvoice + timeForInvoice;
+
                 await _bl.AddAsync(new InvoiceDTO
                 {
                     InspectionId = int.Parse(collection["InspectionId"]),
-                    InvoiceDate = DateTime.Parse(collection["InvoiceDate"]),
+                    InvoiceDate = invoiceDate,
                     InvoiceSum = decimal.Parse(collection["InvoiceSum"]),
                     Description = collection["Description"],
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Create(inspectionId: int.Parse(collection["InspectionId"]));
             }
         }
 
@@ -73,18 +78,23 @@ namespace CarService.Controllers
         {
             try
             {
+                var dateForInvoice = DateTime.Parse(collection["DateForInvoice"]);
+                var timeForInvoice = TimeSpan.Parse(collection["TimeForInvoice"]);
+
+                var invoiceDate = dateForInvoice + timeForInvoice;
+
                 await _bl.UpdateAsync(new InvoiceDTO
                 {
                     Id = id,
                     InspectionId = int.Parse(collection["InspectionId"]),
-                    InvoiceDate = DateTime.Parse(collection["DateTimeOfInspection"]),
-                    InvoiceSum = decimal.Parse(collection["Description"]),
+                    InvoiceDate = invoiceDate,
+                    InvoiceSum = decimal.Parse(collection["InvoiceSum"]),
                     Description = collection["Description"],
                     Archived = bool.Parse(collection["Archived"][0]),
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }
@@ -104,7 +114,7 @@ namespace CarService.Controllers
                 await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }

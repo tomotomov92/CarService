@@ -1,19 +1,19 @@
-﻿@model CarService.Models.CarBrandModel
+﻿@model CarService.Models.EmployeeRoleModel
 
 @{
-    ViewData["Title"] = "Car Brand Details";
+    ViewData["Title"] = "Employee Role Details";
 }
 
-<h1>Car Brand Details</h1>
+<h1>Employee Role Details</h1>
 
 <div>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BrandName)
+            @Html.DisplayNameFor(model => model.EmployeeRoleName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BrandName)
+            @Html.DisplayFor(model => model.EmployeeRoleName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Archived)

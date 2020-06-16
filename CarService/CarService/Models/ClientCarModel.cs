@@ -12,7 +12,7 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required, BindProperty, DisplayName("Client")]
         public int ClientId { get; set; }
 
         public ClientModel Client { get; set; }
@@ -31,6 +31,8 @@ namespace CarService.Models
         public bool Archived { get; set; }
 
         public SelectList CarBrandOptions { get; set; }
+
+        public SelectList ClientOptions { get; set; }
 
         public static ClientCarModel FromDto(ClientCarDTO dto)
         {

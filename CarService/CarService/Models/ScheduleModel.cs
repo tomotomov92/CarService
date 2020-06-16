@@ -11,16 +11,25 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        [Required, DisplayName("Schedule Start Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        [Required, DisplayName("Schedule Start Date"), DataType(DataType.DateTime)]
         public DateTime DateBegin { get; set; }
 
-        [Required, DisplayName("Schedule End Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        [Required, DisplayName("Schedule End Date"), DataType(DataType.DateTime)]
         public DateTime DateEnd { get; set; }
 
         [Required]
         public int EmployeeId { get; set; }
 
         public EmployeeModel Employee { get; set; }
+
+        [Required, DisplayName("Schedule Date"), DataType(DataType.Date)]
+        public DateTime ScheduleDate { get; set; } = DateTime.Now;
+
+        [Required, DisplayName("Start Time"), DataType(DataType.Time)]
+        public TimeSpan ScheduleStartTime { get; set; } = TimeSpan.Parse("08:30:00");
+
+        [Required, DisplayName("End Time"), DataType(DataType.Time)]
+        public TimeSpan ScheduleEndTime { get; set; } = TimeSpan.Parse("17:30:00");
 
         public static ScheduleModel FromDto(ScheduleDTO dto)
         {
@@ -31,6 +40,9 @@ namespace CarService.Models
                 DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
                 Employee = EmployeeModel.FromDto(dto.Employee),
+                ScheduleDate = dto.DateBegin.Date,
+                ScheduleStartTime = dto.DateBegin.TimeOfDay,
+                ScheduleEndTime = dto.DateEnd.TimeOfDay,
             };
         }
 
@@ -43,6 +55,9 @@ namespace CarService.Models
                 DateEnd = dto.DateEnd,
                 EmployeeId = dto.EmployeeId,
                 Employee = EmployeeModel.FromDto(dto.Employee),
+                ScheduleDate = dto.DateBegin.Date,
+                ScheduleStartTime = dto.DateBegin.TimeOfDay,
+                ScheduleEndTime = dto.DateEnd.TimeOfDay,
             });
         }
 

@@ -47,17 +47,24 @@ namespace CarService.Controllers
         {
             try
             {
+                var scheduleDate = DateTime.Parse(collection["ScheduleDate"]);
+                var scheduleStartTime = TimeSpan.Parse(collection["ScheduleStartTime"]);
+                var scheduleEndTime = TimeSpan.Parse(collection["ScheduleEndTime"]);
+
+                var dateBegin = scheduleDate + scheduleStartTime;
+                var dateEnd = scheduleDate + scheduleEndTime;
+
                 await _bl.AddAsync(new ScheduleDTO
                 {
-                    DateBegin = DateTime.Parse(collection["DateBegin"]),
-                    DateEnd = DateTime.Parse(collection["DateEnd"]),
+                    DateBegin = dateBegin,
+                    DateEnd = dateEnd,
                     EmployeeId = int.Parse(collection["EmployeeId"]),
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Create(employeeId: int.Parse(collection["EmployeeId"]));
             }
         }
 
@@ -72,16 +79,23 @@ namespace CarService.Controllers
         {
             try
             {
+                var scheduleDate = DateTime.Parse(collection["ScheduleDate"]);
+                var scheduleStartTime = TimeSpan.Parse(collection["ScheduleStartTime"]);
+                var scheduleEndTime = TimeSpan.Parse(collection["ScheduleEndTime"]);
+
+                var dateBegin = scheduleDate + scheduleStartTime;
+                var dateEnd = scheduleDate + scheduleEndTime;
+
                 await _bl.UpdateAsync(new ScheduleDTO
                 {
                     Id = id,
-                    DateBegin = DateTime.Parse(collection["DateBegin"]),
-                    DateEnd = DateTime.Parse(collection["DateEnd"]),
+                    DateBegin = dateBegin,
+                    DateEnd = dateEnd,
                     EmployeeId = int.Parse(collection["EmployeeId"]),
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }
@@ -101,7 +115,7 @@ namespace CarService.Controllers
                 await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }

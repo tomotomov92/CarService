@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -14,12 +16,14 @@ namespace CarService.Controllers
         private readonly ILogger<ClientCarController> _logger;
         private readonly IBaseBL<ClientCarDTO> _bl;
         private readonly IBaseBL<CarBrandDTO> _carBrandBl;
+        private readonly IBaseBL<ClientDTO> _clientBl;
 
-        public ClientCarController(ILogger<ClientCarController> logger, IBaseBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl)
+        public ClientCarController(ILogger<ClientCarController> logger, IBaseBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, IBaseBL<ClientDTO> clientBl)
         {
             _logger = logger;
             _bl = bl;
             _carBrandBl = carBrandBl;
+            _clientBl = clientBl;
         }
 
         public async Task<ActionResult> Index()
@@ -29,19 +33,22 @@ namespace CarService.Controllers
             return View(resultsAsModel);
         }
 
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         public async Task<ActionResult> Create(int clientId)
         {
-            var activeEmployeeRoles = await _carBrandBl.GetAllActiveAsync();
-            var employeeRolesOptions = new SelectList(activeEmployeeRoles, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
+            var activeCarBrands = await _carBrandBl.GetAllActiveAsync();
+            var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
+            var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
+
             var model = new ClientCarModel
             {
                 ClientId = clientId,
-                CarBrandOptions = employeeRolesOptions,
+                CarBrandId = activeCarBrands.First().Id,
+                CarBrandOptions = carBrandOptions,
             };
             return View(model);
         }
@@ -61,15 +68,15 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return await Create(clientId: int.Parse(collection["ClientId"]));
             }
         }
 
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         [HttpPost]
@@ -89,15 +96,15 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return GetRecordById(id);
+                return await GetRecordById(id);
             }
         }
 
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         [HttpPost]
@@ -109,16 +116,26 @@ namespace CarService.Controllers
                 await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return GetRecordById(id);
+                return await GetRecordById(id);
             }
         }
 
-        private ActionResult GetRecordById(int id)
+        private async Task<ActionResult> GetRecordById(int id)
         {
+            var activeCarBrands = await _carBrandBl.GetAllActiveAsync();
+            var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
+            var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
+
+            var activeClients = await _clientBl.GetAllActiveAsync();
+            var activeClientsAsModel = ClientModel.FromDtos(activeClients);
+            var clientOptions = new SelectList(activeClientsAsModel, nameof(ClientModel.Id), nameof(ClientModel.FullName));
+
             var resultAsDTO = _bl.Get(id);
             var resultAsModel = ClientCarModel.FromDto(resultAsDTO);
+            resultAsModel.ClientOptions = clientOptions;
+            resultAsModel.CarBrandOptions = carBrandOptions;
             return View(resultAsModel);
         }
     }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -30,17 +31,20 @@ namespace CarService.Controllers
             return View(resultsAsModel);
         }
 
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         public async Task<ActionResult> Create()
         {
             var activeEmployeeRoles = await _employeeRoleBl.GetAllActiveAsync();
-            var employeeRolesOptions = new SelectList(activeEmployeeRoles, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
+            var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
+            var employeeRolesOptions = new SelectList(activeEmployeeRolesAsModel, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
+
             var model = new EmployeeModel
             {
+                EmployeeRoleId = activeEmployeeRoles.First().Id,
                 EmployeeRoleOptions = employeeRolesOptions,
             };
             return View(model);
@@ -63,15 +67,15 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return await Create();
             }
         }
 
-        public ActionResult Edit(int id)
+        public async Task<ActionResult> Edit(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         [HttpPost]
@@ -93,15 +97,15 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return GetRecordById(id);
+                return await GetRecordById(id);
             }
         }
 
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            return GetRecordById(id);
+            return await GetRecordById(id);
         }
 
         [HttpPost]
@@ -113,16 +117,21 @@ namespace CarService.Controllers
                 await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return GetRecordById(id);
+                return await GetRecordById(id);
             }
         }
 
-        private ActionResult GetRecordById(int id)
+        private async Task<ActionResult> GetRecordById(int id)
         {
+            var activeEmployeeRoles = await _employeeRoleBl.GetAllActiveAsync();
+            var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
+            var employeeRolesOptions = new SelectList(activeEmployeeRolesAsModel, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
+
             var resultAsDTO = _bl.Get(id);
             var resultAsModel = EmployeeModel.FromDto(resultAsDTO);
+            resultAsModel.EmployeeRoleOptions = employeeRolesOptions;
             return View(resultAsModel);
         }
     }

@@ -24,12 +24,18 @@ namespace CarService.Models
         [Required, DisplayName("Inspection Car Mileage")]
         public int Mileage { get; set; }
 
-        [Required, DisplayName("Inspection Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        [Required, DisplayName("Inspection Date"), DataType(DataType.DateTime)]
         public DateTime DateTimeOfInspection { get; set; }
 
         public string Description { get; set; }
 
         public bool Archived { get; set; }
+
+        [Required, DisplayName("Inspection Date"), DataType(DataType.Date)]
+        public DateTime DateForInspection { get; set; } = DateTime.Now;
+
+        [Required, DisplayName("Inspection Time"), DataType(DataType.Time)]
+        public TimeSpan TimeForInspection { get; set; } = TimeSpan.Parse("09:00:00");
 
         public static InspectionModel FromDto(InspectionDTO dto)
         {
@@ -44,6 +50,8 @@ namespace CarService.Models
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
                 Archived = dto.Archived,
+                DateForInspection = dto.DateTimeOfInspection.Date,
+                TimeForInspection = dto.DateTimeOfInspection.TimeOfDay,
             };
         }
 
@@ -60,6 +68,8 @@ namespace CarService.Models
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
                 Archived = dto.Archived,
+                DateForInspection = dto.DateTimeOfInspection.Date,
+                TimeForInspection = dto.DateTimeOfInspection.TimeOfDay,
             });
         }
 

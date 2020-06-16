@@ -1,15 +1,15 @@
 ﻿@model CarService.Models.ScheduleModel
 
 @{
-    ViewData["Title"] = "Create Schedule";
+    ViewData["Title"] = "Edit Schedule";
 }
 
-<h1>Create Schedule</h1>
+<h1>Edit Schedule</h1>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ScheduleDate" class="control-label"></label>
@@ -26,13 +26,13 @@
                 <input asp-for="ScheduleEndTime" class="form-control" />
                 <span asp-validation-for="ScheduleEndTime" class="text-danger"></span>
             </div>
-            <div class="form-group" style="display:none">
+            <div class="form-group">
                 <label asp-for="EmployeeId" class="control-label"></label>
                 <input asp-for="EmployeeId" class="form-control" />
                 <span asp-validation-for="EmployeeId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -42,6 +42,3 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

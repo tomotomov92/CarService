@@ -16,7 +16,7 @@ namespace CarService.Models
 
         public InspectionModel Inspection { get; set; }
 
-        [Required, DisplayName("Invoice Date"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
+        [Required, DisplayName("Invoice Date"), DataType(DataType.DateTime)]
         public DateTime InvoiceDate { get; set; }
 
         [Required, DisplayName("Invoice Sum")]
@@ -25,6 +25,12 @@ namespace CarService.Models
         public string Description { get; set; }
 
         public bool Archived { get; set; }
+
+        [Required, DisplayName("Invoice Date"), DataType(DataType.Date)]
+        public DateTime DateForInvoice { get; set; } = DateTime.Now;
+
+        [Required, DisplayName("Invoice Time"), DataType(DataType.Time)]
+        public TimeSpan TimeForInvoice { get; set; } = TimeSpan.Parse("09:00:00");
 
         public static InvoiceModel FromDto(InvoiceDTO dto)
         {
@@ -37,6 +43,8 @@ namespace CarService.Models
                 InvoiceDate = dto.InvoiceDate,
                 Description = dto.Description,
                 Archived = dto.Archived,
+                DateForInvoice = dto.InvoiceDate.Date,
+                TimeForInvoice = dto.InvoiceDate.TimeOfDay,
             };
         }
 
@@ -51,6 +59,8 @@ namespace CarService.Models
                 InvoiceDate = dto.InvoiceDate,
                 Description = dto.Description,
                 Archived = dto.Archived,
+                DateForInvoice = dto.InvoiceDate.Date,
+                TimeForInvoice = dto.InvoiceDate.TimeOfDay,
             });
         }
 

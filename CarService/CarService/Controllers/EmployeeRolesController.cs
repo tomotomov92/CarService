@@ -4,6 +4,7 @@ using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -48,9 +49,9 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return Create();
             }
         }
 
@@ -73,7 +74,7 @@ namespace CarService.Controllers
                 });
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }
@@ -93,7 +94,7 @@ namespace CarService.Controllers
                 await _bl.DeleteAsync(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
                 return GetRecordById(id);
             }

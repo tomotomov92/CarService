@@ -28,7 +28,7 @@ namespace BusinessLogic.BLs
         public override async Task<EmployeeDTO> UpdateAsync(EmployeeDTO dto)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"UPDATE Employees SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, Password = @password, DateOfStart = @dateOfStart, EmployeeRoleId = @employeeRoleId, Archived = @archived WHERE Id = @id;";
+            cmd.CommandText = @"UPDATE Employees SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, EmployeeRoleId = @employeeRoleId, Archived = @archived WHERE Id = @id;";
             BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
