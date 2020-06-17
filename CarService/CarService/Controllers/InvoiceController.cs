@@ -12,9 +12,9 @@ namespace CarService.Controllers
     public class InvoiceController : Controller
     {
         private readonly ILogger<InvoiceController> _logger;
-        private readonly IBaseBL<InvoiceDTO> _bl;
+        private readonly IInvoiceBL<InvoiceDTO> _bl;
 
-        public InvoiceController(ILogger<InvoiceController> logger, IBaseBL<InvoiceDTO> bl)
+        public InvoiceController(ILogger<InvoiceController> logger, IInvoiceBL<InvoiceDTO> bl)
         {
             _logger = logger;
             _bl = bl;
@@ -118,6 +118,13 @@ namespace CarService.Controllers
             {
                 return GetRecordById(id);
             }
+        }
+
+        public ActionResult ClientInvoices(int clientId)
+        {
+            var resultsAsDTO = _bl.ReadForClientId(clientId);
+            var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
         }
 
         private ActionResult GetRecordById(int id)

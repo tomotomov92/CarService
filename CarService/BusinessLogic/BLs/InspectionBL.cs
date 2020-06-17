@@ -1,10 +1,11 @@
 ﻿using BusinessLogic.DTOs;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 using System.Data;
 
 namespace BusinessLogic.BLs
 {
-    public class InspectionBL : BaseBL<InspectionDTO>
+    public class InspectionBL : BaseBL<InspectionDTO>, IInspectionBL<InspectionDTO>
     {
         public override string InsertSQL => "INSERT INTO Inspections (ClientId, CarId, Mileage, DateTimeOfInspection, Description, Archived) VALUES (@clientId, @carId, @mileage, @dateTimeOfInspection, @description, @archived);";
 
@@ -48,10 +49,52 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public override string DeleteSQL => "DELETE FROM Inspections WHERE Id = @id;";
 
+        public string SelectForClientIdSQL => $"{SelectSQL} WHERE Inspections.ClientId = @clientId;";
+
+        public string SelectForCarIdSQL => $"{SelectSQL} WHERE Inspections.CarId = @carId;";
+
         public InspectionBL(AppDb db)
             : base(db)
         {
 
+        }
+
+        public IEnumerable<InspectionDTO> ReadForClientId(int clientId)
+        {
+            var results = new List<InspectionDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForClientIdSQL;
+            BindParams(cmd, new InspectionDTO
+            {
+                ClientId = clientId,
+            });
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
+        }
+
+        public IEnumerable<InspectionDTO> ReadForCarId(int carId)
+        {
+            var results = new List<InspectionDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForCarIdSQL;
+            BindParams(cmd, new InspectionDTO
+            {
+                CarId = carId,
+            });
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
         }
 
         protected override void BindParams(MySqlCommand cmd, InspectionDTO dto)

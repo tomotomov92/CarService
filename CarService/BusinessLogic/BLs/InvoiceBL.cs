@@ -1,10 +1,11 @@
 ﻿using BusinessLogic.DTOs;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 using System.Data;
 
 namespace BusinessLogic.BLs
 {
-    public class InvoiceBL : BaseBL<InvoiceDTO>
+    public class InvoiceBL : BaseBL<InvoiceDTO>, IInvoiceBL<InvoiceDTO>
     {
         public override string InsertSQL => "INSERT INTO Invoices (InspectionId, InvoiceDate, InvoiceSum, Description, Archived) VALUES (@inspectionId, @invoiceDate, @invoiceSum, @description, @archived);";
 
@@ -55,11 +56,35 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public override string DeleteSQL => "DELETE FROM Invoices WHERE Id = @id;";
 
+        public string SelectForClientIdSQL => $"{SelectSQL} WHERE Inspections.ClientId = @clientId;";
+
         public InvoiceBL(AppDb db)
             : base(db)
         {
 
         }
+
+        public IEnumerable<InvoiceDTO> ReadForClientId(int clientId)
+        {
+            var results = new List<InvoiceDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForClientIdSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@clientId",
+                DbType = DbType.Int32,
+                Value = clientId,
+            });
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
+        }
+
         protected override void BindParams(MySqlCommand cmd, InvoiceDTO dto)
         {
             cmd.Parameters.Add(new MySqlParameter

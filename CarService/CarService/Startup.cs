@@ -26,11 +26,11 @@ namespace CarService
 
             services.AddTransient<IBaseBL<CarBrandDTO>, CarBrandBL>();
             services.AddTransient<IBaseBL<ClientDTO>, ClientBL>();
-            services.AddTransient<IBaseBL<ClientCarDTO>, ClientCarBL>();
+            services.AddTransient<IClientCarBL<ClientCarDTO>, ClientCarBL>();
             services.AddTransient<IBaseBL<EmployeeDTO>, EmployeeBL>();
             services.AddTransient<IBaseBL<EmployeeRoleDTO>, EmployeeRoleBL>();
-            services.AddTransient<IBaseBL<InspectionDTO>, InspectionBL>();
-            services.AddTransient<IBaseBL<InvoiceDTO>, InvoiceBL>();
+            services.AddTransient<IInspectionBL<InspectionDTO>, InspectionBL>();
+            services.AddTransient<IInvoiceBL<InvoiceDTO>, InvoiceBL>();
             services.AddTransient<IBaseBL<ScheduleDTO>, ScheduleBL>();
         }
 

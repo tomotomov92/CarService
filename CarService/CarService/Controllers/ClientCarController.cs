@@ -14,11 +14,11 @@ namespace CarService.Controllers
     public class ClientCarController : Controller
     {
         private readonly ILogger<ClientCarController> _logger;
-        private readonly IBaseBL<ClientCarDTO> _bl;
+        private readonly IClientCarBL<ClientCarDTO> _bl;
         private readonly IBaseBL<CarBrandDTO> _carBrandBl;
         private readonly IBaseBL<ClientDTO> _clientBl;
 
-        public ClientCarController(ILogger<ClientCarController> logger, IBaseBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, IBaseBL<ClientDTO> clientBl)
+        public ClientCarController(ILogger<ClientCarController> logger, IClientCarBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, IBaseBL<ClientDTO> clientBl)
         {
             _logger = logger;
             _bl = bl;
@@ -120,6 +120,13 @@ namespace CarService.Controllers
             {
                 return GetRecordById(id);
             }
+        }
+
+        public ActionResult ClientCars(int clientId)
+        {
+            var resultsAsDTO = _bl.ReadForClientId(clientId);
+            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
         }
 
         private ActionResult GetRecordById(int id)

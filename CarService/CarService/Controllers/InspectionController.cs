@@ -12,9 +12,9 @@ namespace CarService.Controllers
     public class InspectionController : Controller
     {
         private readonly ILogger<InspectionController> _logger;
-        private readonly IBaseBL<InspectionDTO> _bl;
+        private readonly IInspectionBL<InspectionDTO> _bl;
 
-        public InspectionController(ILogger<InspectionController> logger, IBaseBL<InspectionDTO> bl)
+        public InspectionController(ILogger<InspectionController> logger, IInspectionBL<InspectionDTO> bl)
         {
             _logger = logger;
             _bl = bl;
@@ -122,6 +122,20 @@ namespace CarService.Controllers
             {
                 return GetRecordById(id);
             }
+        }
+
+        public ActionResult ClientInspections(int clientId)
+        {
+            var resultsAsDTO = _bl.ReadForClientId(clientId);
+            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
+        }
+
+        public ActionResult CarInspections(int carId)
+        {
+            var resultsAsDTO = _bl.ReadForCarId(carId);
+            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
         }
 
         private ActionResult GetRecordById(int id)

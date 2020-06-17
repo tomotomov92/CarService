@@ -1,10 +1,11 @@
 ﻿using BusinessLogic.DTOs;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
 using System.Data;
 
 namespace BusinessLogic.BLs
 {
-    public class ClientCarBL : BaseBL<ClientCarDTO>
+    public class ClientCarBL : BaseBL<ClientCarDTO>, IClientCarBL<ClientCarDTO>
     {
         public override string InsertSQL => "INSERT INTO ClientCars (ClientId, CarBrandId, LicensePlate, Mileage, Archived) VALUES (@clientId, @carBrandId, @licensePlate, @mileage, @archived);";
 
@@ -35,10 +36,30 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public override string DeleteSQL => "DELETE FROM ClientCars WHERE Id = @id;";
 
+        public string SelectForClientIdSQL => $"{SelectSQL} WHERE ClientCars.ClientId = @clientId;";
+
         public ClientCarBL(AppDb db)
             : base(db)
         {
 
+        }
+        public IEnumerable<ClientCarDTO> ReadForClientId(int clientId)
+        {
+            var results = new List<ClientCarDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForClientIdSQL;
+            BindParams(cmd, new ClientCarDTO
+            {
+                ClientId = clientId,
+            });
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
         }
 
         protected override void BindParams(MySqlCommand cmd, ClientCarDTO dto)
