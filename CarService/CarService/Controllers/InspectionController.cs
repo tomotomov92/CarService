@@ -20,9 +20,9 @@ namespace CarService.Controllers
             _bl = bl;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
-            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsDTO = _bl.ReadAll();
             var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
@@ -54,7 +54,7 @@ namespace CarService.Controllers
 
                 var dateTimeOfInspection = dateForInspection + timeForInspection;
 
-                await _bl.AddAsync(new InspectionDTO
+                await _bl.CreateAsync(new InspectionDTO
                 {
                     ClientId = int.Parse(collection["ClientId"]),
                     CarId = int.Parse(collection["CarId"]),
@@ -126,7 +126,7 @@ namespace CarService.Controllers
 
         private ActionResult GetRecordById(int id)
         {
-            var resultAsDTO = _bl.Get(id);
+            var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = InspectionModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }

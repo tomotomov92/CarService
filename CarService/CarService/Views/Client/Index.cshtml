@@ -41,6 +41,9 @@
             {
                 <td>
                     @Html.ActionLink("Add Car", "Create", "ClientCar", new { clientId = item.Id }) |
+                    @Html.ActionLink("Cars", "ClientCars", "ClientCar", new { clientId = item.Id }) |
+                    @Html.ActionLink("Inspections", "ClientInspections", "Inspection", new { clientId = item.Id }) |
+                    @Html.ActionLink("Invoices", "ClientInvoices", "Invoice", new { clientId = item.Id }) |
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })
@@ -49,6 +52,9 @@
             else
             {
                 <td>
+                    @Html.ActionLink("Cars", "ClientCars", "ClientCar", new { clientId = item.Id }) |
+                    @Html.ActionLink("Inspections", "ClientInspections", "Inspection", new { clientId = item.Id }) |
+                    @Html.ActionLink("Invoices", "ClientInvoices", "Invoice", new { clientId = item.Id }) |
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })

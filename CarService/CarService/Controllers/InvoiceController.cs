@@ -20,9 +20,9 @@ namespace CarService.Controllers
             _bl = bl;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
-            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsDTO = _bl.ReadAll();
             var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
@@ -52,7 +52,7 @@ namespace CarService.Controllers
 
                 var invoiceDate = dateForInvoice + timeForInvoice;
 
-                await _bl.AddAsync(new InvoiceDTO
+                await _bl.CreateAsync(new InvoiceDTO
                 {
                     InspectionId = int.Parse(collection["InspectionId"]),
                     InvoiceDate = invoiceDate,
@@ -122,7 +122,7 @@ namespace CarService.Controllers
 
         private ActionResult GetRecordById(int id)
         {
-            var resultAsDTO = _bl.Get(id);
+            var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = InvoiceModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }

@@ -20,9 +20,9 @@ namespace CarService.Controllers
             _bl = bl;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
-            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsDTO = _bl.ReadAll();
             var resultsAsModel = ScheduleModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
@@ -54,7 +54,7 @@ namespace CarService.Controllers
                 var dateBegin = scheduleDate + scheduleStartTime;
                 var dateEnd = scheduleDate + scheduleEndTime;
 
-                await _bl.AddAsync(new ScheduleDTO
+                await _bl.CreateAsync(new ScheduleDTO
                 {
                     DateBegin = dateBegin,
                     DateEnd = dateEnd,
@@ -123,7 +123,7 @@ namespace CarService.Controllers
 
         private ActionResult GetRecordById(int id)
         {
-            var resultAsDTO = _bl.Get(id);
+            var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = ScheduleModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }

@@ -7,18 +7,18 @@ namespace BusinessLogic.BLs
     public interface IBaseBL<T>
         where T : IBaseDTO
     {
-        AppDb Db { get; set; }
+        AppDb Db { get; }
 
-        Task<T> AddAsync(T dto);
+        Task<T> CreateAsync(T dto);
 
         Task<T> UpdateAsync(T dto);
 
-        T Get(int id);
+        T ReadById(int id);
+
+        IEnumerable<T> ReadAll();
+
+        IEnumerable<T> ReadActive();
 
         Task DeleteAsync(int id);
-
-        Task<IEnumerable<T>> GetAllAsync();
-
-        Task<IEnumerable<T>> GetAllActiveAsync();
     }
 }

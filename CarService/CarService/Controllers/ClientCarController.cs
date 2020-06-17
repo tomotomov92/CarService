@@ -26,21 +26,21 @@ namespace CarService.Controllers
             _clientBl = clientBl;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
-            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsDTO = _bl.ReadAll();
             var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
 
-        public async Task<ActionResult> Details(int id)
+        public ActionResult Details(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
-        public async Task<ActionResult> Create(int clientId)
+        public ActionResult Create(int clientId)
         {
-            var activeCarBrands = await _carBrandBl.GetAllActiveAsync();
+            var activeCarBrands = _carBrandBl.ReadActive();
             var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
             var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
 
@@ -59,7 +59,7 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.AddAsync(new ClientCarDTO
+                await _bl.CreateAsync(new ClientCarDTO
                 {
                     ClientId = int.Parse(collection["ClientId"]),
                     CarBrandId = int.Parse(collection["CarBrandId"]),
@@ -70,13 +70,13 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await Create(clientId: int.Parse(collection["ClientId"]));
+                return Create(clientId: int.Parse(collection["ClientId"]));
             }
         }
 
-        public async Task<ActionResult> Edit(int id)
+        public ActionResult Edit(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
         [HttpPost]
@@ -98,13 +98,13 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await GetRecordById(id);
+                return GetRecordById(id);
             }
         }
 
-        public async Task<ActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
         [HttpPost]
@@ -118,21 +118,21 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await GetRecordById(id);
+                return GetRecordById(id);
             }
         }
 
-        private async Task<ActionResult> GetRecordById(int id)
+        private ActionResult GetRecordById(int id)
         {
-            var activeCarBrands = await _carBrandBl.GetAllActiveAsync();
+            var activeCarBrands = _carBrandBl.ReadActive();
             var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
             var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
 
-            var activeClients = await _clientBl.GetAllActiveAsync();
+            var activeClients = _clientBl.ReadActive();
             var activeClientsAsModel = ClientModel.FromDtos(activeClients);
             var clientOptions = new SelectList(activeClientsAsModel, nameof(ClientModel.Id), nameof(ClientModel.FullName));
 
-            var resultAsDTO = _bl.Get(id);
+            var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = ClientCarModel.FromDto(resultAsDTO);
             resultAsModel.ClientOptions = clientOptions;
             resultAsModel.CarBrandOptions = carBrandOptions;

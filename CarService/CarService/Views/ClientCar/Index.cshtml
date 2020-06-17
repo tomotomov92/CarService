@@ -50,6 +50,7 @@
             {
                 <td>
                     @Html.ActionLink("Schedule Inspection", "Create", "Inspection", new { clientId = item.ClientId, carId = item.Id }) |
+                    @Html.ActionLink("Inspections", "CarInspections", "Inspection", new { carId = item.Id }) |
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })
@@ -58,6 +59,7 @@
             else
             {
                 <td>
+                    @Html.ActionLink("Inspections", "CarInspections", "Inspection", new { carId = item.Id }) |
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { id = item.Id })

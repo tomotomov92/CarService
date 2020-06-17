@@ -24,21 +24,21 @@ namespace CarService.Controllers
             _employeeRoleBl = employeeRoleBl;
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
-            var resultsAsDTO = await _bl.GetAllAsync();
+            var resultsAsDTO = _bl.ReadAll();
             var resultsAsModel = EmployeeModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
 
-        public async Task<ActionResult> Details(int id)
+        public ActionResult Details(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
-        public async Task<ActionResult> Create()
+        public ActionResult Create()
         {
-            var activeEmployeeRoles = await _employeeRoleBl.GetAllActiveAsync();
+            var activeEmployeeRoles = _employeeRoleBl.ReadActive();
             var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
             var employeeRolesOptions = new SelectList(activeEmployeeRolesAsModel, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
 
@@ -56,7 +56,7 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.AddAsync(new EmployeeDTO
+                await _bl.CreateAsync(new EmployeeDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
@@ -69,13 +69,13 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await Create();
+                return Create();
             }
         }
 
-        public async Task<ActionResult> Edit(int id)
+        public ActionResult Edit(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
         [HttpPost]
@@ -91,7 +91,6 @@ namespace CarService.Controllers
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
-                    DateOfStart = DateTime.Parse(collection["DateOfStart"]),
                     EmployeeRoleId = int.Parse(collection["EmployeeRoleId"]),
                     Archived = bool.Parse(collection["Archived"][0]),
                 });
@@ -99,13 +98,13 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await GetRecordById(id);
+                return GetRecordById(id);
             }
         }
 
-        public async Task<ActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
-            return await GetRecordById(id);
+            return GetRecordById(id);
         }
 
         [HttpPost]
@@ -119,17 +118,17 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return await GetRecordById(id);
+                return GetRecordById(id);
             }
         }
 
-        private async Task<ActionResult> GetRecordById(int id)
+        private ActionResult GetRecordById(int id)
         {
-            var activeEmployeeRoles = await _employeeRoleBl.GetAllActiveAsync();
+            var activeEmployeeRoles = _employeeRoleBl.ReadActive();
             var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
             var employeeRolesOptions = new SelectList(activeEmployeeRolesAsModel, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
 
-            var resultAsDTO = _bl.Get(id);
+            var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = EmployeeModel.FromDto(resultAsDTO);
             resultAsModel.EmployeeRoleOptions = employeeRolesOptions;
             return View(resultAsModel);
