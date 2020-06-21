@@ -1,4 +1,4 @@
-﻿using BusinessLogic.BLs;
+﻿using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +14,7 @@ namespace CarService.Controllers
         private readonly ILogger<ClientController> _logger;
         private readonly IBaseBL<ClientDTO> _bl;
 
-        public ClientController(ILogger<ClientController> logger, IBaseBL<ClientDTO> bl)
+        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, IBaseBL<ClientDTO> bl)
         {
             _logger = logger;
             _bl = bl;

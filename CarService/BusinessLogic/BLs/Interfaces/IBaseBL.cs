@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.BLs
+namespace BusinessLogic.BLs.Interfaces
 {
     public interface IBaseBL<T>
         where T : IBaseDTO

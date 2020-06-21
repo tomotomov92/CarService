@@ -1,4 +1,5 @@
-﻿using BusinessLogic.DTOs;
+﻿using BusinessLogic.BLs.Interfaces;
+using BusinessLogic.DTOs;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Data;

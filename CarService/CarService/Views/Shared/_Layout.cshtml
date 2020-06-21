@@ -1,4 +1,17 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    var userName = @HttpContextAccessor.HttpContext.Session.GetString(BusinessLogic.Constants.SessionKeyUserName);
+    var userRole = BusinessLogic.Enums.UserRoles.NA;
+    var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
+    if (userRoleInt != null)
+    {
+        userRole = (BusinessLogic.Enums.UserRoles)userRoleInt;
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -18,30 +31,100 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CarBrand" asp-action="Index">Car Brands</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Client" asp-action="Index">Clients</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ClientCar" asp-action="Index">Client Cars</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Employees</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="EmployeeRole" asp-action="Index">Employee Roles</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Inspection" asp-action="Index">Inspections</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Invoices</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Schedule" asp-action="Index">Schedules</a>
-                        </li>
+                        @switch (userRole)
+                        {
+                            case BusinessLogic.Enums.UserRoles.NA:
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogIn">Log In</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogInEmployee">Employee Log In</a>
+                                </li>
+                                break;
+                            case BusinessLogic.Enums.UserRoles.Owner:
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="CarBrand" asp-action="Index">Car Brands</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Client" asp-action="Index">Clients</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="ClientCar" asp-action="Index">Client Cars</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Employees</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="EmployeeRole" asp-action="Index">Employee Roles</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Inspection" asp-action="Index">Inspections</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Invoices</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Schedule" asp-action="Index">Schedules</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogOut">Log Out</a>
+                                </li>
+                                break;
+                            case BusinessLogic.Enums.UserRoles.Mechanic:
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Inspection" asp-action="Index">My Inspections</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Schedule" asp-action="Index">Schedules</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogOut">Log Out</a>
+                                </li>
+                                break;
+                            case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="CarBrand" asp-action="Index">Car Brands</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Client" asp-action="Index">Clients</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="ClientCar" asp-action="Index">Client Cars</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="Index">Employees</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Inspection" asp-action="Index">Inspections</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">Invoices</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Schedule" asp-action="Index">Schedules</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogOut">Log Out</a>
+                                </li>
+                                break;
+                            case BusinessLogic.Enums.UserRoles.Customer:
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="ClientCar" asp-action="Index">My Cars</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Inspection" asp-action="Index">My Inspections</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Invoice" asp-action="Index">My Invoices</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Schedule" asp-action="Index">My Schedules</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogOut">Log Out</a>
+                                </li>
+                                break;
+                        }
                     </ul>
                 </div>
             </div>

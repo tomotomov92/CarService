@@ -1,4 +1,4 @@
-﻿using BusinessLogic.BLs;
+﻿using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +14,7 @@ namespace CarService.Controllers
         private readonly ILogger<ScheduleController> _logger;
         private readonly IBaseBL<ScheduleDTO> _bl;
 
-        public ScheduleController(ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl)
+        public ScheduleController(IHttpContextAccessor httpContextAccessor, ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl)
         {
             _logger = logger;
             _bl = bl;

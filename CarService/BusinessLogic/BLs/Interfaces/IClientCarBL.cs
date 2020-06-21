@@ -1,7 +1,7 @@
 ﻿using BusinessLogic.DTOs;
 using System.Collections.Generic;
 
-namespace BusinessLogic.BLs
+namespace BusinessLogic.BLs.Interfaces
 {
     public interface IClientCarBL<T> : IBaseBL<T>
         where T : IBaseDTO

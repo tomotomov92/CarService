@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using CarService.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace CarService.Controllers
 {
@@ -9,7 +10,7 @@ namespace CarService.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IHttpContextAccessor httpContextAccessor, ILogger<HomeController> logger)
         {
             _logger = logger;
         }
