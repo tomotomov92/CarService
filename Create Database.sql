@@ -2,7 +2,7 @@ CREATE DATABASE `CarService` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 
 
-CREATE TABLE `carservice`.`CarBrands` (
+CREATE TABLE `CarService`.`CarBrands` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `BrandName` varchar(45) NOT NULL,
   `Archived` bit NOT NULL DEFAULT 0,
@@ -11,7 +11,7 @@ CREATE TABLE `carservice`.`CarBrands` (
 
 
 
-CREATE TABLE `carservice`.`Clients` (
+CREATE TABLE `CarService`.`Clients` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `FirstName` varchar(100) NOT NULL,
   `LastName` varchar(100) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE `carservice`.`Clients` (
 
 
 
-CREATE TABLE `carservice`.`ClientCars` (
+CREATE TABLE `CarService`.`ClientCars` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `ClientId` int(11) NOT NULL,
   `CarBrandId` int(11) NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE `carservice`.`ClientCars` (
 
 
 
-CREATE TABLE `carservice`.`EmployeeRoles` (
+CREATE TABLE `CarService`.`EmployeeRoles` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `EmployeeRoleName` varchar(100) NOT NULL,
   `Archived` bit NOT NULL DEFAULT 0,
@@ -49,7 +49,7 @@ CREATE TABLE `carservice`.`EmployeeRoles` (
 
 
 
-CREATE TABLE `carservice`.`Employees` (
+CREATE TABLE `CarService`.`Employees` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `FirstName` varchar(100) NOT NULL,
   `LastName` varchar(100) NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE `carservice`.`Employees` (
 
 
 
-CREATE TABLE `carservice`.`Inspections` (
+CREATE TABLE `CarService`.`Inspections` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `ClientId` int(11) NOT NULL,
   `CarId` int(11) NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE `carservice`.`Inspections` (
 
 
 
-CREATE TABLE `carservice`.`InspectionEmployees` (
+CREATE TABLE `CarService`.`InspectionEmployees` (
   `InspectionId` int(11) NOT NULL,
   `EmployeeId` int(11) NOT NULL,
 	UNIQUE INDEX `ui_InspectionEmployees_InspectionId_EmployeeId_idx` (`InspectionId`, `EmployeeId`),
@@ -95,7 +95,7 @@ CREATE TABLE `carservice`.`InspectionEmployees` (
 
 
 
-CREATE TABLE `carservice`.`Invoices` (
+CREATE TABLE `CarService`.`Invoices` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `InspectionId` int(11) NOT NULL,
   `InvoiceDate` datetime(6) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE `carservice`.`Invoices` (
 
 
 
-CREATE TABLE `carservice`.`Schedules` (
+CREATE TABLE `CarService`.`Schedules` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `DateBegin` datetime(6) NOT NULL,
   `DateEnd` datetime(6) NOT NULL,

@@ -74,8 +74,8 @@ VALUES
 INSERT INTO `CarService`.`EmployeeRoles` (`EmployeeRoleName`)
 VALUES
 ('Owner'),
-('Customer Support'),
-('Mechanic');
+('Mechanic'),
+('Customer Support');
 /*END*/
 
 
