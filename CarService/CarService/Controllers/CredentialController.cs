@@ -1,26 +1,31 @@
 ﻿using BusinessLogic;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
-using BusinessLogic.Enums;
+using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
     public class CredentialController : Controller
     {
         private readonly ILogger<EmployeeController> _logger;
-        private readonly IBaseBL<EmployeeDTO> _employeeBl;
+        private readonly ICredentialBL<ClientDTO> _clientBl;
+        private readonly ICredentialBL<EmployeeDTO> _employeeBl;
 
-        public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, IBaseBL<EmployeeDTO> employeeBl)
+        public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl)
         {
             _logger = logger;
+            _clientBl = clientBl;
             _employeeBl = employeeBl;
         }
 
-        [Route("LogIn")]
-        public ActionResult LogIn()
+        #region Client
+
+        [Route("SignUp")]
+        public ActionResult SignUp()
         {
             var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
             if (string.IsNullOrEmpty(userName))
@@ -30,20 +35,26 @@ namespace CarService.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        [Route("LogIn")]
+        [Route("SignUp")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult LogIn(IFormCollection collection)
+        public async Task<ActionResult> SignUp(IFormCollection collection)
         {
             try
             {
-                if (true)
+                var loginResult = await _clientBl.RegisterAsync(new CredentialDTO
                 {
-                    HttpContext.Session.SetString(Constants.SessionKeyUserName, collection["EmailAddress"]);
-                    HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)UserRoles.Customer);
+                    EmailAddress = collection["EmailAddress"],
+                    Password = collection["Password"],
+                });
+                if (loginResult.SuccessfulOperation)
+                {
+                    HttpContext.Session.SetInt32(Constants.SessionKeyUserId, loginResult.Id);
+                    HttpContext.Session.SetString(Constants.SessionKeyUserName, loginResult.EmailAddress);
+                    HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)loginResult.UserRole);
                     return RedirectToAction(nameof(HomeController.Index), "Home");
                 }
-                return View();
+                return View(CredentialModel.FromDto(loginResult));
             }
             catch
             {
@@ -51,26 +62,44 @@ namespace CarService.Controllers
             }
         }
 
-        [Route("LogInEmployee")]
-        public ActionResult LogInEmployee()
+        [Route("SignIn")]
+        public ActionResult SignIn()
         {
-            return View();
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View();
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        [Route("LogInEmployee")]
+        [Route("SignIn")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult LogInEmployee(IFormCollection collection)
+        public ActionResult SignIn(IFormCollection collection)
         {
             try
             {
-                if (true)
+                var loginResult = _clientBl.LogIn(new CredentialDTO
                 {
-                    HttpContext.Session.SetString(Constants.SessionKeyUserName, collection["EmailAddress"]);
-                    HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)UserRoles.Owner);
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    EmailAddress = collection["EmailAddress"],
+                    Password = collection["Password"],
+                });
+                if (loginResult.SuccessfulOperation)
+                {
+                    if (loginResult.RequirePasswordChange)
+                    {
+                        return ChangePassword(loginResult.Id);
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetInt32(Constants.SessionKeyUserId, loginResult.Id);
+                        HttpContext.Session.SetString(Constants.SessionKeyUserName, loginResult.EmailAddress);
+                        HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)loginResult.UserRole);
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
                 }
-                return View();
+                return View(CredentialModel.FromDto(loginResult));
             }
             catch
             {
@@ -78,74 +107,257 @@ namespace CarService.Controllers
             }
         }
 
-        [Route("LogOut")]
-        public ActionResult LogOut()
+        [Route("ChangePassword")]
+        public ActionResult ChangePassword(int id)
         {
-            HttpContext.Session.Clear();
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (!string.IsNullOrEmpty(userName))
+            {
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [Route("ChangePassword")]
-        public ActionResult ChangePassword()
-        {
-            return View();
-        }
-
-        [Route("ChangePassword")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangePassword(IFormCollection collection)
+        public ActionResult ChangePassword(int id, IFormCollection collection)
         {
             try
             {
-                return View();
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch
             {
-                return View();
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
             }
         }
 
         [Route("ForgottenPassword")]
         public ActionResult ForgottenPassword()
         {
-            return View();
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View();
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [Route("ForgottenPassword")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ForgottenPassword(IFormCollection collection)
+        public ActionResult ForgottenPassword(string emailAddress, IFormCollection collection)
         {
             try
             {
-                return View();
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch
             {
-                return View();
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                });
             }
         }
 
         [Route("ChangeForgottenPassword")]
-        public ActionResult ChangeForgottenPassword()
+        public ActionResult ChangeForgottenPassword(string emailAddress, string confirmationToken)
         {
-            return View();
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                    ConfirmationToken = confirmationToken,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [Route("ChangeForgottenPassword")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangeForgottenPassword(IFormCollection collection)
+        public ActionResult ChangeForgottenPassword(int id, IFormCollection collection)
         {
             try
             {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch
+            {
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
+        }
+
+        #endregion Client
+
+        #region Employee
+
+        [Route("SignInEmployee")]
+        public ActionResult SignInEmployee()
+        {
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
                 return View();
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [Route("SignInEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SignInEmployee(IFormCollection collection)
+        {
+            try
+            {
+                var loginResult = _clientBl.LogIn(new CredentialDTO
+                {
+                    EmailAddress = collection["EmailAddress"],
+                    Password = collection["Password"],
+                });
+                if (loginResult.SuccessfulOperation)
+                {
+                    if (loginResult.RequirePasswordChange)
+                    {
+                        return ChangePasswordEmployee(loginResult.Id);
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetInt32(Constants.SessionKeyUserId, loginResult.Id);
+                        HttpContext.Session.SetString(Constants.SessionKeyUserName, loginResult.EmailAddress);
+                        HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)loginResult.UserRole);
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                }
+                return View(CredentialModel.FromDto(loginResult));
             }
             catch
             {
                 return View();
             }
+        }
+
+        [Route("ChangePasswordEmployee")]
+        public ActionResult ChangePasswordEmployee(int id)
+        {
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (!string.IsNullOrEmpty(userName))
+            {
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [Route("ChangePasswordEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePasswordEmployee(int id, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch
+            {
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
+        }
+
+        [Route("ForgottenPasswordEmployee")]
+        public ActionResult ForgottenPasswordEmployee(string emailAddress)
+        {
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [Route("ForgottenPasswordEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ForgottenPasswordEmployee(string emailAddress, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                });
+            }
+        }
+
+        [Route("ChangeForgottenPasswordEmployee")]
+        public ActionResult ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
+        {
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (string.IsNullOrEmpty(userName))
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                    ConfirmationToken = confirmationToken,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [Route("ChangeForgottenPasswordEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangeForgottenPasswordEmployee(int id, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch
+            {
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
+        }
+
+        #endregion Employee
+
+        [Route("LogOut")]
+        public ActionResult LogOut()
+        {
+            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
+            if (!string.IsNullOrEmpty(userName))
+            {
+                HttpContext.Session.Clear();
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
     }
 }

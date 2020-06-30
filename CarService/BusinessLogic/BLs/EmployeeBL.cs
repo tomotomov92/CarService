@@ -1,10 +1,13 @@
-﻿using BusinessLogic.DTOs;
+﻿using BusinessLogic.BLs.Interfaces;
+using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
 {
-    public class EmployeeBL : BaseBL<EmployeeDTO>
+    public class EmployeeBL : BaseBL<EmployeeDTO>, ICredentialBL<EmployeeDTO>
     {
         public override string InsertSQL => "INSERT INTO Employees (FirstName, LastName, EmailAddress, Password, DateOfStart, EmployeeRoleId, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @archived);";
 
@@ -25,6 +28,8 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         public override string SelectByIdSQL => $"{SelectSQL} WHERE Employees.Id = @id;";
 
+        private string SelectByEmailAddressSQL => $"{SelectSQL} WHERE EmailAddress = @emailAddress;";
+
         public override string SelectActiveSQL => $"{SelectSQL} WHERE Employees.Archived = 0;";
 
         public override string UpdateSQL => "UPDATE Employees SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, EmployeeRoleId = @employeeRoleId, Archived = @archived WHERE Id = @id;";
@@ -35,6 +40,116 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             : base(db)
         {
 
+        }
+
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto)
+        {
+            var result = new CredentialDTO
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                EmailAddress = dto.EmailAddress,
+                SuccessfulOperation = false,
+            };
+            var employeeDTO = ReadByEmailAddress(dto.EmailAddress);
+            if (employeeDTO == null)
+            {
+                if (dto.Password != dto.RepeatPassword)
+                {
+                    result.ErrorMessage = Constants.RegistrationPasswordsDoNotMatch;
+                }
+                else
+                {
+                    employeeDTO = await CreateAsync(new EmployeeDTO
+                    {
+                        FirstName = dto.FirstName,
+                        LastName = dto.LastName,
+                        EmailAddress = dto.EmailAddress,
+                        Password = dto.HashedPassword,
+                    });
+
+                    if (employeeDTO.Id > 0)
+                    {
+                        result.Id = employeeDTO.Id;
+                        result.SuccessfulOperation = true;
+                    }
+                    else
+                    {
+                        result.ErrorMessage = Constants.ErrorDuringTheRegistrationTryAgain;
+                    }
+                }
+            }
+            else
+                result.ErrorMessage = Constants.UserAlreadyExists;
+            return result;
+        }
+
+        public CredentialDTO LogIn(CredentialDTO dto)
+        {
+            var result = new CredentialDTO
+            {
+                EmailAddress = dto.EmailAddress,
+                SuccessfulOperation = false,
+            };
+            var employeeDTO = ReadByEmailAddress(dto.EmailAddress);
+            if (employeeDTO == null)
+            {
+                result.ErrorMessage = Constants.EmailNotExist;
+            }
+            else if (dto.HashedPassword.Equals(employeeDTO.Password) &&
+                     dto.HashedPassword.Equals(Constants.DefaultPassword))
+            {
+                result.FirstName = employeeDTO.FirstName;
+                result.LastName = employeeDTO.LastName;
+                result.UserRole = (UserRoles)employeeDTO.EmployeeRoleId;
+                result.SuccessfulOperation = true;
+                result.RequirePasswordChange = true;
+            }
+            else if (employeeDTO.Password != dto.Password)
+            {
+                result.ErrorMessage = Constants.WrongPassword;
+            }
+            else
+            {
+                result.FirstName = employeeDTO.FirstName;
+                result.LastName = employeeDTO.LastName;
+                result.UserRole = (UserRoles)employeeDTO.EmployeeRoleId;
+                result.SuccessfulOperation = true;
+            }
+            return result;
+        }
+
+        public Task<bool> ChangeEmailAddressAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> ChangePasswordAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public EmployeeDTO ReadByEmailAddress(string emailAddress)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectByEmailAddressSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@emailAddress",
+                DbType = DbType.String,
+                Value = emailAddress,
+            });
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            if (reader.HasRows)
+                return BindToObject(reader);
+            else
+                return null;
         }
 
         protected override void BindParams(MySqlCommand cmd, EmployeeDTO dto)

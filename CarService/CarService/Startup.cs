@@ -39,9 +39,9 @@ namespace CarService
             services.AddTransient<AppDb>(_ => new AppDb(Configuration["ConnectionStrings:DefaultConnection"]));
 
             services.AddTransient<IBaseBL<CarBrandDTO>, CarBrandBL>();
-            services.AddTransient<IBaseBL<ClientDTO>, ClientBL>();
+            services.AddTransient<ICredentialBL<ClientDTO>, ClientBL>();
             services.AddTransient<IClientCarBL<ClientCarDTO>, ClientCarBL>();
-            services.AddTransient<IBaseBL<EmployeeDTO>, EmployeeBL>();
+            services.AddTransient<ICredentialBL<EmployeeDTO>, EmployeeBL>();
             services.AddTransient<IBaseBL<EmployeeRoleDTO>, EmployeeRoleBL>();
             services.AddTransient<IInspectionBL<InspectionDTO>, InspectionBL>();
             services.AddTransient<IInvoiceBL<InvoiceDTO>, InvoiceBL>();

@@ -1,10 +1,13 @@
-﻿using BusinessLogic.DTOs;
+﻿using BusinessLogic.BLs.Interfaces;
+using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
 {
-    public class ClientBL : BaseBL<ClientDTO>
+    public class ClientBL : BaseBL<ClientDTO>, ICredentialBL<ClientDTO>
     {
         public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @archived);";
 
@@ -19,6 +22,8 @@ FROM Clients";
 
         public override string SelectByIdSQL => $"{SelectSQL} WHERE Clients.Id = @id;";
 
+        private string SelectByEmailAddressSQL => $"{SelectSQL} WHERE EmailAddress = @emailAddress;";
+
         public override string SelectActiveSQL => $"{SelectSQL} WHERE Clients.Archived = 0;";
 
         public override string UpdateSQL => "UPDATE Clients SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, Archived = @archived WHERE Id = @id;";
@@ -29,6 +34,116 @@ FROM Clients";
             : base(db)
         {
 
+        }
+
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto)
+        {
+            var result = new CredentialDTO
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                EmailAddress = dto.EmailAddress,
+                SuccessfulOperation = false,
+            };
+            var clientDTO = ReadByEmailAddress(dto.EmailAddress);
+            if (clientDTO == null)
+            {
+                if (dto.Password != dto.RepeatPassword)
+                {
+                    result.ErrorMessage = Constants.RegistrationPasswordsDoNotMatch;
+                }
+                else
+                {
+                    clientDTO = await CreateAsync(new ClientDTO
+                    {
+                        FirstName = dto.FirstName,
+                        LastName = dto.LastName,
+                        EmailAddress = dto.EmailAddress,
+                        Password = dto.HashedPassword,
+                    });
+
+                    if (clientDTO.Id > 0)
+                    {
+                        result.Id = clientDTO.Id;
+                        result.SuccessfulOperation = true;
+                    }
+                    else
+                    {
+                        result.ErrorMessage = Constants.ErrorDuringTheRegistrationTryAgain;
+                    }
+                }
+            }
+            else
+                result.ErrorMessage = Constants.UserAlreadyExists;
+            return result;
+        }
+
+        public CredentialDTO LogIn(CredentialDTO dto)
+        {
+            var result = new CredentialDTO
+            {
+                EmailAddress = dto.EmailAddress,
+                SuccessfulOperation = false,
+            };
+            var clientDTO = ReadByEmailAddress(dto.EmailAddress);
+            if (clientDTO == null)
+            {
+                result.ErrorMessage = Constants.EmailNotExist;
+            }
+            else if (dto.HashedPassword.Equals(clientDTO.Password) &&
+                     dto.HashedPassword.Equals(Constants.DefaultPassword))
+            {
+                result.FirstName = clientDTO.FirstName;
+                result.LastName = clientDTO.LastName;
+                result.UserRole = UserRoles.Customer;
+                result.SuccessfulOperation = true;
+                result.RequirePasswordChange = true;
+            }
+            else if (!dto.HashedPassword.Equals(clientDTO.Password))
+            {
+                result.ErrorMessage = Constants.WrongPassword;
+            }
+            else
+            {
+                result.FirstName = clientDTO.FirstName;
+                result.LastName = clientDTO.LastName;
+                result.UserRole = UserRoles.Customer;
+                result.SuccessfulOperation = true;
+            }
+            return result;
+        }
+
+        public Task<bool> ChangeEmailAddressAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> ChangePasswordAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public ClientDTO ReadByEmailAddress(string emailAddress)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectByEmailAddressSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@emailAddress",
+                DbType = DbType.String,
+                Value = emailAddress,
+            });
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            if (reader.HasRows)
+                return BindToObject(reader);
+            else
+                return null;
         }
 
         protected override void BindParams(MySqlCommand cmd, ClientDTO dto)

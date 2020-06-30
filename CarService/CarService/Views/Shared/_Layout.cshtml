@@ -2,6 +2,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
+    var userId = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserId);
     var userName = @HttpContextAccessor.HttpContext.Session.GetString(BusinessLogic.Constants.SessionKeyUserName);
     var userRole = BusinessLogic.Enums.UserRoles.NA;
     var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
@@ -35,10 +36,10 @@
                         {
                             case BusinessLogic.Enums.UserRoles.NA:
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogIn">Log In</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="SignIn">Sign In</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="LogInEmployee">Employee Log In</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Credential" asp-action="SignInEmployee">Employee Sign In</a>
                                 </li>
                                 break;
                             case BusinessLogic.Enums.UserRoles.Owner:

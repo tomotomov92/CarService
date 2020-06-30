@@ -1,4 +1,5 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
@@ -48,7 +49,7 @@ namespace CarService.Controllers
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
-                    Password = collection["Password"],
+                    Password = Constants.DefaultPassword,
                 });
                 return RedirectToAction(nameof(Index));
             }

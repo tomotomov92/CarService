@@ -13,10 +13,10 @@ namespace CarService.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required, DisplayName("First Name")]
         public string FirstName { get; set; }
 
-        [Required]
+        [Required, DisplayName("Last Name")]
         public string LastName { get; set; }
 
         [DisplayName("Employee Full Name")]
