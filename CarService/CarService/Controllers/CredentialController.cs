@@ -123,15 +123,15 @@ namespace CarService.Controllers
         {
             try
             {
-                var model = new CredentialDTO
+                var dto = new CredentialDTO
                 {
                     Id = id,
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
                 };
-                if (model.Password.Equals(model.RepeatPassword))
+                if (dto.Password.Equals(dto.RepeatPassword))
                 {
-                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(model);
+                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(dto);
                     if (changePasswordResult)
                     {
                         return RedirectToAction("SignInEmployee");
@@ -162,29 +162,26 @@ namespace CarService.Controllers
         [Route("ForgottenPassword")]
         public ActionResult ForgottenPassword()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
-            {
-                return View();
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return View();
         }
 
         [Route("ForgottenPassword")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ForgottenPassword(string emailAddress, IFormCollection collection)
+        public async Task<ActionResult> ForgottenPassword(IFormCollection collection)
         {
             try
             {
+                var dto = new CredentialDTO
+                {
+                    EmailAddress = collection["EmailAddress"],
+                };
+                await _clientBl.ForgottenPasswordAsync(dto);
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch
             {
-                return View(new CredentialModel
-                {
-                    EmailAddress = emailAddress,
-                });
+                return View();
             }
         }
 
@@ -286,15 +283,15 @@ namespace CarService.Controllers
         {
             try
             {
-                var model = new CredentialDTO
+                var dto = new CredentialDTO
                 {
                     Id = id,
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
                 };
-                if (model.Password.Equals(model.RepeatPassword))
+                if (dto.Password.Equals(dto.RepeatPassword))
                 {
-                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(model);
+                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(dto);
                     if (changePasswordResult)
                     {
                         return RedirectToAction("SignInEmployee");
@@ -323,34 +320,28 @@ namespace CarService.Controllers
         }
 
         [Route("ForgottenPasswordEmployee")]
-        public ActionResult ForgottenPasswordEmployee(string emailAddress)
+        public ActionResult ForgottenPasswordEmployee()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
-            {
-                return View(new CredentialModel
-                {
-                    EmailAddress = emailAddress,
-                });
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return View();
         }
 
         [Route("ForgottenPasswordEmployee")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ForgottenPasswordEmployee(string emailAddress, IFormCollection collection)
+        public async Task<ActionResult> ForgottenPasswordEmployee(IFormCollection collection)
         {
             try
             {
+                var dto = new CredentialDTO
+                {
+                    EmailAddress = collection["EmailAddress"],
+                };
+                await _employeeBl.ForgottenPasswordAsync(dto);
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch
             {
-                return View(new CredentialModel
-                {
-                    EmailAddress = emailAddress,
-                });
+                return View();
             }
         }
 

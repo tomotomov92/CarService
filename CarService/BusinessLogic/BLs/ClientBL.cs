@@ -30,6 +30,8 @@ FROM Clients";
 
         public override string DeleteSQL => "DELETE FROM Clients WHERE Id = @id;";
 
+        private string UpdateEmailAddressSQL => "Update Clients SET EmailAddress = @emailAddress WHERE Id = @id";
+
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password WHERE Id = @id";
 
         public ClientBL(AppDb db)
@@ -113,7 +115,19 @@ FROM Clients";
 
         public async Task<bool> ChangeEmailAddressAsync(CredentialDTO dto)
         {
-            throw new System.NotImplementedException();
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = UpdatePasswordSQL;
+            BindId(cmd, dto.Id);
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@emailAddress",
+                DbType = DbType.String,
+                Value = dto.EmailAddress,
+            });
+            var result = await cmd.ExecuteNonQueryAsync();
+            if (result > 0)
+                return true;
+            return false;
         }
 
         public async Task<bool> ChangePasswordAsync(CredentialDTO dto)
@@ -135,6 +149,7 @@ FROM Clients";
 
         public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
         {
+            //Send email for forgotten password
             throw new System.NotImplementedException();
         }
 
