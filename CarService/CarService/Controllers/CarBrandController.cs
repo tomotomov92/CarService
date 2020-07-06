@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +24,18 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
-            var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    var resultsAsDTO = _bl.ReadAll();
+                    var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
+                    return View(resultsAsModel);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
@@ -34,7 +45,16 @@ namespace CarService.Controllers
 
         public ActionResult Create()
         {
-            return View();
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return View();
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -57,7 +77,16 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return GetRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -82,7 +111,16 @@ namespace CarService.Controllers
 
         public ActionResult Delete(int id)
         {
-            return GetRecordById(id);
+             var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+             if (userRoleValue != null)
+             {
+                 var userRole = (UserRoles)userRoleValue;
+                 if (userRole == UserRoles.Owner)
+                 {
+                     return GetRecordById(id);
+                 }
+             }
+             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]

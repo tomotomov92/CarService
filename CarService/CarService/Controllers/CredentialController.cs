@@ -110,25 +110,45 @@ namespace CarService.Controllers
         [Route("ChangePassword")]
         public ActionResult ChangePassword(int id)
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (!string.IsNullOrEmpty(userName))
+            return View("ChangePassword", new CredentialModel
             {
-                return View(new CredentialModel
-                {
-                    Id = id,
-                });
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+                Id = id,
+            });
         }
 
         [Route("ChangePassword")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangePassword(int id, IFormCollection collection)
+        public async Task<ActionResult> ChangePassword(int id, IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                var model = new CredentialDTO
+                {
+                    Id = id,
+                    Password = collection["Password"],
+                    RepeatPassword = collection["RepeatPassword"],
+                };
+                if (model.Password.Equals(model.RepeatPassword))
+                {
+                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(model);
+                    if (changePasswordResult)
+                    {
+                        return RedirectToAction("SignInEmployee");
+                    }
+                }
+                else
+                {
+                    return View(new CredentialModel
+                    {
+                        Id = id,
+                        ErrorMessage = Constants.RegistrationPasswordsDoNotMatch,
+                    });
+                }
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
             }
             catch
             {
@@ -223,7 +243,7 @@ namespace CarService.Controllers
         {
             try
             {
-                var loginResult = _clientBl.LogIn(new CredentialDTO
+                var loginResult = _employeeBl.LogIn(new CredentialDTO
                 {
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
@@ -253,25 +273,45 @@ namespace CarService.Controllers
         [Route("ChangePasswordEmployee")]
         public ActionResult ChangePasswordEmployee(int id)
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (!string.IsNullOrEmpty(userName))
+            return View("ChangePasswordEmployee", new CredentialModel
             {
-                return View(new CredentialModel
-                {
-                    Id = id,
-                });
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+                Id = id,
+            });
         }
 
         [Route("ChangePasswordEmployee")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ChangePasswordEmployee(int id, IFormCollection collection)
+        public async Task<ActionResult> ChangePasswordEmployee(int id, IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                var model = new CredentialDTO
+                {
+                    Id = id,
+                    Password = collection["Password"],
+                    RepeatPassword = collection["RepeatPassword"],
+                };
+                if (model.Password.Equals(model.RepeatPassword))
+                {
+                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(model);
+                    if (changePasswordResult)
+                    {
+                        return RedirectToAction("SignInEmployee");
+                    }
+                }
+                else
+                {
+                    return View(new CredentialModel
+                    {
+                        Id = id,
+                        ErrorMessage = Constants.RegistrationPasswordsDoNotMatch,
+                    });
+                }
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
             }
             catch
             {

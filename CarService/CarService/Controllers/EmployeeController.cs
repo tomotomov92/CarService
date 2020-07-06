@@ -18,7 +18,7 @@ namespace CarService.Controllers
         private readonly IBaseBL<EmployeeDTO> _bl;
         private readonly IBaseBL<EmployeeRoleDTO> _employeeRoleBl;
 
-        public EmployeeController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, IBaseBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
+        public EmployeeController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
         {
             _logger = logger;
             _bl = bl;

@@ -32,73 +32,73 @@ namespace CarService.Controllers
             return GetRecordById(id);
         }
 
-        public ActionResult Create()
-        {
-            return View();
-        }
+        //public ActionResult Create()
+        //{
+        //    return View();
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(IFormCollection collection)
-        {
-            try
-            {
-                await _bl.CreateAsync(new EmployeeRoleDTO
-                {
-                    EmployeeRoleName = collection["EmployeeRoleName"],
-                });
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                return Create();
-            }
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> Create(IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        await _bl.CreateAsync(new EmployeeRoleDTO
+        //        {
+        //            EmployeeRoleName = collection["EmployeeRoleName"],
+        //        });
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Create();
+        //    }
+        //}
 
-        public ActionResult Edit(int id)
-        {
-            return GetRecordById(id);
-        }
+        //public ActionResult Edit(int id)
+        //{
+        //    return GetRecordById(id);
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                await _bl.UpdateAsync(new EmployeeRoleDTO
-                {
-                    Id = id,
-                    EmployeeRoleName = collection["EmployeeRoleName"],
-                    Archived = bool.Parse(collection["Archived"][0]),
-                });
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                return GetRecordById(id);
-            }
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> Edit(int id, IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        await _bl.UpdateAsync(new EmployeeRoleDTO
+        //        {
+        //            Id = id,
+        //            EmployeeRoleName = collection["EmployeeRoleName"],
+        //            Archived = bool.Parse(collection["Archived"][0]),
+        //        });
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return GetRecordById(id);
+        //    }
+        //}
 
-        public ActionResult Delete(int id)
-        {
-            return GetRecordById(id);
-        }
+        //public ActionResult Delete(int id)
+        //{
+        //    return GetRecordById(id);
+        //}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                await _bl.DeleteAsync(id);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                return GetRecordById(id);
-            }
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> Delete(int id, IFormCollection collection)
+        //{
+        //    try
+        //    {
+        //        await _bl.DeleteAsync(id);
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return GetRecordById(id);
+        //    }
+        //}
 
         private ActionResult GetRecordById(int id)
         {

@@ -30,6 +30,8 @@ FROM Clients";
 
         public override string DeleteSQL => "DELETE FROM Clients WHERE Id = @id;";
 
+        private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password WHERE Id = @id";
+
         public ClientBL(AppDb db)
             : base(db)
         {
@@ -90,40 +92,48 @@ FROM Clients";
             {
                 result.ErrorMessage = Constants.EmailNotExist;
             }
-            else if (dto.HashedPassword.Equals(clientDTO.Password) &&
-                     dto.HashedPassword.Equals(Constants.DefaultPassword))
+            else if (dto.HashedPassword.Equals(clientDTO.Password))
             {
+                result.Id = clientDTO.Id;
                 result.FirstName = clientDTO.FirstName;
                 result.LastName = clientDTO.LastName;
                 result.UserRole = UserRoles.Customer;
                 result.SuccessfulOperation = true;
-                result.RequirePasswordChange = true;
-            }
-            else if (!dto.HashedPassword.Equals(clientDTO.Password))
-            {
-                result.ErrorMessage = Constants.WrongPassword;
+                if (dto.HashedPassword.Equals(Constants.DefaultPassword))
+                {
+                    result.RequirePasswordChange = true;
+                }
             }
             else
             {
-                result.FirstName = clientDTO.FirstName;
-                result.LastName = clientDTO.LastName;
-                result.UserRole = UserRoles.Customer;
-                result.SuccessfulOperation = true;
+                result.ErrorMessage = Constants.WrongPassword;
             }
             return result;
         }
 
-        public Task<bool> ChangeEmailAddressAsync(CredentialDTO dto)
+        public async Task<bool> ChangeEmailAddressAsync(CredentialDTO dto)
         {
             throw new System.NotImplementedException();
         }
 
-        public Task<bool> ChangePasswordAsync(CredentialDTO dto)
+        public async Task<bool> ChangePasswordAsync(CredentialDTO dto)
         {
-            throw new System.NotImplementedException();
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = UpdatePasswordSQL;
+            BindId(cmd, dto.Id);
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@password",
+                DbType = DbType.String,
+                Value = dto.HashedPassword,
+            });
+            var result = await cmd.ExecuteNonQueryAsync();
+            if (result > 0)
+                return true;
+            return false;
         }
 
-        public Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
         {
             throw new System.NotImplementedException();
         }

@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +20,7 @@ namespace CarService.Controllers
         private readonly IBaseBL<CarBrandDTO> _carBrandBl;
         private readonly IBaseBL<ClientDTO> _clientBl;
 
-        public ClientCarController(IHttpContextAccessor httpContextAccessor, ILogger<ClientCarController> logger, IClientCarBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, IBaseBL<ClientDTO> clientBl)
+        public ClientCarController(IHttpContextAccessor httpContextAccessor, ILogger<ClientCarController> logger, IClientCarBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, ICredentialBL<ClientDTO> clientBl)
         {
             _logger = logger;
             _bl = bl;
@@ -28,29 +30,69 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
-            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    var resultsAsDTO = _bl.ReadAll();
+                    var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
+                    return View(resultsAsModel);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+                else if (userRole == UserRoles.Customer)
+                {
+                    var clientId = HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    var record = GetRecordById(id);
+                    if (record.ClientId == clientId)
+                    {
+                        return GetActionForRecordById(id);
+                    }
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Create(int clientId)
         {
-            var activeCarBrands = _carBrandBl.ReadActive();
-            var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
-            var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
-
-            var model = new ClientCarModel
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
             {
-                ClientId = clientId,
-                CarBrandId = activeCarBrands.First().Id,
-                CarBrandOptions = carBrandOptions,
-            };
-            return View(model);
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport ||
+                    userRole == UserRoles.Customer)
+                {
+                    var activeCarBrands = _carBrandBl.ReadActive();
+                    var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
+                    var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
+
+                    var model = new ClientCarModel
+                    {
+                        ClientId = clientId,
+                        CarBrandId = activeCarBrands.First().Id,
+                        CarBrandOptions = carBrandOptions,
+                    };
+                    return View(model);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -76,7 +118,26 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+                else if (userRole == UserRoles.Customer)
+                {
+                    var clientId = HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    var record = GetRecordById(id);
+                    if (record.ClientId == clientId)
+                    {
+                        return GetActionForRecordById(id);
+                    }
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -98,13 +159,32 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                return GetActionForRecordById(id);
             }
         }
 
         public ActionResult Delete(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+                else if (userRole == UserRoles.Customer)
+                {
+                    var clientId = HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    var record = GetRecordById(id);
+                    if (record.ClientId == clientId)
+                    {
+                        return GetActionForRecordById(id);
+                    }
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -118,7 +198,7 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                return GetActionForRecordById(id);
             }
         }
 
@@ -129,7 +209,12 @@ namespace CarService.Controllers
             return View("Index", resultsAsModel);
         }
 
-        private ActionResult GetRecordById(int id)
+        private ClientCarDTO GetRecordById(int id)
+        {
+            return _bl.ReadById(id);
+        }
+
+        public ActionResult GetActionForRecordById(int id)
         {
             var activeCarBrands = _carBrandBl.ReadActive();
             var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
@@ -139,7 +224,7 @@ namespace CarService.Controllers
             var activeClientsAsModel = ClientModel.FromDtos(activeClients);
             var clientOptions = new SelectList(activeClientsAsModel, nameof(ClientModel.Id), nameof(ClientModel.FullName));
 
-            var resultAsDTO = _bl.ReadById(id);
+            var resultAsDTO = GetRecordById(id);
             var resultAsModel = ClientCarModel.FromDto(resultAsDTO);
             resultAsModel.ClientOptions = clientOptions;
             resultAsModel.CarBrandOptions = carBrandOptions;

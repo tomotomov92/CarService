@@ -15,7 +15,7 @@ namespace CarService.Controllers
         private readonly ILogger<ClientController> _logger;
         private readonly IBaseBL<ClientDTO> _bl;
 
-        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, IBaseBL<ClientDTO> bl)
+        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
         {
             _logger = logger;
             _bl = bl;
