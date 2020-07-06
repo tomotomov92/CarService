@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,83 +24,128 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
-            var resultsAsModel = EmployeeRoleModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    var resultsAsDTO = _bl.ReadAll();
+                    var resultsAsModel = EmployeeRoleModel.FromDtos(resultsAsDTO);
+                    return View(resultsAsModel);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return GetRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
+        public ActionResult Create()
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return View();
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> Create(IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        await _bl.CreateAsync(new EmployeeRoleDTO
-        //        {
-        //            EmployeeRoleName = collection["EmployeeRoleName"],
-        //        });
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Create();
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Create(IFormCollection collection)
+        {
+            try
+            {
+                await _bl.CreateAsync(new EmployeeRoleDTO
+                {
+                    EmployeeRoleName = collection["EmployeeRoleName"],
+                });
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return Create();
+            }
+        }
 
-        //public ActionResult Edit(int id)
-        //{
-        //    return GetRecordById(id);
-        //}
+        public ActionResult Edit(int id)
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return GetRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> Edit(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        await _bl.UpdateAsync(new EmployeeRoleDTO
-        //        {
-        //            Id = id,
-        //            EmployeeRoleName = collection["EmployeeRoleName"],
-        //            Archived = bool.Parse(collection["Archived"][0]),
-        //        });
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return GetRecordById(id);
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(int id, IFormCollection collection)
+        {
+            try
+            {
+                await _bl.UpdateAsync(new EmployeeRoleDTO
+                {
+                    Id = id,
+                    EmployeeRoleName = collection["EmployeeRoleName"],
+                    Archived = bool.Parse(collection["Archived"][0]),
+                });
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return GetRecordById(id);
+            }
+        }
 
-        //public ActionResult Delete(int id)
-        //{
-        //    return GetRecordById(id);
-        //}
+        public ActionResult Delete(int id)
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner)
+                {
+                    return GetRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        await _bl.DeleteAsync(id);
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return GetRecordById(id);
-        //    }
-        //}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Delete(int id, IFormCollection collection)
+        {
+            try
+            {
+                await _bl.DeleteAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return GetRecordById(id);
+            }
+        }
 
         private ActionResult GetRecordById(int id)
         {

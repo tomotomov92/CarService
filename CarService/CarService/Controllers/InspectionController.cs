@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +28,6 @@ namespace CarService.Controllers
             var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
             return View(resultsAsModel);
         }
-
 
         public ActionResult Details(int id)
         {
@@ -124,12 +125,50 @@ namespace CarService.Controllers
             }
         }
 
+        public ActionResult EmployeeInspections()
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Mechanic)
+                {
+                    var employeeId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    return EmployeeInspections(employeeId);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        public ActionResult EmployeeInspections(int employeeId)
+        {
+            var resultsAsDTO = _bl.ReadForEmployeeId(employeeId);
+            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
+        }
+
+        public ActionResult ClientInspections()
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Customer)
+                {
+                    var clientId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    return ClientInspections(clientId);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
         public ActionResult ClientInspections(int clientId)
         {
             var resultsAsDTO = _bl.ReadForClientId(clientId);
             var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
             return View("Index", resultsAsModel);
         }
+
 
         public ActionResult CarInspections(int carId)
         {

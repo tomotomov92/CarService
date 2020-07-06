@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -118,6 +120,21 @@ namespace CarService.Controllers
             {
                 return GetRecordById(id);
             }
+        }
+
+        public ActionResult ClientInvoices()
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Customer)
+                {
+                    var clientId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    return ClientInvoices(clientId);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult ClientInvoices(int clientId)

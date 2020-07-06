@@ -202,6 +202,21 @@ namespace CarService.Controllers
             }
         }
 
+        public ActionResult ClientCars()
+        {
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Customer)
+                {
+                    var clientId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+                    return ClientCars(clientId);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
         public ActionResult ClientCars(int clientId)
         {
             var resultsAsDTO = _bl.ReadForClientId(clientId);

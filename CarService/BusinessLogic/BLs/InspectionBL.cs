@@ -50,6 +50,8 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public override string DeleteSQL => "DELETE FROM Inspections WHERE Id = @id;";
 
+        public string SelectForEmployeeIdSQL => $"{SelectSQL} INNER JOIN InspectionEmployees ON InspectionEmployees.InspectionId = Inspections.Id WHERE InspectionEmployees.EmployeeId = @employeeId;";
+
         public string SelectForClientIdSQL => $"{SelectSQL} WHERE Inspections.ClientId = @clientId;";
 
         public string SelectForCarIdSQL => $"{SelectSQL} WHERE Inspections.CarId = @carId;";
@@ -58,6 +60,27 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
             : base(db)
         {
 
+        }
+
+        public IEnumerable<InspectionDTO> ReadForEmployeeId(int employeeId)
+        {
+            var results = new List<InspectionDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForEmployeeIdSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@employeeId",
+                DbType = DbType.Int32,
+                Value = employeeId,
+            });
+            var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
         }
 
         public IEnumerable<InspectionDTO> ReadForClientId(int clientId)

@@ -1,6 +1,7 @@
 ﻿using BusinessLogic;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,14 +24,34 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
-            var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    var resultsAsDTO = _bl.ReadAll();
+                    var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
+                    return View(resultsAsModel);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Create()
@@ -61,7 +82,17 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -83,13 +114,23 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                return GetActionForRecordById(id);
             }
         }
 
         public ActionResult Delete(int id)
         {
-            return GetRecordById(id);
+            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleValue != null)
+            {
+                var userRole = (UserRoles)userRoleValue;
+                if (userRole == UserRoles.Owner ||
+                    userRole == UserRoles.CustomerSupport)
+                {
+                    return GetActionForRecordById(id);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -103,13 +144,18 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                return GetActionForRecordById(id);
             }
         }
 
-        private ActionResult GetRecordById(int id)
+        private ClientDTO GetRecordById(int id)
         {
-            var resultAsDTO = _bl.ReadById(id);
+            return _bl.ReadById(id);
+        }
+
+        public ActionResult GetActionForRecordById(int id)
+        {
+            var resultAsDTO = GetRecordById(id);
             var resultAsModel = ClientModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }
