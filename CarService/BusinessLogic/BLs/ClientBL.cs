@@ -149,8 +149,24 @@ FROM Clients";
 
         public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
         {
-            //Send email for forgotten password
-            throw new System.NotImplementedException();
+            var clientDTO = ReadByEmailAddress(dto.EmailAddress);
+            if (clientDTO != null)
+            {
+                using var cmd = Db.Connection.CreateCommand();
+                cmd.CommandText = UpdatePasswordSQL;
+                BindId(cmd, clientDTO.Id);
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@password",
+                    DbType = DbType.String,
+                    Value = Constants.DefaultPassword,
+                });
+                await cmd.ExecuteNonQueryAsync();
+                var result = await cmd.ExecuteNonQueryAsync();
+                if (result > 0)
+                    return true;
+            }
+            return false;
         }
 
         public ClientDTO ReadByEmailAddress(string emailAddress)
@@ -163,7 +179,7 @@ FROM Clients";
                 DbType = DbType.String,
                 Value = emailAddress,
             });
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             reader.Read();
             if (reader.HasRows)
                 return BindToObject(reader);

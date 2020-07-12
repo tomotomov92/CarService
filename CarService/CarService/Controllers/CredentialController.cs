@@ -44,8 +44,11 @@ namespace CarService.Controllers
             {
                 var loginResult = await _clientBl.RegisterAsync(new CredentialDTO
                 {
+                    FirstName = collection["FirstName"],
+                    LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
+                    RepeatPassword = collection["RepeatPassword"],
                 });
                 if (loginResult.SuccessfulOperation)
                 {
