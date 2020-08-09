@@ -202,6 +202,7 @@ namespace CarService.Controllers
             }
         }
 
+        [Route("ClientCars")]
         public ActionResult ClientCars()
         {
             var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);

@@ -140,6 +140,7 @@ namespace CarService.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
+        [Route("EmployeeInspections")]
         public ActionResult EmployeeInspections(int employeeId)
         {
             var resultsAsDTO = _bl.ReadForEmployeeId(employeeId);
@@ -147,6 +148,7 @@ namespace CarService.Controllers
             return View("Index", resultsAsModel);
         }
 
+        [Route("ClientInspections")]
         public ActionResult ClientInspections()
         {
             var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
