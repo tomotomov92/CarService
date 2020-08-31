@@ -28,7 +28,7 @@ namespace CarService
 
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromSeconds(300);
+                options.IdleTimeout = TimeSpan.FromHours(1D);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });

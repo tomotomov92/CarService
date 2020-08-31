@@ -1,6 +1,7 @@
 ﻿using BusinessLogic;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,15 @@ namespace CarService.Controllers
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<ClientDTO> _clientBl;
         private readonly ICredentialBL<EmployeeDTO> _employeeBl;
+        private readonly string _userName;
 
         public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl)
         {
             _logger = logger;
             _clientBl = clientBl;
             _employeeBl = employeeBl;
+
+            _userName = httpContextAccessor.HttpContext.Session.GetString(Constants.SessionKeyUserName);
         }
 
         #region Client
@@ -27,8 +31,7 @@ namespace CarService.Controllers
         [Route("SignUp")]
         public ActionResult SignUp()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(_userName))
             {
                 return View();
             }
@@ -68,8 +71,7 @@ namespace CarService.Controllers
         [Route("SignIn")]
         public ActionResult SignIn()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(_userName))
             {
                 return View();
             }
@@ -191,8 +193,7 @@ namespace CarService.Controllers
         [Route("ChangeForgottenPassword")]
         public ActionResult ChangeForgottenPassword(string emailAddress, string confirmationToken)
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(_userName))
             {
                 return View(new CredentialModel
                 {
@@ -228,8 +229,7 @@ namespace CarService.Controllers
         [Route("SignInEmployee")]
         public ActionResult SignInEmployee()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(_userName))
             {
                 return View();
             }
@@ -351,8 +351,7 @@ namespace CarService.Controllers
         [Route("ChangeForgottenPasswordEmployee")]
         public ActionResult ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrEmpty(_userName))
             {
                 return View(new CredentialModel
                 {
@@ -386,8 +385,7 @@ namespace CarService.Controllers
         [Route("LogOut")]
         public ActionResult LogOut()
         {
-            var userName = HttpContext.Session.GetString(Constants.SessionKeyUserName);
-            if (!string.IsNullOrEmpty(userName))
+            if (!string.IsNullOrEmpty(_userName))
             {
                 HttpContext.Session.Clear();
             }

@@ -1,5 +1,7 @@
-﻿using BusinessLogic.BLs.Interfaces;
+﻿using BusinessLogic;
+using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +15,18 @@ namespace CarService.Controllers
     {
         private readonly ILogger<ScheduleController> _logger;
         private readonly IBaseBL<ScheduleDTO> _bl;
+        private readonly UserRoles _userRole = UserRoles.NA;
 
         public ScheduleController(IHttpContextAccessor httpContextAccessor, ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl)
         {
             _logger = logger;
             _bl = bl;
+
+            var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleInt != null)
+            {
+                _userRole = (UserRoles)userRoleInt;
+            }
         }
 
         public ActionResult Index()

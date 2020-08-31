@@ -15,11 +15,20 @@ namespace CarService.Controllers
     {
         private readonly ILogger<InspectionController> _logger;
         private readonly IInspectionBL<InspectionDTO> _bl;
+        private readonly UserRoles _userRole = UserRoles.NA;
+        private readonly int _userId = 0;
 
         public InspectionController(IHttpContextAccessor httpContextAccessor, ILogger<InspectionController> logger, IInspectionBL<InspectionDTO> bl)
         {
             _logger = logger;
             _bl = bl;
+
+            var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleInt != null)
+            {
+                _userRole = (UserRoles)userRoleInt;
+            }
+            _userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId).Value;
         }
 
         public ActionResult Index()
@@ -63,6 +72,7 @@ namespace CarService.Controllers
                     DateTimeOfInspection = dateTimeOfInspection,
                     Description = collection["Description"],
                 });
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -127,15 +137,9 @@ namespace CarService.Controllers
 
         public ActionResult EmployeeInspections()
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Mechanic)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Mechanic)
-                {
-                    var employeeId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
-                    return EmployeeInspections(employeeId);
-                }
+                return EmployeeInspections(_userId);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
@@ -151,15 +155,9 @@ namespace CarService.Controllers
         [Route("ClientInspections")]
         public ActionResult ClientInspections()
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Customer)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Customer)
-                {
-                    var clientId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
-                    return ClientInspections(clientId);
-                }
+                return ClientInspections(_userId);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }

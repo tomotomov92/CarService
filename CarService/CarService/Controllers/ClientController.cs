@@ -15,41 +15,38 @@ namespace CarService.Controllers
     {
         private readonly ILogger<ClientController> _logger;
         private readonly IBaseBL<ClientDTO> _bl;
+        private readonly UserRoles _userRole = UserRoles.NA;
 
         public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
         {
             _logger = logger;
             _bl = bl;
+
+            var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleInt != null)
+            {
+                _userRole = (UserRoles)userRoleInt;
+            }
         }
 
         public ActionResult Index()
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Owner ||
+                _userRole == UserRoles.CustomerSupport)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Owner ||
-                    userRole == UserRoles.CustomerSupport)
-                {
-                    var resultsAsDTO = _bl.ReadAll();
-                    var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
-                    return View(resultsAsModel);
-                }
+                var resultsAsDTO = _bl.ReadAll();
+                var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
+                return View(resultsAsModel);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Owner ||
+                _userRole == UserRoles.CustomerSupport)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Owner ||
-                    userRole == UserRoles.CustomerSupport)
-                {
-                    return GetActionForRecordById(id);
-                }
+                return GetActionForRecordById(id);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
@@ -82,15 +79,10 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Owner ||
+                _userRole == UserRoles.CustomerSupport)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Owner ||
-                    userRole == UserRoles.CustomerSupport)
-                {
-                    return GetActionForRecordById(id);
-                }
+                return GetActionForRecordById(id);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
@@ -120,15 +112,10 @@ namespace CarService.Controllers
 
         public ActionResult Delete(int id)
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Owner ||
+                _userRole == UserRoles.CustomerSupport)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Owner ||
-                    userRole == UserRoles.CustomerSupport)
-                {
-                    return GetActionForRecordById(id);
-                }
+                return GetActionForRecordById(id);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }

@@ -15,11 +15,20 @@ namespace CarService.Controllers
     {
         private readonly ILogger<InvoiceController> _logger;
         private readonly IInvoiceBL<InvoiceDTO> _bl;
+        private readonly UserRoles _userRole = UserRoles.NA;
+        private readonly int _userId = 0;
 
         public InvoiceController(IHttpContextAccessor httpContextAccessor, ILogger<InvoiceController> logger, IInvoiceBL<InvoiceDTO> bl)
         {
             _logger = logger;
             _bl = bl;
+
+            var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
+            if (userRoleInt != null)
+            {
+                _userRole = (UserRoles)userRoleInt;
+            }
+            _userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId).Value;
         }
 
         public ActionResult Index()
@@ -125,15 +134,9 @@ namespace CarService.Controllers
         [Route("ClientInvoices")]
         public ActionResult ClientInvoices()
         {
-            var userRoleValue = HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
-            if (userRoleValue != null)
+            if (_userRole == UserRoles.Customer)
             {
-                var userRole = (UserRoles)userRoleValue;
-                if (userRole == UserRoles.Customer)
-                {
-                    var clientId = (int)HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
-                    return ClientInvoices(clientId);
-                }
+                return ClientInvoices(_userId);
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
