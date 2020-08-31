@@ -109,7 +109,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                 result.SuccessfulOperation = true;
                 if (dto.HashedPassword.Equals(Constants.DefaultPassword))
                 {
-                    //result.RequirePasswordChange = true;
+                    result.RequirePasswordChange = true;
                 }
             }
             else

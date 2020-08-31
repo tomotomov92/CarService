@@ -103,7 +103,7 @@ FROM Clients";
                 result.SuccessfulOperation = true;
                 if (dto.HashedPassword.Equals(Constants.DefaultPassword))
                 {
-                    //result.RequirePasswordChange = true;
+                    result.RequirePasswordChange = true;
                 }
             }
             else

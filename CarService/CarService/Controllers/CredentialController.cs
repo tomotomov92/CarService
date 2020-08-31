@@ -134,10 +134,10 @@ namespace CarService.Controllers
                 };
                 if (dto.Password.Equals(dto.RepeatPassword))
                 {
-                    var changePasswordResult = await _employeeBl.ChangePasswordAsync(dto);
+                    var changePasswordResult = await _clientBl.ChangePasswordAsync(dto);
                     if (changePasswordResult)
                     {
-                        return RedirectToAction("SignInEmployee");
+                        return RedirectToAction("SignIn");
                     }
                 }
                 else
