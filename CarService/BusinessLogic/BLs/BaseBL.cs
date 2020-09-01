@@ -40,7 +40,7 @@ namespace BusinessLogic.BLs
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = SelectByIdSQL;
             BindId(cmd, id);
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             reader.Read();
             return BindToObject(reader);
         }
@@ -51,7 +51,7 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = SelectSQL;
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));
@@ -66,7 +66,7 @@ namespace BusinessLogic.BLs
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = SelectActiveSQL;
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));

@@ -77,7 +77,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
                 DbType = DbType.Int32,
                 Value = clientId,
             });
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));

@@ -74,7 +74,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
                 DbType = DbType.Int32,
                 Value = employeeId,
             });
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));
@@ -93,7 +93,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
             {
                 ClientId = clientId,
             });
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));
@@ -112,7 +112,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
             {
                 CarId = carId,
             });
-            var reader = cmd.ExecuteReader();
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 results.Add(BindToObject(reader));
