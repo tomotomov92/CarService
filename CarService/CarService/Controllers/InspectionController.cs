@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -33,9 +34,26 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
+            IEnumerable<InspectionDTO> resultsAsDTO = null;
+
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    resultsAsDTO = _bl.ReadAll();
+                    break;
+                case UserRoles.Mechanic:
+                    resultsAsDTO = _bl.ReadForEmployeeId(_userId);
+                    break;
+                case UserRoles.Customer:
+                    resultsAsDTO = _bl.ReadForClientId(_userId);
+                    break;
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+
             var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            return View("Index", resultsAsModel);
         }
 
         public ActionResult Details(int id)
@@ -74,6 +92,7 @@ namespace CarService.Controllers
                 });
 
                 return RedirectToAction(nameof(Index));
+
             }
             catch (Exception ex)
             {
@@ -107,6 +126,7 @@ namespace CarService.Controllers
                     Description = collection["Description"],
                     Archived = bool.Parse(collection["Archived"][0]),
                 });
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -134,41 +154,6 @@ namespace CarService.Controllers
                 return GetRecordById(id);
             }
         }
-
-        public ActionResult EmployeeInspections()
-        {
-            if (_userRole == UserRoles.Mechanic)
-            {
-                return EmployeeInspections(_userId);
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        [Route("EmployeeInspections")]
-        public ActionResult EmployeeInspections(int employeeId)
-        {
-            var resultsAsDTO = _bl.ReadForEmployeeId(employeeId);
-            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
-            return View("Index", resultsAsModel);
-        }
-
-        [Route("ClientInspections")]
-        public ActionResult ClientInspections()
-        {
-            if (_userRole == UserRoles.Customer)
-            {
-                return ClientInspections(_userId);
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        public ActionResult ClientInspections(int clientId)
-        {
-            var resultsAsDTO = _bl.ReadForClientId(clientId);
-            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
-            return View("Index", resultsAsModel);
-        }
-
 
         public ActionResult CarInspections(int carId)
         {

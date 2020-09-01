@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -33,9 +34,23 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
+            IEnumerable<InvoiceDTO> resultsAsDTO = null;
+
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    resultsAsDTO = _bl.ReadAll();
+                    break;
+                case UserRoles.Customer:
+                    resultsAsDTO = _bl.ReadForClientId(_userId);
+                    break;
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+
             var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            return View("Index", resultsAsModel);
         }
 
         public ActionResult Details(int id)
@@ -129,23 +144,6 @@ namespace CarService.Controllers
             {
                 return GetRecordById(id);
             }
-        }
-
-        [Route("ClientInvoices")]
-        public ActionResult ClientInvoices()
-        {
-            if (_userRole == UserRoles.Customer)
-            {
-                return ClientInvoices(_userId);
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        public ActionResult ClientInvoices(int clientId)
-        {
-            var resultsAsDTO = _bl.ReadForClientId(clientId);
-            var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
-            return View("Index", resultsAsModel);
         }
 
         private ActionResult GetRecordById(int id)

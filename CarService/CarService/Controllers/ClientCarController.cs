@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,14 +40,23 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            if (_userRole == UserRoles.Owner ||
-                _userRole == UserRoles.CustomerSupport)
+            IEnumerable<ClientCarDTO> resultsAsDTO = null;
+
+            switch (_userRole)
             {
-                var resultsAsDTO = _bl.ReadAll();
-                var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
-                return View(resultsAsModel);
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    resultsAsDTO = _bl.ReadAll();
+                    break;
+                case UserRoles.Customer:
+                    resultsAsDTO = _bl.ReadForClientId(_userId);
+                    break;
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+
+            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
+            return View("Index", resultsAsModel);
         }
 
         public ActionResult Details(int id)
@@ -181,23 +191,6 @@ namespace CarService.Controllers
             {
                 return GetActionForRecordById(id);
             }
-        }
-
-        [Route("ClientCars")]
-        public ActionResult ClientCars()
-        {
-            if (_userRole == UserRoles.Customer)
-            {
-                return ClientCars(_userId);
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        public ActionResult ClientCars(int clientId)
-        {
-            var resultsAsDTO = _bl.ReadForClientId(clientId);
-            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
-            return View("Index", resultsAsModel);
         }
 
         private ClientCarDTO GetRecordById(int id)
