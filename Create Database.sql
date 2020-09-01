@@ -34,8 +34,8 @@ CREATE TABLE `CarService`.`ClientCars` (
   PRIMARY KEY (`Id`),
   KEY `fk_ClientCars_Clients_idx` (`ClientId`),
   KEY `fk_ClientCars_CarBrands_idx` (`CarBrandId`),
-  CONSTRAINT `fk_ClientCars_CarBrands` FOREIGN KEY (`CarBrandId`) REFERENCES `CarBrands` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_ClientCars_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_ClientCars_CarBrands` FOREIGN KEY (`CarBrandId`) REFERENCES `CarBrands` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ClientCars_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -61,7 +61,7 @@ CREATE TABLE `CarService`.`Employees` (
   PRIMARY KEY (`Id`),
 	UNIQUE INDEX `ui_Employees_EmailAddress_idx` (`EmailAddress`),
   KEY `fk_Employees_EmployeeRoles_idx` (`EmployeeRoleId`),
-  CONSTRAINT `fk_Employees_EmployeeRoles` FOREIGN KEY (`EmployeeRoleId`) REFERENCES `EmployeeRoles` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Employees_EmployeeRoles` FOREIGN KEY (`EmployeeRoleId`) REFERENCES `EmployeeRoles` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -77,8 +77,8 @@ CREATE TABLE `CarService`.`Inspections` (
   PRIMARY KEY (`Id`),
   KEY `fk_Inspections_Clients_idx` (`ClientId`),
   KEY `fk_Inspections_ClientCars_idx` (`CarId`),
-  CONSTRAINT `fk_Inspections_ClientCars` FOREIGN KEY (`CarId`) REFERENCES `ClientCars` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Inspections_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Inspections_ClientCars` FOREIGN KEY (`CarId`) REFERENCES `ClientCars` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Inspections_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -89,8 +89,8 @@ CREATE TABLE `CarService`.`InspectionEmployees` (
 	UNIQUE INDEX `ui_InspectionEmployees_InspectionId_EmployeeId_idx` (`InspectionId`, `EmployeeId`),
   KEY `fk_InspectionEmployees_Inspections_idx` (`InspectionId`),
   KEY `fk_InspectionEmployees_Employees_idx` (`EmployeeId`),
-  CONSTRAINT `fk_InspectionEmployees_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_InspectionEmployees_Employees_idx` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_InspectionEmployees_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_InspectionEmployees_Employees_idx` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -104,7 +104,7 @@ CREATE TABLE `CarService`.`Invoices` (
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
   KEY `fk_Invoices_Inspections_idx` (`InspectionId`),
-  CONSTRAINT `fk_Invoices_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Invoices_Inspections_idx` FOREIGN KEY (`InspectionId`) REFERENCES `Inspections` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
@@ -116,5 +116,5 @@ CREATE TABLE `CarService`.`Schedules` (
   `EmployeeId` int(11) NOT NULL,
   PRIMARY KEY (`Id`),
   KEY `fk_Schedules_Employees_idx` (`EmployeeId`),
-  CONSTRAINT `fk_Schedules_Employees` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_Schedules_Employees` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

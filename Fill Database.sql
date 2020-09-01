@@ -81,7 +81,7 @@ VALUES
 
 INSERT INTO `CarService`.`Employees` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`)
 VALUES
-('Spas', 'Ivanov', 's.ivanov@email.com', 'Qwerty1!', '2020-01-01', 1, 0),
+('Tomo', 'Tomov', 't.tomov@email.com', 'Qwerty1!', '2020-01-01', 1, 0),
 ('Staiko', 'Metodiev', 's.metodiev@email.com', 'Qwerty1!', '2019-03-15', 2, 0),
 ('Atanas', 'Atanasov', 'a.atanasov@email.com', 'Qwerty1!', '2000-12-25', 2, 0),
 ('Nikolay', 'Stoyanov', 'n.stoyanov@email.com', 'Qwerty1!', '2012-12-12', 2, 0),
