@@ -14,7 +14,7 @@ namespace BusinessLogic.DTOs
 
         public int CarId { get; set; }
 
-        public ClientCarDTO ClientCar { get; set; }
+        public CarDTO ClientCar { get; set; }
 
         public int Mileage { get; set; }
 

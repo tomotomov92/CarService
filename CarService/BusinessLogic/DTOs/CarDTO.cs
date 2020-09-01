@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BusinessLogic.DTOs
 {
-    public class ClientCarDTO : IBaseDTO
+    public class CarDTO : IBaseDTO
     {
         public int Id { get; set; }
 

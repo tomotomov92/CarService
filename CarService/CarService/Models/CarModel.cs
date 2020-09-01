@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace CarService.Models
 {
-    public class ClientCarModel
+    public class CarModel
     {
         public int Id { get; set; }
 
@@ -34,9 +34,9 @@ namespace CarService.Models
 
         public SelectList ClientOptions { get; set; }
 
-        public static ClientCarModel FromDto(ClientCarDTO dto)
+        public static CarModel FromDto(CarDTO dto)
         {
-            return new ClientCarModel
+            return new CarModel
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
@@ -49,9 +49,9 @@ namespace CarService.Models
             };
         }
 
-        public static IEnumerable<ClientCarModel> FromDtos(IEnumerable<ClientCarDTO> dtos)
+        public static IEnumerable<CarModel> FromDtos(IEnumerable<CarDTO> dtos)
         {
-            return dtos.Select(dto => new ClientCarModel
+            return dtos.Select(dto => new CarModel
             {
                 Id = dto.Id,
                 ClientId = dto.ClientId,
@@ -64,9 +64,9 @@ namespace CarService.Models
             });
         }
 
-        public static ClientCarDTO ToDto(ClientCarModel model)
+        public static CarDTO ToDto(CarModel model)
         {
-            return new ClientCarDTO
+            return new CarDTO
             {
                 Id = model.Id,
                 ClientId = model.ClientId,

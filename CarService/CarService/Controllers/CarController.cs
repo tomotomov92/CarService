@@ -14,16 +14,16 @@ using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
-    public class ClientCarController : Controller
+    public class CarController : Controller
     {
-        private readonly ILogger<ClientCarController> _logger;
-        private readonly IClientCarBL<ClientCarDTO> _bl;
+        private readonly ILogger<CarController> _logger;
+        private readonly IClientCarBL<CarDTO> _bl;
         private readonly IBaseBL<CarBrandDTO> _carBrandBl;
         private readonly IBaseBL<ClientDTO> _clientBl;
         private readonly UserRoles _userRole = UserRoles.NA;
         private readonly int _userId = 0;
 
-        public ClientCarController(IHttpContextAccessor httpContextAccessor, ILogger<ClientCarController> logger, IClientCarBL<ClientCarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, ICredentialBL<ClientDTO> clientBl)
+        public CarController(IHttpContextAccessor httpContextAccessor, ILogger<CarController> logger, IClientCarBL<CarDTO> bl, IBaseBL<CarBrandDTO> carBrandBl, ICredentialBL<ClientDTO> clientBl)
         {
             _logger = logger;
             _bl = bl;
@@ -40,7 +40,7 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            IEnumerable<ClientCarDTO> resultsAsDTO = null;
+            IEnumerable<CarDTO> resultsAsDTO = null;
 
             switch (_userRole)
             {
@@ -55,47 +55,54 @@ namespace CarService.Controllers
                     return RedirectToAction(nameof(HomeController.Index), "Home");
             }
 
-            var resultsAsModel = ClientCarModel.FromDtos(resultsAsDTO);
+            var resultsAsModel = CarModel.FromDtos(resultsAsDTO);
             return View("Index", resultsAsModel);
         }
 
         public ActionResult Details(int id)
         {
-            if (_userRole == UserRoles.Owner ||
-                _userRole == UserRoles.CustomerSupport)
+            switch (_userRole)
             {
-                return GetActionForRecordById(id);
-            }
-            else if (_userRole == UserRoles.Customer)
-            {
-                var record = GetRecordById(id);
-                if (record.ClientId == _userId)
-                {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
-                }
+                case UserRoles.Customer:
+                    {
+                        var record = GetRecordById(id);
+                        if (record.ClientId == _userId)
+                        {
+                            return GetActionForRecordById(id);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Create(int clientId)
         {
-            if (_userRole == UserRoles.Owner ||
-                _userRole == UserRoles.CustomerSupport ||
-                _userRole == UserRoles.Customer)
+            switch (_userRole)
             {
-                var activeCarBrands = _carBrandBl.ReadActive();
-                var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
-                var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                case UserRoles.Customer:
+                    {
+                        var activeCarBrands = _carBrandBl.ReadActive();
+                        var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
+                        var carBrandOptions = new SelectList(activeCarBrandsAsModel, nameof(CarBrandModel.Id), nameof(CarBrandModel.BrandName));
 
-                var model = new ClientCarModel
-                {
-                    ClientId = clientId,
-                    CarBrandId = activeCarBrands.First().Id,
-                    CarBrandOptions = carBrandOptions,
-                };
-                return View(model);
+                        var model = new CarModel
+                        {
+                            ClientId = clientId,
+                            CarBrandId = activeCarBrands.First().Id,
+                            CarBrandOptions = carBrandOptions,
+                        };
+                        return View(model);
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -104,7 +111,7 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.CreateAsync(new ClientCarDTO
+                await _bl.CreateAsync(new CarDTO
                 {
                     ClientId = int.Parse(collection["ClientId"]),
                     CarBrandId = int.Parse(collection["CarBrandId"]),
@@ -143,7 +150,7 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.UpdateAsync(new ClientCarDTO
+                await _bl.UpdateAsync(new CarDTO
                 {
                     Id = id,
                     ClientId = int.Parse(collection["ClientId"]),
@@ -193,7 +200,7 @@ namespace CarService.Controllers
             }
         }
 
-        private ClientCarDTO GetRecordById(int id)
+        private CarDTO GetRecordById(int id)
         {
             return _bl.ReadById(id);
         }
@@ -209,7 +216,7 @@ namespace CarService.Controllers
             var clientOptions = new SelectList(activeClientsAsModel, nameof(ClientModel.Id), nameof(ClientModel.FullName));
 
             var resultAsDTO = GetRecordById(id);
-            var resultAsModel = ClientCarModel.FromDto(resultAsDTO);
+            var resultAsModel = CarModel.FromDto(resultAsDTO);
             resultAsModel.ClientOptions = clientOptions;
             resultAsModel.CarBrandOptions = carBrandOptions;
             return View(resultAsModel);

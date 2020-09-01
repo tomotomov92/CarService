@@ -6,7 +6,7 @@ using System.Data;
 
 namespace BusinessLogic.BLs
 {
-    public class ClientCarBL : BaseBL<ClientCarDTO>, IClientCarBL<ClientCarDTO>
+    public class ClientCarBL : BaseBL<CarDTO>, IClientCarBL<CarDTO>
     {
         public override string InsertSQL => "INSERT INTO ClientCars (ClientId, CarBrandId, LicensePlate, Mileage, Archived) VALUES (@clientId, @carBrandId, @licensePlate, @mileage, @archived);";
 
@@ -44,13 +44,13 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
         {
 
         }
-        public IEnumerable<ClientCarDTO> ReadForClientId(int clientId)
+        public IEnumerable<CarDTO> ReadForClientId(int clientId)
         {
-            var results = new List<ClientCarDTO>();
+            var results = new List<CarDTO>();
 
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = SelectForClientIdSQL;
-            BindParams(cmd, new ClientCarDTO
+            BindParams(cmd, new CarDTO
             {
                 ClientId = clientId,
             });
@@ -63,7 +63,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
             return results;
         }
 
-        protected override void BindParams(MySqlCommand cmd, ClientCarDTO dto)
+        protected override void BindParams(MySqlCommand cmd, CarDTO dto)
         {
             cmd.Parameters.Add(new MySqlParameter
             {
@@ -97,9 +97,9 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
             });
         }
 
-        protected override ClientCarDTO BindToObject(MySqlDataReader reader)
+        protected override CarDTO BindToObject(MySqlDataReader reader)
         {
-            return new ClientCarDTO
+            return new CarDTO
             {
                 Id = reader.GetInt32("Id"),
                 ClientId = reader.GetInt32("ClientId"),

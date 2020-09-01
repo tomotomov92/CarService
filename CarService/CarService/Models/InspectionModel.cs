@@ -19,7 +19,7 @@ namespace CarService.Models
         [Required]
         public int CarId { get; set; }
 
-        public ClientCarModel ClientCar { get; set; }
+        public CarModel ClientCar { get; set; }
 
         [Required, DisplayName("Inspection Car Mileage")]
         public int Mileage { get; set; }
@@ -45,7 +45,7 @@ namespace CarService.Models
                 ClientId = dto.ClientId,
                 Client = ClientModel.FromDto(dto.Client),
                 CarId = dto.CarId,
-                ClientCar = ClientCarModel.FromDto(dto.ClientCar),
+                ClientCar = CarModel.FromDto(dto.ClientCar),
                 Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
@@ -63,7 +63,7 @@ namespace CarService.Models
                 ClientId = dto.ClientId,
                 Client = ClientModel.FromDto(dto.Client),
                 CarId = dto.CarId,
-                ClientCar = ClientCarModel.FromDto(dto.ClientCar),
+                ClientCar = CarModel.FromDto(dto.ClientCar),
                 Mileage = dto.Mileage,
                 DateTimeOfInspection = dto.DateTimeOfInspection,
                 Description = dto.Description,
@@ -81,7 +81,7 @@ namespace CarService.Models
                 ClientId = model.ClientId,
                 Client = ClientModel.ToDto(model.Client),
                 CarId = model.CarId,
-                ClientCar = ClientCarModel.ToDto(model.ClientCar),
+                ClientCar = CarModel.ToDto(model.ClientCar),
                 Mileage = model.Mileage,
                 DateTimeOfInspection = model.DateTimeOfInspection,
                 Description = model.Description,

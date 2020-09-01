@@ -176,7 +176,7 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
                     Archived = reader.GetBoolean("Client_Archived"),
                 },
                 CarId = reader.GetInt32("CarId"),
-                ClientCar = new ClientCarDTO
+                ClientCar = new CarDTO
                 {
                     Id = reader.GetInt32("ClientCar_Id"),
                     ClientId = reader.GetInt32("ClientCar_ClientId"),
