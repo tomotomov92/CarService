@@ -66,7 +66,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     {
                         var activeEmployeeRoles = _employeeRoleBl.ReadActive();
                         var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
@@ -113,7 +112,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -151,7 +149,6 @@ namespace CarService.Controllers
                 switch (_userRole)
                 {
                     case UserRoles.Owner:
-                    case UserRoles.CustomerSupport:
                         {
                             await _bl.ArchiveAsync(new EmployeeDTO
                             {
@@ -178,7 +175,6 @@ namespace CarService.Controllers
                 switch (_userRole)
                 {
                     case UserRoles.Owner:
-                    case UserRoles.CustomerSupport:
                         {
                             await _bl.ArchiveAsync(new EmployeeDTO
                             {
@@ -203,7 +199,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");

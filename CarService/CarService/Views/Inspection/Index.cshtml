@@ -98,8 +98,8 @@
                     {
                         @Html.ActionLink("Create Invoice", "Create", "Invoice", new { inspectionId = item.Id }) @Html.Raw(" |")
                     }
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id })
+                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
                     @if (item.Archived == false)
                     {
                         @Html.Raw("| ") @Html.ActionLink("Archive", "Archive", new { id = item.Id })

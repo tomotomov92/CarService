@@ -91,8 +91,8 @@
                             @Html.ActionLink("Schedule Inspection", "Create", "Inspection", new { clientId = item.ClientId, carId = item.Id }) @Html.Raw(" |")
                         }
                         @Html.ActionLink("Inspections", "CarInspections", "Inspection", new { carId = item.Id }) |
-                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                        @Html.ActionLink("Details", "Details", new { id = item.Id })
+                        @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                        @Html.ActionLink("Edit", "Edit", new { id = item.Id })
                         @if (item.Archived == false)
                         {
                             @Html.Raw("| ") @Html.ActionLink("Archive", "Archive", new { id = item.Id })

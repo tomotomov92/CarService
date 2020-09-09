@@ -38,16 +38,33 @@ namespace CarService.Controllers
 
         public ActionResult Details(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.Mechanic:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         public ActionResult Create(int employeeId)
         {
-            var model = new ScheduleModel
+            switch (_userRole)
             {
-                EmployeeId = employeeId,
-            };
-            return View(model);
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    {
+                        var model = new ScheduleModel
+                        {
+                            EmployeeId = employeeId,
+                        };
+                        return View(model);
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -80,7 +97,14 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -114,7 +138,14 @@ namespace CarService.Controllers
 
         public ActionResult Delete(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
