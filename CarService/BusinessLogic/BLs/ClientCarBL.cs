@@ -33,7 +33,9 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public override string SelectActiveSQL => $"{SelectSQL} WHERE ClientCars.Archived = 0;";
 
-        public override string UpdateSQL => "UPDATE ClientCars SET ClientId = @clientId, CarBrandId = @carBrandId, LicensePlate = @licensePlate, Mileage = @mileage, Archived = @archived WHERE Id = @id;";
+        public override string UpdateSQL => "UPDATE ClientCars SET ClientId = @clientId, CarBrandId = @carBrandId, LicensePlate = @licensePlate, Mileage = @mileage WHERE Id = @id;";
+
+        public override string ArchiveSQL => "UPDATE ClientCars SET Archived = @archived WHERE Id = @id;";
 
         public override string DeleteSQL => "DELETE FROM ClientCars WHERE Id = @id;";
 

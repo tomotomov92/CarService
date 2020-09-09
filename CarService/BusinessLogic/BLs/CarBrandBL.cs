@@ -18,7 +18,9 @@ FROM CarBrands";
 
         public override string SelectActiveSQL => $"{SelectSQL} WHERE CarBrands.Archived = 0;";
 
-        public override string UpdateSQL => "UPDATE CarBrands SET BrandName = @brandName, Archived = @archived WHERE Id = @id;";
+        public override string UpdateSQL => "UPDATE CarBrands SET BrandName = @brandName WHERE Id = @id;";
+
+        public override string ArchiveSQL => "UPDATE CarBrands SET Archived = @archived WHERE Id = @id;";
 
         public override string DeleteSQL => "DELETE FROM CarBrands WHERE Id = @id;";
 

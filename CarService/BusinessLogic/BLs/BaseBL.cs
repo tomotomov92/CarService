@@ -17,6 +17,7 @@ namespace BusinessLogic.BLs
         public abstract string SelectByIdSQL { get; }
         public abstract string SelectActiveSQL { get; }
         public abstract string UpdateSQL { get; }
+        public abstract string ArchiveSQL { get; }
         public abstract string DeleteSQL { get; }
 
         public BaseBL(AppDb db)
@@ -79,6 +80,16 @@ namespace BusinessLogic.BLs
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdateSQL;
+            BindId(cmd, dto);
+            BindParams(cmd, dto);
+            await cmd.ExecuteNonQueryAsync();
+            return dto;
+        }
+
+        public virtual async Task<T> ArchiveAsync(T dto)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = ArchiveSQL;
             BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();

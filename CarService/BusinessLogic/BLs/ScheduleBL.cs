@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.DTOs;
 using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 
 namespace BusinessLogic.BLs
@@ -32,6 +33,8 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
         public override string SelectActiveSQL => $"{SelectSQL} WHERE Schedules.Archived = 0;";
 
         public override string UpdateSQL => "UPDATE Schedules SET DateBegin = @dateBegin, DateEnd = @dateEnd, EmployeeId = @employeeId WHERE Id = @id;";
+
+        public override string ArchiveSQL => throw new NotImplementedException();
 
         public override string DeleteSQL => "DELETE FROM Schedules WHERE Id = @id;";
 

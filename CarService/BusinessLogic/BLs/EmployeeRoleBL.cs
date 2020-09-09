@@ -18,7 +18,9 @@ FROM EmployeeRoles";
 
         public override string SelectActiveSQL => $"{SelectSQL} WHERE EmployeeRoles.Archived = 0;";
 
-        public override string UpdateSQL => "UPDATE EmployeeRoles SET EmployeeRoleName = @employeeRoleName, Archived = @archived WHERE Id = @id;";
+        public override string UpdateSQL => "UPDATE EmployeeRoles SET EmployeeRoleName = @employeeRoleName WHERE Id = @id;";
+
+        public override string ArchiveSQL => "UPDATE EmployeeRoles SET Archived = @archived WHERE Id = @id;";
 
         public override string DeleteSQL => "DELETE FROM EmployeeRoles WHERE Id = @id;";
 

@@ -26,11 +26,11 @@ FROM Clients";
 
         public override string SelectActiveSQL => $"{SelectSQL} WHERE Clients.Archived = 0;";
 
-        public override string UpdateSQL => "UPDATE Clients SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, Archived = @archived WHERE Id = @id;";
+        public override string UpdateSQL => "UPDATE Clients SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress WHERE Id = @id;";
+
+        public override string ArchiveSQL => "UPDATE Clients SET Archived = @archived WHERE Id = @id;";
 
         public override string DeleteSQL => "DELETE FROM Clients WHERE Id = @id;";
-
-        private string UpdateEmailAddressSQL => "Update Clients SET EmailAddress = @emailAddress WHERE Id = @id";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password WHERE Id = @id";
 

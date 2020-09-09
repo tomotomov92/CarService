@@ -35,7 +35,11 @@ namespace CarService.Controllers
             {
                 _userRole = (UserRoles)userRoleInt;
             }
-            _userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId).Value;
+            var userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+            if (userId != null)
+            {
+                _userId = userId.Value;
+            }
         }
 
         public ActionResult Index()
@@ -122,26 +126,30 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CarController.Create));
                 return Create(clientId: int.Parse(collection["ClientId"]));
             }
         }
 
         public ActionResult Edit(int id)
         {
-            if (_userRole == UserRoles.Owner ||
-                _userRole == UserRoles.CustomerSupport)
+            switch (_userRole)
             {
-                return GetActionForRecordById(id);
-            }
-            else if (_userRole == UserRoles.Customer)
-            {
-                var record = GetRecordById(id);
-                if (record.ClientId == _userId)
-                {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
-                }
+                case UserRoles.Customer:
+                    {
+                        var record = GetRecordById(id);
+                        if (record.ClientId == _userId)
+                        {
+                            return GetActionForRecordById(id);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -157,32 +165,117 @@ namespace CarService.Controllers
                     CarBrandId = int.Parse(collection["CarBrandId"]),
                     LicensePlate = collection["LicensePlate"],
                     Mileage = int.Parse(collection["Mileage"]),
-                    Archived = bool.Parse(collection["Archived"][0]),
                 });
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CarController.Edit));
                 return GetActionForRecordById(id);
+            }
+        }
+
+        public async Task<ActionResult> Archive(int id)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                        {
+                            await _bl.ArchiveAsync(new CarDTO
+                            {
+                                Id = id,
+                                Archived = true,
+                            });
+                            return RedirectToAction(nameof(Index));
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetRecordById(id);
+                            if (record.ClientId == _userId)
+                            {
+                                await _bl.ArchiveAsync(new CarDTO
+                                {
+                                    Id = id,
+                                    Archived = true,
+                                });
+                                return RedirectToAction(nameof(Index));
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CarController.Archive));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<ActionResult> Unarchive(int id)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                        {
+                            await _bl.ArchiveAsync(new CarDTO
+                            {
+                                Id = id,
+                                Archived = false,
+                            });
+                            return RedirectToAction(nameof(Index));
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetRecordById(id);
+                            if (record.ClientId == _userId)
+                            {
+                                await _bl.ArchiveAsync(new CarDTO
+                                {
+                                    Id = id,
+                                    Archived = false,
+                                });
+                                return RedirectToAction(nameof(Index));
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CarController.Unarchive));
+                return RedirectToAction(nameof(Index));
             }
         }
 
         public ActionResult Delete(int id)
         {
-            if (_userRole == UserRoles.Owner ||
-                _userRole == UserRoles.CustomerSupport)
+            switch (_userRole)
             {
-                return GetActionForRecordById(id);
-            }
-            else if (_userRole == UserRoles.Customer)
-            {
-                var record = GetRecordById(id);
-                if (record.ClientId == _userId)
-                {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
-                }
+                case UserRoles.Customer:
+                    {
+                        var record = GetRecordById(id);
+                        if (record.ClientId == _userId)
+                        {
+                            return GetActionForRecordById(id);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -196,6 +289,7 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CarController.Delete));
                 return GetActionForRecordById(id);
             }
         }

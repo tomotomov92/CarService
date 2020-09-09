@@ -1,17 +1,45 @@
 ﻿@model IEnumerable<CarService.Models.InspectionModel>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Inspections";
-}
+    var userId = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserId);
+    var userName = @HttpContextAccessor.HttpContext.Session.GetString(BusinessLogic.Constants.SessionKeyUserName);
+    var userRole = BusinessLogic.Enums.UserRoles.NA;
+    var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
+    if (userRoleInt != null)
+    {
+        userRole = (BusinessLogic.Enums.UserRoles)userRoleInt;
+    }
 
-<h1>Inspections</h1>
+    switch (userRole)
+    {
+        case BusinessLogic.Enums.UserRoles.Owner:
+        case BusinessLogic.Enums.UserRoles.CustomerSupport:
+            ViewData["Title"] = "Inspections";
+
+            <h1>Inspections</h1>
+            break;
+        case BusinessLogic.Enums.UserRoles.Customer:
+            ViewData["Title"] = "My Inspections";
+
+            <h1>My Inspections</h1>
+            break;
+    }
+}
 
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Client.FullName)
-            </th>
+            @switch (userRole)
+            {
+                case BusinessLogic.Enums.UserRoles.Owner:
+                case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                    <th>
+                        @Html.DisplayNameFor(model => model.Client.FullName)
+                    </th>
+                    break;
+            }
             <th>
                 @Html.DisplayNameFor(model => model.ClientCar.LicensePlate)
             </th>
@@ -35,47 +63,60 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Client.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClientCar.LicensePlate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClientCar.CarBrand.BrandName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Mileage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateTimeOfInspection)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Archived)
-            </td>
-            @if (item.Archived == false)
+        @foreach (var item in Model)
+        {
+            <tr>
+            @switch (userRole)
             {
-                <td>
-                    @Html.ActionLink("Create Invoice", "Create", "Invoice", new { inspectionId = item.Id }) |
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
+                case BusinessLogic.Enums.UserRoles.Owner:
+                case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Client.FullName)
+                    </td>
+                    break;
             }
-            else
-            {
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    @Html.DisplayFor(modelItem => item.ClientCar.LicensePlate)
                 </td>
-            }
-        </tr>
-}
+                <td>
+                    @Html.DisplayFor(modelItem => item.ClientCar.CarBrand.BrandName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Mileage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DateTimeOfInspection)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @if (item.Archived == false)
+                    {
+                        @Html.ActionLink("Create Invoice", "Create", "Invoice", new { inspectionId = item.Id }) @Html.Raw(" |")
+                    }
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.Id })
+                    @if (item.Archived == false)
+                    {
+                        @Html.Raw("| ") @Html.ActionLink("Archive", "Archive", new { id = item.Id })
+                    }
+                    else
+                    {
+                        @Html.Raw("| ") @Html.ActionLink("Unarchive", "Unarchive", new { id = item.Id })
+                    }
+                    @switch (userRole)
+                    {
+                        case BusinessLogic.Enums.UserRoles.Owner:
+                        case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                            @Html.Raw(" | ") @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                            break;
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

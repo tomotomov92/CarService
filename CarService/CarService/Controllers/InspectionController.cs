@@ -29,7 +29,11 @@ namespace CarService.Controllers
             {
                 _userRole = (UserRoles)userRoleInt;
             }
-            _userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId).Value;
+            var userId = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserId);
+            if (userId != null)
+            {
+                _userId = userId.Value;
+            }
         }
 
         public ActionResult Index()
@@ -58,7 +62,7 @@ namespace CarService.Controllers
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         public ActionResult Create(int clientId, int carId)
@@ -96,13 +100,14 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(EmployeeController.Create));
                 return Create(clientId: int.Parse(collection["ClientId"]), carId: int.Parse(collection["CarId"]));
             }
         }
 
         public ActionResult Edit(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         [HttpPost]
@@ -124,20 +129,102 @@ namespace CarService.Controllers
                     Mileage = int.Parse(collection["Mileage"]),
                     DateTimeOfInspection = dateTimeOfInspection,
                     Description = collection["Description"],
-                    Archived = bool.Parse(collection["Archived"][0]),
                 });
 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(EmployeeController.Edit));
+                return GetActionForRecordById(id);
+            }
+        }
+
+        public async Task<ActionResult> Archive(int id)
+        {
+            try
+            { 
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                        {
+                            await _bl.ArchiveAsync(new InspectionDTO
+                            {
+                                Id = id,
+                                Archived = true,
+                            });
+                            return RedirectToAction(nameof(Index));
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetRecordById(id);
+                            if (record.ClientId == _userId)
+                            {
+                                await _bl.ArchiveAsync(new InspectionDTO
+                                {
+                                    Id = id,
+                                    Archived = true,
+                                });
+                                return RedirectToAction(nameof(Index));
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InspectionController.Archive));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<ActionResult> Unarchive(int id)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                        {
+                            await _bl.ArchiveAsync(new InspectionDTO
+                            {
+                                Id = id,
+                                Archived = false,
+                            });
+                            return RedirectToAction(nameof(Index));
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetRecordById(id);
+                            if (record.ClientId == _userId)
+                            {
+                                await _bl.ArchiveAsync(new InspectionDTO
+                                {
+                                    Id = id,
+                                    Archived = false,
+                                });
+                                return RedirectToAction(nameof(Index));
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InspectionController.Unarchive));
+                return RedirectToAction(nameof(Index));
             }
         }
 
         public ActionResult Delete(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         [HttpPost]
@@ -151,7 +238,8 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(EmployeeController.Delete));
+                return GetActionForRecordById(id);
             }
         }
 
@@ -162,9 +250,14 @@ namespace CarService.Controllers
             return View("Index", resultsAsModel);
         }
 
-        private ActionResult GetRecordById(int id)
+        private InspectionDTO GetRecordById(int id)
         {
-            var resultAsDTO = _bl.ReadById(id);
+            return _bl.ReadById(id);
+        }
+
+        private ActionResult GetActionForRecordById(int id)
+        {
+            var resultAsDTO = GetRecordById(id);
             var resultAsModel = InspectionModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }

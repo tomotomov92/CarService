@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace CarService.Controllers
 {
-    public class ClientController : Controller
+    public class EmployeeRoleController : Controller
     {
-        private readonly ILogger<ClientController> _logger;
-        private readonly IBaseBL<ClientDTO> _bl;
+        private readonly ILogger<EmployeeRoleController> _logger;
+        private readonly IBaseBL<EmployeeRoleDTO> _bl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
+        public EmployeeRoleController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeRoleController> logger, IBaseBL<EmployeeRoleDTO> bl)
         {
             _logger = logger;
             _bl = bl;
@@ -34,10 +34,9 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     {
                         var resultsAsDTO = _bl.ReadAll();
-                        var resultsAsModel = ClientModel.FromDtos(resultsAsDTO);
+                        var resultsAsModel = EmployeeRoleModel.FromDtos(resultsAsDTO);
                         return View(resultsAsModel);
                     }
                 default:
@@ -50,7 +49,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -62,7 +60,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return View();
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -75,18 +72,15 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.CreateAsync(new ClientDTO
+                await _bl.CreateAsync(new EmployeeRoleDTO
                 {
-                    FirstName = collection["FirstName"],
-                    LastName = collection["LastName"],
-                    EmailAddress = collection["EmailAddress"],
-                    Password = Constants.DefaultPassword,
+                    EmployeeRoleName = collection["EmployeeRoleName"],
                 });
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, nameof(ClientController.Create));
+                _logger.LogError(ex, nameof(EmployeeController.Create));
                 return Create();
             }
         }
@@ -96,7 +90,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -109,19 +102,16 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.UpdateAsync(new ClientDTO
+                await _bl.UpdateAsync(new EmployeeRoleDTO
                 {
                     Id = id,
-                    FirstName = collection["FirstName"],
-                    LastName = collection["LastName"],
-                    EmailAddress = collection["EmailAddress"],
-                    Password = collection["Password"],
+                    EmployeeRoleName = collection["EmployeeRoleName"],
                 });
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, nameof(ClientController.Edit));
+                _logger.LogError(ex, nameof(EmployeeController.Edit));
                 return GetActionForRecordById(id);
             }
         }
@@ -133,9 +123,8 @@ namespace CarService.Controllers
                 switch (_userRole)
                 {
                     case UserRoles.Owner:
-                    case UserRoles.CustomerSupport:
                         {
-                            await _bl.ArchiveAsync(new ClientDTO
+                            await _bl.ArchiveAsync(new EmployeeRoleDTO
                             {
                                 Id = id,
                                 Archived = true,
@@ -148,7 +137,7 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, nameof(ClientController.Archive));
+                _logger.LogError(ex, nameof(EmployeeRoleController.Archive));
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -160,9 +149,8 @@ namespace CarService.Controllers
                 switch (_userRole)
                 {
                     case UserRoles.Owner:
-                    case UserRoles.CustomerSupport:
                         {
-                            await _bl.ArchiveAsync(new ClientDTO
+                            await _bl.ArchiveAsync(new EmployeeRoleDTO
                             {
                                 Id = id,
                                 Archived = false,
@@ -175,7 +163,7 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, nameof(ClientController.Unarchive));
+                _logger.LogError(ex, nameof(EmployeeRoleController.Unarchive));
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -185,7 +173,6 @@ namespace CarService.Controllers
             switch (_userRole)
             {
                 case UserRoles.Owner:
-                case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -203,20 +190,15 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, nameof(ClientController.Delete));
+                _logger.LogError(ex, nameof(EmployeeController.Delete));
                 return GetActionForRecordById(id);
             }
         }
 
-        private ClientDTO GetRecordById(int id)
+        private ActionResult GetActionForRecordById(int id)
         {
-            return _bl.ReadById(id);
-        }
-
-        public ActionResult GetActionForRecordById(int id)
-        {
-            var resultAsDTO = GetRecordById(id);
-            var resultAsModel = ClientModel.FromDto(resultAsDTO);
+            var resultAsDTO = _bl.ReadById(id);
+            var resultAsModel = EmployeeRoleModel.FromDto(resultAsDTO);
             return View(resultAsModel);
         }
     }

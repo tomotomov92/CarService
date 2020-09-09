@@ -31,27 +31,33 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            if (_userRole == UserRoles.Owner)
+            switch (_userRole)
             {
-                var resultsAsDTO = _bl.ReadAll();
-                var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
-                return View(resultsAsModel);
+                case UserRoles.Owner:
+                    {
+                        var resultsAsDTO = _bl.ReadAll();
+                        var resultsAsModel = CarBrandModel.FromDtos(resultsAsDTO);
+                        return View(resultsAsModel);
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         public ActionResult Create()
         {
-            if (_userRole == UserRoles.Owner)
+            switch (_userRole)
             {
-                return View();
+                case UserRoles.Owner:
+                    return View();
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -68,17 +74,20 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CarBrandController.Create));
                 return Create();
             }
         }
 
         public ActionResult Edit(int id)
         {
-            if (_userRole == UserRoles.Owner)
+            switch (_userRole)
             {
-                return GetRecordById(id);
+                case UserRoles.Owner:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpPost]
@@ -91,23 +100,77 @@ namespace CarService.Controllers
                 {
                     Id = id,
                     BrandName = collection["BrandName"],
-                    Archived = bool.Parse(collection["Archived"][0]),
                 });
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(CarBrandController.Edit));
+                return GetActionForRecordById(id);
+            }
+        }
+
+        public async Task<ActionResult> Archive(int id)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                        {
+                            await _bl.ArchiveAsync(new CarBrandDTO
+                            {
+                                Id = id,
+                                Archived = true,
+                            });
+                            return RedirectToAction(nameof(Index));
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CarBrandController.Archive));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public async Task<ActionResult> Unarchive(int id)
+        {
+            try
+            {
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                    {
+                        await _bl.ArchiveAsync(new CarBrandDTO
+                        {
+                            Id = id,
+                            Archived = false,
+                        });
+                        return RedirectToAction(nameof(Index));
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CarBrandController.Unarchive));
+                return RedirectToAction(nameof(Index));
             }
         }
 
         public ActionResult Delete(int id)
         {
-             if (_userRole == UserRoles.Owner)
-             {
-                 return GetRecordById(id);
-             }
-             return RedirectToAction(nameof(HomeController.Index), "Home");
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -121,11 +184,12 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(CarBrandController.Delete));
+                return GetActionForRecordById(id);
             }
         }
 
-        private ActionResult GetRecordById(int id)
+        private ActionResult GetActionForRecordById(int id)
         {
             var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = CarBrandModel.FromDto(resultAsDTO);

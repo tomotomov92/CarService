@@ -38,7 +38,7 @@ namespace CarService.Controllers
 
         public ActionResult Details(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         public ActionResult Create(int employeeId)
@@ -73,13 +73,14 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(EmployeeController.Create));
                 return Create(employeeId: int.Parse(collection["EmployeeId"]));
             }
         }
 
         public ActionResult Edit(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         [HttpPost]
@@ -106,13 +107,14 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(EmployeeController.Edit));
+                return GetActionForRecordById(id);
             }
         }
 
         public ActionResult Delete(int id)
         {
-            return GetRecordById(id);
+            return GetActionForRecordById(id);
         }
 
         [HttpPost]
@@ -126,11 +128,12 @@ namespace CarService.Controllers
             }
             catch (Exception ex)
             {
-                return GetRecordById(id);
+                _logger.LogError(ex, nameof(EmployeeController.Delete));
+                return GetActionForRecordById(id);
             }
         }
 
-        private ActionResult GetRecordById(int id)
+        private ActionResult GetActionForRecordById(int id)
         {
             var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = ScheduleModel.FromDto(resultAsDTO);

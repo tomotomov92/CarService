@@ -6,6 +6,7 @@ using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -62,8 +63,9 @@ namespace CarService.Controllers
                 }
                 return View(CredentialModel.FromDto(loginResult));
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.SignUp));
                 return View();
             }
         }
@@ -106,8 +108,9 @@ namespace CarService.Controllers
                 }
                 return View(CredentialModel.FromDto(loginResult));
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.SignIn));
                 return View();
             }
         }
@@ -155,8 +158,9 @@ namespace CarService.Controllers
                     Id = id,
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ChangePassword));
                 return View(new CredentialModel
                 {
                     Id = id,
@@ -184,8 +188,9 @@ namespace CarService.Controllers
                 await _clientBl.ForgottenPasswordAsync(dto);
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ForgottenPassword));
                 return View();
             }
         }
@@ -213,8 +218,9 @@ namespace CarService.Controllers
             {
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPassword));
                 return View(new CredentialModel
                 {
                     Id = id,
@@ -264,8 +270,9 @@ namespace CarService.Controllers
                 }
                 return View(CredentialModel.FromDto(loginResult));
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.SignInEmployee));
                 return View();
             }
         }
@@ -313,8 +320,9 @@ namespace CarService.Controllers
                     Id = id,
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ChangePasswordEmployee));
                 return View(new CredentialModel
                 {
                     Id = id,
@@ -342,8 +350,9 @@ namespace CarService.Controllers
                 await _employeeBl.ForgottenPasswordAsync(dto);
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ForgottenPasswordEmployee));
                 return View();
             }
         }
@@ -371,8 +380,9 @@ namespace CarService.Controllers
             {
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPasswordEmployee));
                 return View(new CredentialModel
                 {
                     Id = id,

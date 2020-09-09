@@ -32,11 +32,11 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         public override string SelectActiveSQL => $"{SelectSQL} WHERE Employees.Archived = 0;";
 
-        public override string UpdateSQL => "UPDATE Employees SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, EmployeeRoleId = @employeeRoleId, Archived = @archived WHERE Id = @id;";
+        public override string UpdateSQL => "UPDATE Employees SET FirstName = @firstName, LastName = @lastName, EmailAddress = @emailAddress, EmployeeRoleId = @employeeRoleId WHERE Id = @id;";
+
+        public override string ArchiveSQL => "UPDATE Employees SET Archived = @archived WHERE Id = @id;";
 
         public override string DeleteSQL => "DELETE FROM Employees WHERE Id = @id;";
-
-        private string UpdateEmailAddressSQL => "Update Employees SET EmailAddress = @emailAddress WHERE Id = @id";
 
         private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password WHERE Id = @id";
 

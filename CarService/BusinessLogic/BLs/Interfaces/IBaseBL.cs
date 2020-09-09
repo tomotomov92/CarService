@@ -19,6 +19,8 @@ namespace BusinessLogic.BLs.Interfaces
 
         IEnumerable<T> ReadActive();
 
+        Task<T> ArchiveAsync(T dto);
+
         Task DeleteAsync(int id);
     }
 }

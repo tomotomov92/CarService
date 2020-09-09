@@ -1,42 +1,56 @@
 ﻿@model CarService.Models.CarModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Client Car Details";
-}
+    var userRole = BusinessLogic.Enums.UserRoles.NA;
+    var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
+    if (userRoleInt != null)
+    {
+        userRole = (BusinessLogic.Enums.UserRoles)userRoleInt;
+    }
 
-<h1>Client CarDetails</h1>
+    ViewData["Title"] = "Car Details";
+    <h1>@Html.DisplayFor(model => model.LicensePlate) Car Details</h1>
+}
 
 <div>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Client.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Client.FullName)
-        </dd>
-        <dt class = "col-sm-2">
+        @switch (userRole)
+        {
+            case BusinessLogic.Enums.UserRoles.Owner:
+            case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Client.FullName)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Client.FullName)
+                </dd>
+                break;
+        }
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.CarBrand.BrandName)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.CarBrand.BrandName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.LicensePlate)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.LicensePlate)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Mileage)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Mileage)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Archived)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Archived)
         </dd>
     </dl>

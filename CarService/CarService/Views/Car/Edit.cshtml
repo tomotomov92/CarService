@@ -1,17 +1,37 @@
 ﻿@model CarService.Models.CarModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = "Edit Client Car";
-}
+    var userRole = BusinessLogic.Enums.UserRoles.NA;
+    var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
+    if (userRoleInt != null)
+    {
+        userRole = (BusinessLogic.Enums.UserRoles)userRoleInt;
+    }
 
-<h1>Edit Client Car</h1>
+    var display = "block";
+
+    switch (userRole)
+    {
+        case BusinessLogic.Enums.UserRoles.Owner:
+        case BusinessLogic.Enums.UserRoles.CustomerSupport:
+            display = "block";
+            break;
+        case BusinessLogic.Enums.UserRoles.Customer:
+            display = "none";
+            break;
+    }
+    ViewData["Title"] = $"Edit Car Details";
+    <h1>Edit @Html.DisplayFor(model => model.LicensePlate) Car Details</h1>
+}
 
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+            <div class="form-group" style="display:@display">
                 <label asp-for="ClientId" class="control-label"></label>
                 <select asp-for="ClientId" asp-items="Model.ClientOptions"></select>
                 <span asp-validation-for="ClientId" class="text-danger"></span>
@@ -30,11 +50,6 @@
                 <label asp-for="Mileage" class="control-label"></label>
                 <input asp-for="Mileage" class="form-control" />
                 <span asp-validation-for="Mileage" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Archived" /> @Html.DisplayNameFor(model => model.Archived)
-                </label>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
