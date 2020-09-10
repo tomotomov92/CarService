@@ -1,10 +1,12 @@
 ﻿using BusinessLogic;
+using BusinessLogic.BLs;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -15,12 +17,14 @@ namespace CarService.Controllers
     {
         private readonly ILogger<ScheduleController> _logger;
         private readonly IBaseBL<ScheduleDTO> _bl;
+        private readonly ICredentialBL<EmployeeDTO> _employeeBl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public ScheduleController(IHttpContextAccessor httpContextAccessor, ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl)
+        public ScheduleController(IHttpContextAccessor httpContextAccessor, ILogger<ScheduleController> logger, IBaseBL<ScheduleDTO> bl, ICredentialBL<EmployeeDTO> employeeBL)
         {
             _logger = logger;
             _bl = bl;
+            _employeeBl = employeeBL;
 
             var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
             if (userRoleInt != null)
@@ -166,8 +170,13 @@ namespace CarService.Controllers
 
         private ActionResult GetActionForRecordById(int id)
         {
+            var activeEmployees = _employeeBl.ReadActive();
+            var activeEmployeesAsModel = EmployeeModel.FromDtos(activeEmployees);
+            var employeeOptions = new SelectList(activeEmployeesAsModel, nameof(EmployeeModel.Id), nameof(EmployeeModel.FullName));
+
             var resultAsDTO = _bl.ReadById(id);
             var resultAsModel = ScheduleModel.FromDto(resultAsDTO);
+            resultAsModel.EmployeeOptions = employeeOptions;
             return View(resultAsModel);
         }
     }

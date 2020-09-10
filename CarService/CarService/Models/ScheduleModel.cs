@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.DTOs;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,6 +31,8 @@ namespace CarService.Models
 
         [Required, DisplayName("End Time"), DataType(DataType.Time)]
         public TimeSpan ScheduleEndTime { get; set; } = TimeSpan.Parse("17:30:00");
+
+        public SelectList EmployeeOptions { get; set; }
 
         public static ScheduleModel FromDto(ScheduleDTO dto)
         {
