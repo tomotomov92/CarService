@@ -234,6 +234,81 @@ namespace CarService.Controllers
             }
         }
 
+        public ActionResult ClientInvoices(int clientId)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                    case UserRoles.Customer:
+                        {
+                            var resultsAsDTO = _bl.ReadForClientId(clientId);
+                            var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InvoiceController.ClientInvoices));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public ActionResult CarInvoices(int carId)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                    case UserRoles.Customer:
+                        {
+                            var resultsAsDTO = _bl.ReadForCarId(carId);
+                            var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InvoiceController.CarInvoices));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        public ActionResult InspectionInvoices(int inspectionId)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                    case UserRoles.Customer:
+                        {
+                            var resultsAsDTO = _bl.ReadForInspectionId(inspectionId);
+                            var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InvoiceController.InspectionInvoices));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         private InvoiceDTO GetRecordById(int id)
         {
             return _bl.ReadById(id);

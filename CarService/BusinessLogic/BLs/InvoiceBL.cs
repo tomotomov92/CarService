@@ -61,6 +61,10 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
 
         public string SelectForClientIdSQL => $"{SelectSQL} WHERE Inspections.ClientId = @clientId;";
 
+        public string SelectForCarIdSQL => $"{SelectSQL} WHERE Inspections.CarId = @carId;";
+
+        public string SelectForInspectionIdSQL => $"{SelectSQL} WHERE Invoices.InspectionId = @inspectionId;";
+
         public InvoiceBL(AppDb db)
             : base(db)
         {
@@ -78,6 +82,48 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
                 ParameterName = "@clientId",
                 DbType = DbType.Int32,
                 Value = clientId,
+            });
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
+        }
+
+        public IEnumerable<InvoiceDTO> ReadForCarId(int carId)
+        {
+            var results = new List<InvoiceDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForCarIdSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@carId",
+                DbType = DbType.Int32,
+                Value = carId,
+            });
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(BindToObject(reader));
+            }
+
+            return results;
+        }
+
+        public IEnumerable<InvoiceDTO> ReadForInspectionId(int inspectionId)
+        {
+            var results = new List<InvoiceDTO>();
+
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectForInspectionIdSQL;
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@inspectionId",
+                DbType = DbType.Int32,
+                Value = inspectionId,
             });
             using var reader = cmd.ExecuteReader();
             while (reader.Read())

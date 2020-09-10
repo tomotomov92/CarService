@@ -243,11 +243,54 @@ namespace CarService.Controllers
             }
         }
 
+        public ActionResult ClientInspections(int clientId)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                    case UserRoles.Customer:
+                        {
+                            var resultsAsDTO = _bl.ReadForClientId(clientId);
+                            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InspectionController.ClientInspections));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         public ActionResult CarInspections(int carId)
         {
-            var resultsAsDTO = _bl.ReadForCarId(carId);
-            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
-            return View("Index", resultsAsModel);
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                    case UserRoles.Customer:
+                        {
+                            var resultsAsDTO = _bl.ReadForCarId(carId);
+                            var resultsAsModel = InspectionModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(InspectionController.CarInspections));
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         private InspectionDTO GetRecordById(int id)

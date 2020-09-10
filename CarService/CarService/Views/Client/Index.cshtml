@@ -1,14 +1,31 @@
 ﻿@model IEnumerable<CarService.Models.ClientModel>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
+    var userId = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserId);
+    var userName = @HttpContextAccessor.HttpContext.Session.GetString(BusinessLogic.Constants.SessionKeyUserName);
+    var userRole = BusinessLogic.Enums.UserRoles.NA;
+    var userRoleInt = @HttpContextAccessor.HttpContext.Session.GetInt32(BusinessLogic.Constants.SessionKeyUserRole);
+    if (userRoleInt != null)
+    {
+        userRole = (BusinessLogic.Enums.UserRoles)userRoleInt;
+    }
+
     ViewData["Title"] = "Clients";
+    <h1>Clients</h1>
+
+    switch (userRole)
+    {
+        case BusinessLogic.Enums.UserRoles.Owner:
+        case BusinessLogic.Enums.UserRoles.CustomerSupport:
+            <p>
+                <a asp-action="Create">Create New</a>
+            </p>
+            break;
+    }
 }
 
-<h1>Clients</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -26,42 +43,45 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EmailAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Archived)
-            </td>
-            @if (item.Archived == false)
-            {
+        @foreach (var item in Model)
+        {
+            <tr>
                 <td>
-                    @Html.ActionLink("Add Car", "Create", "Car", new { clientId = item.Id }) |
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EmailAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @if (item.Archived == false)
+                    {
+                        @Html.ActionLink("Add Car", "Create", "Car", new { clientId = item.Id }) @Html.Raw(" |")
+                    }
                     @Html.ActionLink("Cars", "ClientCars", "Car", new { clientId = item.Id }) |
                     @Html.ActionLink("Inspections", "ClientInspections", "Inspection", new { clientId = item.Id }) |
                     @Html.ActionLink("Invoices", "ClientInvoices", "Invoice", new { clientId = item.Id }) |
                     @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                    @if (item.Archived == false)
+                    {
+                        @Html.Raw(" | ") @Html.ActionLink("Archive", "Archive", new { id = item.Id })
+                    }
+                    else
+                    {
+                        @Html.Raw(" | ") @Html.ActionLink("Unarchive", "Unarchive", new { id = item.Id })
+                    }
+                    @switch (userRole)
+                    {
+                        case BusinessLogic.Enums.UserRoles.Owner:
+                        case BusinessLogic.Enums.UserRoles.CustomerSupport:
+                            @Html.Raw(" | ") @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                            break;
+                    }
                 </td>
-            }
-            else
-            {
-                <td>
-                    @Html.ActionLink("Cars", "ClientCars", "Car", new { clientId = item.Id }) |
-                    @Html.ActionLink("Inspections", "ClientInspections", "Inspection", new { clientId = item.Id }) |
-                    @Html.ActionLink("Invoices", "ClientInvoices", "Invoice", new { clientId = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
-            }
-
-        </tr>
-}
+            </tr>
+        }
     </tbody>
 </table>

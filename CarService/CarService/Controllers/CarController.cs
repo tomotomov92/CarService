@@ -294,12 +294,36 @@ namespace CarService.Controllers
             }
         }
 
+        public ActionResult ClientCars(int clientId)
+        {
+            try
+            {
+                switch (_userRole)
+                {
+                    case UserRoles.Owner:
+                    case UserRoles.CustomerSupport:
+                        {
+                            var resultsAsDTO = _bl.ReadForClientId(clientId);
+                            var resultsAsModel = CarModel.FromDtos(resultsAsDTO);
+                            return View("Index", resultsAsModel);
+                        }
+                    default:
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CarController.ClientCars));
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         private CarDTO GetRecordById(int id)
         {
             return _bl.ReadById(id);
         }
 
-        public ActionResult GetActionForRecordById(int id)
+        private ActionResult GetActionForRecordById(int id)
         {
             var activeCarBrands = _carBrandBl.ReadActive();
             var activeCarBrandsAsModel = CarBrandModel.FromDtos(activeCarBrands);
