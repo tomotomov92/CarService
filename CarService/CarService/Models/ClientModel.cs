@@ -1,29 +1,14 @@
 ﻿using BusinessLogic.DTOs;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
 {
-    public class ClientModel
+    public class ClientModel : CredentialModel
     {
-        public int Id { get; set; }
-
-        [Required, DisplayName("First Name")]
-        public string FirstName { get; set; }
-
-        [Required, DisplayName("Last Name")]
-        public string LastName { get; set; }
-
         [DisplayName("Client Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
-
-        [Required, DisplayName("Email Address")]
-        public string EmailAddress { get; set; }
-
-        [Required]
-        public string Password { get; set; }
 
         public bool Archived { get; set; }
 
@@ -36,6 +21,8 @@ namespace CarService.Models
                 LastName = dto.LastName,
                 EmailAddress = dto.EmailAddress,
                 Password = dto.Password,
+                RepeatPassword = dto.RepeatPassword,
+                RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
             };
         }
@@ -49,6 +36,8 @@ namespace CarService.Models
                 LastName = dto.LastName,
                 EmailAddress = dto.EmailAddress,
                 Password = dto.Password,
+                RepeatPassword = dto.RepeatPassword,
+                RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
             });
         }
@@ -62,6 +51,8 @@ namespace CarService.Models
                 LastName = model.LastName,
                 EmailAddress = model.EmailAddress,
                 Password = model.Password,
+                RepeatPassword = model.RepeatPassword,
+                RequirePasswordChange = model.RequirePasswordChange,
                 Archived = model.Archived,
             };
         }

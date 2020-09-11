@@ -79,28 +79,29 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Employees` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `Archived`)
+INSERT INTO `CarService`.`Employees` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `DateOfStart`, `EmployeeRoleId`, `RequirePasswordChange`, `Archived`)
 VALUES
-('Tomo', 'Tomov', 't.tomov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-01-01', 1, 0),
-('Staiko', 'Metodiev', 's.metodiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2019-03-15', 2, 0),
-('Atanas', 'Atanasov', 'a.atanasov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2000-12-25', 2, 0),
-('Nikolay', 'Stoyanov', 'n.stoyanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2012-12-12', 2, 0),
-('Bojana', 'Krusteva', 'b.krusteva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-05-30', 2, 0),
-('Velina', 'Spasova', 'v.spasova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2008-10-10', 2, 1),
-('Mihaela', 'Kalcheva', 'm.kalcheva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2007-09-27', 2, 1),
-('Spasimir', 'Kirilov', 's.kirilov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2013-03-03', 2, 1),
-('Plamen', 'Panaiotov', 'p.panaiotov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2015-08-20', 2, 0),
-('Dafina', 'Marinova', 'd.marinova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2015-08-20', 2, 1),
-('Dimitar', 'Iliev', 'd.iliev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-04-04', 2, 1),
-('Venelin', 'Dimitrov', 'v.dimitrov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2016-11-11', 2, 0),
-('Bojidar', 'Stefanov', 'b.stefanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2019-12-30', 2, 0),
-('Kaloyan', 'Yanev', 'k.yanev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2009-07-19', 2, 0),
-('Georgi', 'Ivandjikov', 'g.ivandjikov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2009-07-06', 2, 0),
-('Veselin', 'Nikolov', 'v.nikolov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2010-06-06', 2, 0),
-('Veselina', 'Veleva', 'v.veleva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2011-06-22', 2, 0),
-('Kameliya', 'Roynova', 'k.roynova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-02-24', 3, 1),
-('Nikol', 'Buteva', 'n.buteva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2008-10-18', 3, 0),
-('Teodora', 'Mandieva', 't.mandieva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2013-06-20', 3, 0);
+('Tomo', 'Tomov', 't.tomov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-01-01', 1, 1, 0),
+('Staiko', 'Metodiev', 's.metodiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2019-03-15', 2, 1, 0),
+('Atanas', 'Atanasov', 'a.atanasov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2000-12-25', 2, 1, 0),
+('Nikolay', 'Stoyanov', 'n.stoyanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2012-12-12', 2, 1, 0),
+('Bojana', 'Krusteva', 'b.krusteva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-05-30', 2, 1, 0),
+('Velina', 'Spasova', 'v.spasova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2008-10-10', 2, 1, 1),
+('Mihaela', 'Kalcheva', 'm.kalcheva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2007-09-27', 2, 1, 1),
+('Spasimir', 'Kirilov', 's.kirilov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2013-03-03', 2, 1, 1),
+('Plamen', 'Panaiotov', 'p.panaiotov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2015-08-20', 2, 1, 0),
+('Dafina', 'Marinova', 'd.marinova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2015-08-20', 2, 1, 1),
+('Dimitar', 'Iliev', 'd.iliev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-04-04', 2, 1, 1),
+('Venelin', 'Dimitrov', 'v.dimitrov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2016-11-11', 2, 1, 0),
+('Bojidar', 'Stefanov', 'b.stefanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2019-12-30', 2, 1, 0),
+('Kaloyan', 'Yanev', 'k.yanev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2009-07-19', 2, 1, 0),
+('Georgi', 'Ivandjikov', 'g.ivandjikov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2009-07-06', 2, 1, 0),
+('Veselin', 'Nikolov', 'v.nikolov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2010-06-06', 2, 1, 0),
+('Veselina', 'Veleva', 'v.veleva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2011-06-22', 2, 1, 0),
+('Kameliya', 'Roynova', 'k.roynova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2020-02-24', 3, 1, 1),
+('Nikol', 'Buteva', 'n.buteva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2008-10-18', 3, 1, 0),
+('Teodora', 'Mandieva', 't.mandieva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2013-06-20', 3, 1, 0),
+('S', 'Ivanov', 's.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', '2013-06-20', 3, 1, 0);
 /*END*/
 
 
@@ -132,29 +133,30 @@ VALUES
 /*END*/
 
 
-INSERT INTO `CarService`.`Clients` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `Archived`)
+INSERT INTO `CarService`.`Clients` (`FirstName`, `LastName`, `EmailAddress`, `Password`, `RequirePasswordChange`, `Archived`)
 VALUES
-('Vasil', 'Yanev', 'v.yanev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Tomo', 'Tomov', 't.tomov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Zlatelina', 'Kazakova', 'z.kazakova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Mirela', 'Bineva', 'm.bineva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Rusi', 'Lambov', 'r.lambov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Georgi', 'Ivanov', 'g.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Spas', 'Atanasov', 's.atanasov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Radoslav', 'Hristov', 'r.hristov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Ioana', 'Iosifova', 'i.iosifova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Nikolina', 'Spasova', 'n.spasova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Elena', 'Konstantinova', 'e.konstantinova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Elitsa', 'Leontieva', 'e.leontieva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Mariya', 'Mihailova', 'm.mihailova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Ralitsa', 'Bojkova', 'r.bojkova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Teodora', 'Maneva', 't.maneva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Martin', 'Ivanov', 'm.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Tihomir', 'Gospodinov', 't.gospodinov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Yasen', 'Georgiev', 'y.georgiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Hristo', 'Prodanov', 'h.prodanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Milko', 'Kalaidjiev', 'm.kalaidjiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0),
-('Peter', 'Velev', 'p.velev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 0);
+('Vasil', 'Yanev', 'v.yanev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Tomo', 'Tomov', 't.tomov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Zlatelina', 'Kazakova', 'z.kazakova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Mirela', 'Bineva', 'm.bineva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Rusi', 'Lambov', 'r.lambov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Georgi', 'Ivanov', 'g.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Spas', 'Atanasov', 's.atanasov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Radoslav', 'Hristov', 'r.hristov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Ioana', 'Iosifova', 'i.iosifova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Nikolina', 'Spasova', 'n.spasova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Elena', 'Konstantinova', 'e.konstantinova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Elitsa', 'Leontieva', 'e.leontieva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Mariya', 'Mihailova', 'm.mihailova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Ralitsa', 'Bojkova', 'r.bojkova@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Teodora', 'Maneva', 't.maneva@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Martin', 'Ivanov', 'm.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Tihomir', 'Gospodinov', 't.gospodinov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Yasen', 'Georgiev', 'y.georgiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Hristo', 'Prodanov', 'h.prodanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Milko', 'Kalaidjiev', 'm.kalaidjiev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('Peter', 'Velev', 'p.velev@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0),
+('S', 'Ivanov', 's.ivanov@email.com', 'GV9i7dQKHZsMZAcQRZbWwp4rQI7MHMlk6AM3aRerH9A=', 1, 0);
 /*END*/
 
 

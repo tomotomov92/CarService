@@ -48,6 +48,12 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
         {
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@dateBegin",
                 DbType = DbType.DateTime,
                 Value = dto.DateBegin,

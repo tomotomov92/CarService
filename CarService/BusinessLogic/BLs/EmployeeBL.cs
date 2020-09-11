@@ -9,7 +9,7 @@ namespace BusinessLogic.BLs
 {
     public class EmployeeBL : BaseBL<EmployeeDTO>, ICredentialBL<EmployeeDTO>
     {
-        public override string InsertSQL => "INSERT INTO Employees (FirstName, LastName, EmailAddress, Password, DateOfStart, EmployeeRoleId, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @archived);";
+        public override string InsertSQL => "INSERT INTO Employees (FirstName, LastName, EmailAddress, Password, DateOfStart, EmployeeRoleId, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @requirePasswordChange, @archived);";
 
         public override string SelectSQL => @"
 SELECT Employees.Id,
@@ -22,6 +22,7 @@ SELECT Employees.Id,
        EmployeeRoles.Id AS EmployeeRole_Id,
        EmployeeRoles.EmployeeRoleName AS EmployeeRole_EmployeeRoleName,
        EmployeeRoles.Archived AS EmployeeRole_Archived,
+       Employees.RequirePasswordChange,
        Employees.Archived
 FROM Employees
 INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
@@ -38,7 +39,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         public override string DeleteSQL => "DELETE FROM Employees WHERE Id = @id;";
 
-        private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password WHERE Id = @id";
+        private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
         public EmployeeBL(AppDb db)
             : base(db)
@@ -70,6 +71,8 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                         LastName = dto.LastName,
                         EmailAddress = dto.EmailAddress,
                         Password = dto.HashedPassword,
+                        DateOfStart = dto.DateOfStart,
+                        EmployeeRoleId = dto.EmployeeRoleId,
                     });
 
                     if (employeeDTO.Id > 0)
@@ -105,12 +108,9 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                 result.Id = employeeDTO.Id;
                 result.FirstName = employeeDTO.FirstName;
                 result.LastName = employeeDTO.LastName;
+                result.RequirePasswordChange = employeeDTO.RequirePasswordChange;
                 result.UserRole = (UserRoles)employeeDTO.EmployeeRoleId;
                 result.SuccessfulOperation = true;
-                if (dto.HashedPassword.Equals(Constants.DefaultPassword))
-                {
-                    result.RequirePasswordChange = true;
-                }
             }
             else
             {
@@ -123,13 +123,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdatePasswordSQL;
-            BindId(cmd, dto.Id);
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@emailAddress",
-                DbType = DbType.String,
-                Value = dto.EmailAddress,
-            });
+            BindParams(cmd, EmployeeDTO.FromCredentialDTO(dto));
             var result = await cmd.ExecuteNonQueryAsync();
             if (result > 0)
                 return true;
@@ -140,13 +134,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdatePasswordSQL;
-            BindId(cmd, dto.Id);
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@password",
-                DbType = DbType.String,
-                Value = dto.HashedPassword,
-            });
+            BindParams(cmd, EmployeeDTO.FromCredentialDTO(dto));
             var result = await cmd.ExecuteNonQueryAsync();
             if (result > 0)
                 return true;
@@ -160,13 +148,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             {
                 using var cmd = Db.Connection.CreateCommand();
                 cmd.CommandText = UpdatePasswordSQL;
-                BindId(cmd, employeeDTO.Id);
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@password",
-                    DbType = DbType.String,
-                    Value = Constants.DefaultPassword,
-                });
+                BindParams(cmd, EmployeeDTO.FromCredentialDTO(dto));
                 await cmd.ExecuteNonQueryAsync();
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
@@ -195,6 +177,12 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         protected override void BindParams(MySqlCommand cmd, EmployeeDTO dto)
         {
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@firstName",
@@ -233,6 +221,12 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             });
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@requirePasswordChange",
+                DbType = DbType.Boolean,
+                Value = dto.RequirePasswordChange,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@archived",
                 DbType = DbType.Boolean,
                 Value = dto.Archived,
@@ -256,6 +250,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                     EmployeeRoleName = reader.GetString("EmployeeRole_EmployeeRoleName"),
                     Archived = reader.GetBoolean("EmployeeRole_Archived"),
                 },
+                RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
                 Archived = reader.GetBoolean("Archived"),
             };
         }

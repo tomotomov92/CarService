@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BusinessLogic.DTOs
+﻿namespace BusinessLogic.DTOs
 {
-    public class EmployeeDTO : IBaseDTO
+    public class EmployeeDTO : CredentialDTO, IBaseDTO
     {
-        public int Id { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        public string EmailAddress { get; set; }
-
-        public string Password { get; set; }
-
-        public DateTime DateOfStart { get; set; }
-
-        public int EmployeeRoleId { get; set; }
-
         public EmployeeRoleDTO EmployeeRole { get; set; }
 
         public bool Archived { get; set; }
+
+        public static EmployeeDTO FromCredentialDTO(CredentialDTO dto)
+        {
+            return new EmployeeDTO
+            {
+                Id = dto.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                EmailAddress = dto.EmailAddress,
+                Password = dto.HashedPassword,
+                DateOfStart = dto.DateOfStart,
+                EmployeeRoleId = dto.EmployeeRoleId,
+            };
+        }
     }
 }

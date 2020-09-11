@@ -9,7 +9,7 @@ namespace BusinessLogic.BLs
 {
     public class ClientBL : BaseBL<ClientDTO>, ICredentialBL<ClientDTO>
     {
-        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @archived);";
+        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @archived);";
 
         public override string SelectSQL => @"
 SELECT Clients.Id,
@@ -17,6 +17,7 @@ SELECT Clients.Id,
        Clients.LastName,
        Clients.EmailAddress,
        Clients.Password,
+       Clients.RequirePasswordChange,
        Clients.Archived
 FROM Clients";
 
@@ -32,7 +33,7 @@ FROM Clients";
 
         public override string DeleteSQL => "DELETE FROM Clients WHERE Id = @id;";
 
-        private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password WHERE Id = @id";
+        private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
         public ClientBL(AppDb db)
             : base(db)
@@ -99,12 +100,9 @@ FROM Clients";
                 result.Id = clientDTO.Id;
                 result.FirstName = clientDTO.FirstName;
                 result.LastName = clientDTO.LastName;
+                result.RequirePasswordChange = clientDTO.RequirePasswordChange;
                 result.UserRole = UserRoles.Customer;
                 result.SuccessfulOperation = true;
-                if (dto.HashedPassword.Equals(Constants.DefaultPassword))
-                {
-                    result.RequirePasswordChange = true;
-                }
             }
             else
             {
@@ -117,13 +115,7 @@ FROM Clients";
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdatePasswordSQL;
-            BindId(cmd, dto.Id);
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@emailAddress",
-                DbType = DbType.String,
-                Value = dto.EmailAddress,
-            });
+            BindParams(cmd, ClientDTO.FromCredentialDTO(dto));
             var result = await cmd.ExecuteNonQueryAsync();
             if (result > 0)
                 return true;
@@ -134,13 +126,7 @@ FROM Clients";
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdatePasswordSQL;
-            BindId(cmd, dto.Id);
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@password",
-                DbType = DbType.String,
-                Value = dto.HashedPassword,
-            });
+            BindParams(cmd, ClientDTO.FromCredentialDTO(dto));
             var result = await cmd.ExecuteNonQueryAsync();
             if (result > 0)
                 return true;
@@ -154,13 +140,7 @@ FROM Clients";
             {
                 using var cmd = Db.Connection.CreateCommand();
                 cmd.CommandText = UpdatePasswordSQL;
-                BindId(cmd, clientDTO.Id);
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@password",
-                    DbType = DbType.String,
-                    Value = Constants.DefaultPassword,
-                });
+                BindParams(cmd, ClientDTO.FromCredentialDTO(dto));
                 await cmd.ExecuteNonQueryAsync();
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
@@ -191,6 +171,12 @@ FROM Clients";
         {
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@firstName",
                 DbType = DbType.String,
                 Value = dto.FirstName,
@@ -215,6 +201,12 @@ FROM Clients";
             });
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@requirePasswordChange",
+                DbType = DbType.Boolean,
+                Value = dto.RequirePasswordChange,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@archived",
                 DbType = DbType.Boolean,
                 Value = dto.Archived,
@@ -230,6 +222,7 @@ FROM Clients";
                 LastName = reader.GetString("LastName"),
                 EmailAddress = reader.GetString("EmailAddress"),
                 Password = reader.GetString("Password"),
+                RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
                 Archived = reader.GetBoolean("Archived"),
             };
         }

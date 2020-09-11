@@ -138,6 +138,12 @@ INNER JOIN CarBrands ON CarBrands.Id = ClientCars.CarBrandId";
         {
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@inspectionId",
                 DbType = DbType.Int32,
                 Value = dto.InspectionId,

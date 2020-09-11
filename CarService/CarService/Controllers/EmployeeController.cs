@@ -16,7 +16,7 @@ namespace CarService.Controllers
     public class EmployeeController : Controller
     {
         private readonly ILogger<EmployeeController> _logger;
-        private readonly IBaseBL<EmployeeDTO> _bl;
+        private readonly ICredentialBL<EmployeeDTO> _bl;
         private readonly IBaseBL<EmployeeRoleDTO> _employeeRoleBl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
@@ -89,12 +89,13 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.CreateAsync(new EmployeeDTO
+                await _bl.RegisterAsync(new EmployeeDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
-                    Password = Constants.DefaultPassword,
+                    Password = collection["Password"],
+                    RepeatPassword = collection["RepeatPassword"],
                     DateOfStart = DateTime.Parse(collection["DateOfStart"]),
                     EmployeeRoleId = int.Parse(collection["EmployeeRoleId"]),
                 });

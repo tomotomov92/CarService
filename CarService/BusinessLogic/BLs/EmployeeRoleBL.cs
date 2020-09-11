@@ -34,6 +34,12 @@ FROM EmployeeRoles";
         {
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@employeeRoleName",
                 DbType = DbType.String,
                 Value = dto.EmployeeRoleName,

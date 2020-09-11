@@ -27,6 +27,16 @@
                 <span asp-validation-for="EmailAddress" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RepeatPassword" class="control-label"></label>
+                <input asp-for="RepeatPassword" class="form-control" type="password" />
+                <span asp-validation-for="RepeatPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="DateOfStart" class="control-label"></label>
                 <input asp-for="DateOfStart" class="form-control" />
                 <span asp-validation-for="DateOfStart" class="text-danger"></span>

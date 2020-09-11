@@ -22,6 +22,8 @@ namespace BusinessLogic.DTOs
 
         public DateTime DateOfStart { get; set; }
 
+        public int EmployeeRoleId { get; set; }
+
         public UserRoles UserRole { get; set; }
 
         public bool SuccessfulOperation { get; set; }
@@ -32,11 +34,6 @@ namespace BusinessLogic.DTOs
 
         private string HashPassword()
         {
-            if (Password.Equals(Constants.DefaultPassword))
-            {
-                return Password;
-            }
-
             var hash = new SHA256Managed();
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(Password);
             var hashBytes = hash.ComputeHash(plainTextBytes);

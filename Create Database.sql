@@ -17,6 +17,7 @@ CREATE TABLE `CarService`.`Clients` (
   `LastName` varchar(100) NOT NULL,
   `EmailAddress` varchar(100) NOT NULL,
   `Password` varchar(200) NOT NULL,
+  `RequirePasswordChange` bit NOT NULL DEFAULT 0,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
 	UNIQUE INDEX `ui_Clients_EmailAddress_idx` (`EmailAddress`)
@@ -57,6 +58,7 @@ CREATE TABLE `CarService`.`Employees` (
   `Password` varchar(200) NOT NULL,
   `DateOfStart` datetime(6) NOT NULL,
   `EmployeeRoleId` int(11) NOT NULL,
+  `RequirePasswordChange` bit NOT NULL DEFAULT 0,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
 	UNIQUE INDEX `ui_Employees_EmailAddress_idx` (`EmailAddress`),

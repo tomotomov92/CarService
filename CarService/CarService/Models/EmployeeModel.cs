@@ -1,38 +1,15 @@
 ﻿using BusinessLogic.DTOs;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace CarService.Models
 {
-    public class EmployeeModel
+    public class EmployeeModel : CredentialModel
     {
-        public int Id { get; set; }
-
-        [Required, DisplayName("First Name")]
-        public string FirstName { get; set; }
-
-        [Required, DisplayName("Last Name")]
-        public string LastName { get; set; }
-
         [DisplayName("Employee Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
-
-        [Required, DisplayName("Email Address")]
-        public string EmailAddress { get; set; }
-
-        [Required]
-        public string Password { get; set; }
-
-        [Required, DisplayName("Employee Hire Date"), DataType(DataType.Date)]
-        public DateTime DateOfStart { get; set; } = DateTime.Now;
-
-        [Required, BindProperty, DisplayName("Employee Role")]
-        public int EmployeeRoleId { get; set; }
 
         public EmployeeRoleModel EmployeeRole { get; set; }
 
@@ -49,9 +26,11 @@ namespace CarService.Models
                 LastName = dto.LastName,
                 EmailAddress = dto.EmailAddress,
                 Password = dto.Password,
+                RepeatPassword = dto.RepeatPassword,
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
                 EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
+                RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
             };
         }
@@ -65,9 +44,11 @@ namespace CarService.Models
                 LastName = dto.LastName,
                 EmailAddress = dto.EmailAddress,
                 Password = dto.Password,
+                RepeatPassword = dto.RepeatPassword,
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
                 EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
+                RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
             });
         }
@@ -81,9 +62,11 @@ namespace CarService.Models
                 LastName = model.LastName,
                 EmailAddress = model.EmailAddress,
                 Password = model.Password,
+                RepeatPassword = model.RepeatPassword,
                 DateOfStart = model.DateOfStart,
                 EmployeeRoleId = model.EmployeeRoleId,
                 EmployeeRole = EmployeeRoleModel.ToDto(model.EmployeeRole),
+                RequirePasswordChange = model.RequirePasswordChange,
                 Archived = model.Archived,
             };
         }

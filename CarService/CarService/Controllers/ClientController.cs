@@ -14,7 +14,7 @@ namespace CarService.Controllers
     public class ClientController : Controller
     {
         private readonly ILogger<ClientController> _logger;
-        private readonly IBaseBL<ClientDTO> _bl;
+        private readonly ICredentialBL<ClientDTO> _bl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
         public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
@@ -75,12 +75,13 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.CreateAsync(new ClientDTO
+                await _bl.RegisterAsync(new ClientDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
-                    Password = Constants.DefaultPassword,
+                    Password = collection["Password"],
+                    RepeatPassword = collection["RepeatPassword"],
                 });
                 return RedirectToAction(nameof(Index));
             }

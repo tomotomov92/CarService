@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -28,6 +29,9 @@ namespace CarService.Models
         [Required, DisplayName("Employee Hire Date"), DataType(DataType.Date)]
         public DateTime DateOfStart { get; set; }
 
+        [Required, BindProperty, DisplayName("Employee Role")]
+        public int EmployeeRoleId { get; set; }
+
         [Required, DisplayName("Employee Role")]
         public UserRoles UserRole { get; set; }
 
@@ -50,6 +54,7 @@ namespace CarService.Models
                 Password = dto.Password,
                 RepeatPassword = dto.RepeatPassword,
                 DateOfStart = dto.DateOfStart,
+                EmployeeRoleId = dto.EmployeeRoleId,
                 UserRole = dto.UserRole,
                 SuccessfulOperation = dto.SuccessfulOperation,
                 RequirePasswordChange = dto.RequirePasswordChange,
@@ -67,6 +72,7 @@ namespace CarService.Models
                 EmailAddress = model.EmailAddress,
                 Password = model.Password,
                 RepeatPassword = model.RepeatPassword,
+                EmployeeRoleId = model.EmployeeRoleId,
                 UserRole = model.UserRole,
                 DateOfStart = model.DateOfStart,
                 SuccessfulOperation = model.SuccessfulOperation,
