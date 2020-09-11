@@ -254,5 +254,10 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                 Archived = reader.GetBoolean("Archived"),
             };
         }
+
+        Task<ClientTokenDTO> ICredentialBL<EmployeeDTO>.ForgottenPasswordAsync(CredentialDTO dto)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

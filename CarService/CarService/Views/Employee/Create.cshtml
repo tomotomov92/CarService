@@ -46,6 +46,9 @@
                 <select asp-for="EmployeeRoleId" asp-items="Model.EmployeeRoleOptions"></select>
                 <span asp-validation-for="EmployeeRoleId" class="text-danger"></span>
             </div>
+            <div class="form-group" style="color:#dc3545">
+                @Html.DisplayFor(model => model.ErrorMessage)
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

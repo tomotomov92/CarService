@@ -14,6 +14,6 @@ namespace BusinessLogic.BLs.Interfaces
 
         Task<bool> ChangePasswordAsync(CredentialDTO dto);
 
-        Task<bool> ForgottenPasswordAsync(CredentialDTO dto);
+        Task<ClientTokenDTO> ForgottenPasswordAsync(CredentialDTO dto);
     }
 }

@@ -2,6 +2,7 @@
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -34,6 +35,8 @@ FROM Clients";
         public override string DeleteSQL => "DELETE FROM Clients WHERE Id = @id;";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
+
+        private string InsertClientTokenSQL => "INSERT INTO ClientTokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
 
         public ClientBL(AppDb db)
             : base(db)
@@ -133,20 +136,57 @@ FROM Clients";
             return false;
         }
 
-        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        public async Task<ClientTokenDTO> ForgottenPasswordAsync(CredentialDTO dto)
         {
             var clientDTO = ReadByEmailAddress(dto.EmailAddress);
             if (clientDTO != null)
             {
+                var clientToken = new ClientTokenDTO
+                {
+                    ClientId = clientDTO.Id,
+                    Token = "",
+                    ExpirationDate = DateTime.Now.AddDays(1),
+                    IsValid = true,
+
+                    EmailAddress = clientDTO.EmailAddress,
+                    FirstName = clientDTO.FirstName,
+                    LastName = clientDTO.LastName,
+                    EmailSubject = "Forgotten Password",
+                    EmailBody = $"Test"
+                };
+
                 using var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = UpdatePasswordSQL;
-                BindParams(cmd, ClientDTO.FromCredentialDTO(dto));
+                cmd.CommandText = InsertClientTokenSQL;
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@clientId",
+                    DbType = DbType.Int32,
+                    Value = clientToken.ClientId,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@token",
+                    DbType = DbType.String,
+                    Value = clientToken.Token,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@expirationDate",
+                    DbType = DbType.DateTime,
+                    Value = clientToken.ExpirationDate,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@isValid",
+                    DbType = DbType.Boolean,
+                    Value = clientToken.IsValid,
+                });
                 await cmd.ExecuteNonQueryAsync();
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
-                    return true;
+                    return clientToken;
             }
-            return false;
+            return null;
         }
 
         public ClientDTO ReadByEmailAddress(string emailAddress)
@@ -225,6 +265,23 @@ FROM Clients";
                 RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
                 Archived = reader.GetBoolean("Archived"),
             };
+        }
+
+        private string GetForgottenPasswordEmailBody(ClientTokenDTO clientTokenDTO)
+        {
+            return 
+"Please confirm your identity to access your eBay account" +
+$"Hi {clientTokenDTO.FirstName}," +
+"It looks like you’re having trouble signing into your account." +
+"Please select the ‘confirm’ button to verify your identity and access your account. (It’s only good for 24 hours.)" +
+"<td valign=\"top\" align=\"center\" bgcolor=\"#0079bc\" style=\"background-image:linear-gradient(to bottom,#0079bc 0%,#00519e 100%);background-color:#0079bc;padding:10px 17px;border:0px solid #00519e;border-radius:3px\">"+
+$"<a href=\"https://accounts.ebay.com/acctxs/email?id={clientTokenDTO.Token}\" style=\"text-decoration:none;color:#ffffff;font-size:14px;line-height:normal;font-weight:bold;font-family:Helvetica Neue,Helvetica,Arial;padding:10px 15px\" target=\"_blank\"> Confirm </a>"+
+"</td> ";
+        }
+
+        private string GenerateToken(ClientDTO clientDTO)
+        {
+            return "";
         }
     }
 }

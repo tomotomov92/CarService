@@ -1,7 +1,7 @@
 ﻿using BusinessLogic;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
-using BusinessLogic.Enums;
+using BusinessLogic.EmailSender;
 using CarService.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +16,15 @@ namespace CarService.Controllers
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<ClientDTO> _clientBl;
         private readonly ICredentialBL<EmployeeDTO> _employeeBl;
+        private readonly EmailSender _emailSender;
         private readonly string _userName;
 
-        public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl)
+        public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl, EmailSender emailSender)
         {
             _logger = logger;
             _clientBl = clientBl;
             _employeeBl = employeeBl;
+            _emailSender = emailSender;
 
             _userName = httpContextAccessor.HttpContext.Session.GetString(Constants.SessionKeyUserName);
         }
@@ -185,7 +187,12 @@ namespace CarService.Controllers
                 {
                     EmailAddress = collection["EmailAddress"],
                 };
-                await _clientBl.ForgottenPasswordAsync(dto);
+                
+                var clientToken = await _clientBl.ForgottenPasswordAsync(dto);
+                if (clientToken != null)
+                {
+                    _emailSender.SendEmail(clientToken.EmailAddress, clientToken.EmailSubject, clientToken.EmailBody);
+                }
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch (Exception ex)
@@ -298,6 +305,7 @@ namespace CarService.Controllers
                     Id = id,
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
+                    RequirePasswordChange = false,
                 };
                 if (dto.Password.Equals(dto.RepeatPassword))
                 {
@@ -323,66 +331,6 @@ namespace CarService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(CredentialController.ChangePasswordEmployee));
-                return View(new CredentialModel
-                {
-                    Id = id,
-                });
-            }
-        }
-
-        [Route("ForgottenPasswordEmployee")]
-        public ActionResult ForgottenPasswordEmployee()
-        {
-            return View();
-        }
-
-        [Route("ForgottenPasswordEmployee")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> ForgottenPasswordEmployee(IFormCollection collection)
-        {
-            try
-            {
-                var dto = new CredentialDTO
-                {
-                    EmailAddress = collection["EmailAddress"],
-                };
-                await _employeeBl.ForgottenPasswordAsync(dto);
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, nameof(CredentialController.ForgottenPasswordEmployee));
-                return View();
-            }
-        }
-
-        [Route("ChangeForgottenPasswordEmployee")]
-        public ActionResult ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
-        {
-            if (string.IsNullOrEmpty(_userName))
-            {
-                return View(new CredentialModel
-                {
-                    EmailAddress = emailAddress,
-                    ConfirmationToken = confirmationToken,
-                });
-            }
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        [Route("ChangeForgottenPasswordEmployee")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ChangeForgottenPasswordEmployee(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPasswordEmployee));
                 return View(new CredentialModel
                 {
                     Id = id,
