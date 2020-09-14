@@ -60,6 +60,7 @@ namespace CarService
             services.AddTransient<IInvoiceBL<InvoiceDTO>, InvoiceBL>();
             services.AddTransient<IBaseBL<ScheduleDTO>, ScheduleBL>();
             services.AddTransient<EmailSender>();
+            services.AddTransient<EmailBL>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

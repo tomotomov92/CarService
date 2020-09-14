@@ -20,7 +20,8 @@ namespace BusinessLogic.EmailSender
             using (var message = new MailMessage(_fromAddress, toAddress)
             {
                 Subject = subject,
-                Body = body
+                Body = body,
+                IsBodyHtml = true,
             })
             {
                 _smtpClient.Send(message);

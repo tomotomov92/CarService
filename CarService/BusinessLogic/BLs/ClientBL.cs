@@ -3,6 +3,7 @@ using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ namespace BusinessLogic.BLs
 {
     public class ClientBL : BaseBL<ClientDTO>, ICredentialBL<ClientDTO>
     {
+        private readonly EmailBL _emailBl;
+
         public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @archived);";
 
         public override string SelectSQL => @"
@@ -36,15 +39,15 @@ FROM Clients";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
-        private string InsertClientTokenSQL => "INSERT INTO ClientTokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
+        private string InsertClientTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
 
-        public ClientBL(AppDb db)
+        public ClientBL(AppDb db, EmailBL emailBl)
             : base(db)
         {
-
+            _emailBl = emailBl;
         }
 
-        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto)
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath)
         {
             var result = new CredentialDTO
             {
@@ -74,6 +77,7 @@ FROM Clients";
                     {
                         result.Id = clientDTO.Id;
                         result.SuccessfulOperation = true;
+
                     }
                     else
                     {
@@ -136,15 +140,14 @@ FROM Clients";
             return false;
         }
 
-        public async Task<ClientTokenDTO> ForgottenPasswordAsync(CredentialDTO dto)
+        public async Task<TokenDTO> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath)
         {
             var clientDTO = ReadByEmailAddress(dto.EmailAddress);
-            if (clientDTO != null)
+            if (clientDTO != null && !clientDTO.Archived)
             {
-                var clientToken = new ClientTokenDTO
+                var tokenDTO = new TokenDTO
                 {
                     ClientId = clientDTO.Id,
-                    Token = "",
                     ExpirationDate = DateTime.Now.AddDays(1),
                     IsValid = true,
 
@@ -152,7 +155,6 @@ FROM Clients";
                     FirstName = clientDTO.FirstName,
                     LastName = clientDTO.LastName,
                     EmailSubject = "Forgotten Password",
-                    EmailBody = $"Test"
                 };
 
                 using var cmd = Db.Connection.CreateCommand();
@@ -161,30 +163,39 @@ FROM Clients";
                 {
                     ParameterName = "@clientId",
                     DbType = DbType.Int32,
-                    Value = clientToken.ClientId,
+                    Value = tokenDTO.ClientId,
                 });
                 cmd.Parameters.Add(new MySqlParameter
                 {
                     ParameterName = "@token",
                     DbType = DbType.String,
-                    Value = clientToken.Token,
+                    Value = tokenDTO.Token,
                 });
                 cmd.Parameters.Add(new MySqlParameter
                 {
                     ParameterName = "@expirationDate",
                     DbType = DbType.DateTime,
-                    Value = clientToken.ExpirationDate,
+                    Value = tokenDTO.ExpirationDate,
                 });
                 cmd.Parameters.Add(new MySqlParameter
                 {
                     ParameterName = "@isValid",
                     DbType = DbType.Boolean,
-                    Value = clientToken.IsValid,
+                    Value = tokenDTO.IsValid,
                 });
-                await cmd.ExecuteNonQueryAsync();
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
-                    return clientToken;
+                {
+                    var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Client_ForgottenPassword.html", new Dictionary<string, string>
+                    {
+                        { "{FirstName}", tokenDTO.FirstName },
+                        { "{EmailAddress}", tokenDTO.EmailAddress },
+                        { "{Token}", tokenDTO.Token },
+                    });
+
+                    tokenDTO.EmailBody = emailBody;
+                    return tokenDTO;
+                }
             }
             return null;
         }
@@ -267,7 +278,7 @@ FROM Clients";
             };
         }
 
-        private string GetForgottenPasswordEmailBody(ClientTokenDTO clientTokenDTO)
+        private string GetForgottenPasswordEmailBody(TokenDTO clientTokenDTO)
         {
             return 
 "Please confirm your identity to access your eBay account" +

@@ -3,6 +3,7 @@ using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using CarService.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,13 +16,15 @@ namespace CarService.Controllers
 {
     public class EmployeeController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<EmployeeDTO> _bl;
         private readonly IBaseBL<EmployeeRoleDTO> _employeeRoleBl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public EmployeeController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
+        public EmployeeController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, ILogger<EmployeeController> logger, ICredentialBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
         {
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _bl = bl;
             _employeeRoleBl = employeeRoleBl;
@@ -98,7 +101,7 @@ namespace CarService.Controllers
                     RepeatPassword = collection["RepeatPassword"],
                     DateOfStart = DateTime.Parse(collection["DateOfStart"]),
                     EmployeeRoleId = int.Parse(collection["EmployeeRoleId"]),
-                });
+                }, _webHostEnvironment.WebRootPath);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

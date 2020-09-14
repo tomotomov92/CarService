@@ -3,6 +3,7 @@ using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using CarService.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,14 @@ namespace CarService.Controllers
 {
     public class ClientController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<ClientController> _logger;
         private readonly ICredentialBL<ClientDTO> _bl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
+        public ClientController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
         {
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _bl = bl;
 
@@ -82,7 +85,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
-                });
+                }, _webHostEnvironment.WebRootPath);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

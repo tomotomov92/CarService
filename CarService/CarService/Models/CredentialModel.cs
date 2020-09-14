@@ -27,7 +27,7 @@ namespace CarService.Models
         public string RepeatPassword { get; set; }
 
         [Required, DisplayName("Employee Hire Date"), DataType(DataType.Date)]
-        public DateTime DateOfStart { get; set; }
+        public DateTime DateOfStart { get; set; } = DateTime.Now;
 
         [Required, BindProperty, DisplayName("Employee Role")]
         public int EmployeeRoleId { get; set; }

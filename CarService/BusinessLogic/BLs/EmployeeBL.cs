@@ -2,6 +2,8 @@
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -9,6 +11,8 @@ namespace BusinessLogic.BLs
 {
     public class EmployeeBL : BaseBL<EmployeeDTO>, ICredentialBL<EmployeeDTO>
     {
+        private readonly EmailBL _emailBl;
+        
         public override string InsertSQL => "INSERT INTO Employees (FirstName, LastName, EmailAddress, Password, DateOfStart, EmployeeRoleId, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @requirePasswordChange, @archived);";
 
         public override string SelectSQL => @"
@@ -41,13 +45,15 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
-        public EmployeeBL(AppDb db)
+        private string InsertEmployeeTokenSQL => "INSERT INTO Tokens (EmployeeId, Token, ExpirationDate, IsValid) VALUES (@employeeId, @token, @expirationDate, @isValid);";
+
+        public EmployeeBL(AppDb db, EmailBL emailBl)
             : base(db)
         {
-
+            _emailBl = emailBl;
         }
 
-        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto)
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath)
         {
             var result = new CredentialDTO
             {
@@ -141,20 +147,64 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             return false;
         }
 
-        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        public async Task<TokenDTO> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath)
         {
             var employeeDTO = ReadByEmailAddress(dto.EmailAddress);
-            if (employeeDTO != null)
+            if (employeeDTO != null && !employeeDTO.Archived)
             {
+                var tokenDTO = new TokenDTO
+                {
+                    EmployeeId = employeeDTO.Id,
+                    ExpirationDate = DateTime.Now.AddDays(1),
+                    IsValid = true,
+
+                    EmailAddress = employeeDTO.EmailAddress,
+                    FirstName = employeeDTO.FirstName,
+                    LastName = employeeDTO.LastName,
+                    EmailSubject = "Forgotten Password",
+                };
+
                 using var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = UpdatePasswordSQL;
-                BindParams(cmd, EmployeeDTO.FromCredentialDTO(dto));
-                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = InsertEmployeeTokenSQL;
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@employeeId",
+                    DbType = DbType.Int32,
+                    Value = tokenDTO.EmployeeId,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@token",
+                    DbType = DbType.String,
+                    Value = tokenDTO.Token,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@expirationDate",
+                    DbType = DbType.DateTime,
+                    Value = tokenDTO.ExpirationDate,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@isValid",
+                    DbType = DbType.Boolean,
+                    Value = tokenDTO.IsValid,
+                });
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
-                    return true;
+                {
+                    var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_ForgottenPassword.html", new Dictionary<string, string>
+                    {
+                        { "{FirstName}", tokenDTO.FirstName },
+                        { "{EmailAddress}", tokenDTO.EmailAddress },
+                        { "{Token}", tokenDTO.Token },
+                    });
+
+                    tokenDTO.EmailBody = emailBody;
+                    return tokenDTO;
+                };
             }
-           return false;
+            return null;
         }
 
         public EmployeeDTO ReadByEmailAddress(string emailAddress)
@@ -253,11 +303,6 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                 RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
                 Archived = reader.GetBoolean("Archived"),
             };
-        }
-
-        Task<ClientTokenDTO> ICredentialBL<EmployeeDTO>.ForgottenPasswordAsync(CredentialDTO dto)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

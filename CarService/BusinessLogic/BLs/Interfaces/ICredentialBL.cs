@@ -6,7 +6,7 @@ namespace BusinessLogic.BLs.Interfaces
     public interface ICredentialBL<T> : IBaseBL<T>
         where T : IBaseDTO
     {
-        Task<CredentialDTO> RegisterAsync(CredentialDTO dto);
+        Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath);
 
         CredentialDTO LogIn(CredentialDTO dto);
 
@@ -14,6 +14,6 @@ namespace BusinessLogic.BLs.Interfaces
 
         Task<bool> ChangePasswordAsync(CredentialDTO dto);
 
-        Task<ClientTokenDTO> ForgottenPasswordAsync(CredentialDTO dto);
+        Task<TokenDTO> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath);
     }
 }

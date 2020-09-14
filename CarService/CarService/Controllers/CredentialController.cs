@@ -3,6 +3,7 @@ using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using BusinessLogic.EmailSender;
 using CarService.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,14 +14,16 @@ namespace CarService.Controllers
 {
     public class CredentialController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<ClientDTO> _clientBl;
         private readonly ICredentialBL<EmployeeDTO> _employeeBl;
         private readonly EmailSender _emailSender;
         private readonly string _userName;
 
-        public CredentialController(IHttpContextAccessor httpContextAccessor, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl, EmailSender emailSender)
+        public CredentialController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl, EmailSender emailSender)
         {
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _clientBl = clientBl;
             _employeeBl = employeeBl;
@@ -55,7 +58,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
-                });
+                }, _webHostEnvironment.WebRootPath);
                 if (loginResult.SuccessfulOperation)
                 {
                     HttpContext.Session.SetInt32(Constants.SessionKeyUserId, loginResult.Id);
@@ -188,7 +191,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                 };
                 
-                var clientToken = await _clientBl.ForgottenPasswordAsync(dto);
+                var clientToken = await _clientBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath);
                 if (clientToken != null)
                 {
                     _emailSender.SendEmail(clientToken.EmailAddress, clientToken.EmailSubject, clientToken.EmailBody);
@@ -331,6 +334,71 @@ namespace CarService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(CredentialController.ChangePasswordEmployee));
+                return View(new CredentialModel
+                {
+                    Id = id,
+                });
+            }
+        }
+
+        [Route("ForgottenPasswordEmployee")]
+        public ActionResult ForgottenPasswordEmployee()
+        {
+            return View();
+        }
+
+        [Route("ForgottenPasswordEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ForgottenPasswordEmployee(IFormCollection collection)
+        {
+            try
+            {
+                var dto = new CredentialDTO
+                {
+                    EmailAddress = collection["EmailAddress"],
+                };
+
+                var clientToken = await _employeeBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath);
+                if (clientToken != null)
+                {
+                    _emailSender.SendEmail(clientToken.EmailAddress, clientToken.EmailSubject, clientToken.EmailBody);
+                }
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CredentialController.ForgottenPassword));
+                return View();
+            }
+        }
+
+        [Route("ChangeForgottenPasswordEmployee")]
+        public ActionResult ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
+        {
+            if (string.IsNullOrEmpty(_userName))
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                    ConfirmationToken = confirmationToken,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [Route("ChangeForgottenPasswordEmployee")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangeForgottenPasswordEmployee(int id, IFormCollection collection)
+        {
+            try
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPassword));
                 return View(new CredentialModel
                 {
                     Id = id,
