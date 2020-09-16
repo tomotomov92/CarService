@@ -27,13 +27,17 @@ namespace CarService.Models
         public string RepeatPassword { get; set; }
 
         [Required, DisplayName("Employee Hire Date"), DataType(DataType.Date)]
-        public DateTime DateOfStart { get; set; }
+        public DateTime DateOfStart { get; set; } = DateTime.Now;
 
         [Required, BindProperty, DisplayName("Employee Role")]
         public int EmployeeRoleId { get; set; }
 
         [Required, DisplayName("Employee Role")]
         public UserRoles UserRole { get; set; }
+
+        public bool Activated { get; set; }
+
+        public bool Archived { get; set; }
 
         public string ConfirmationToken { get; set; }
 
@@ -56,6 +60,8 @@ namespace CarService.Models
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
                 UserRole = dto.UserRole,
+                Activated = dto.Activated,
+                Archived = dto.Archived,
                 SuccessfulOperation = dto.SuccessfulOperation,
                 RequirePasswordChange = dto.RequirePasswordChange,
                 ErrorMessage = dto.ErrorMessage,
@@ -75,6 +81,8 @@ namespace CarService.Models
                 EmployeeRoleId = model.EmployeeRoleId,
                 UserRole = model.UserRole,
                 DateOfStart = model.DateOfStart,
+                Activated = model.Activated,
+                Archived = model.Archived,
                 SuccessfulOperation = model.SuccessfulOperation,
                 RequirePasswordChange = model.RequirePasswordChange,
                 ErrorMessage = model.ErrorMessage,

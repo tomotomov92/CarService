@@ -3,8 +3,10 @@ using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using CarService.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -13,12 +15,16 @@ namespace CarService.Controllers
 {
     public class ClientController : Controller
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<ClientController> _logger;
         private readonly ICredentialBL<ClientDTO> _bl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public ClientController(IHttpContextAccessor httpContextAccessor, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
+        public ClientController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IConfiguration configuration, ILogger<ClientController> logger, ICredentialBL<ClientDTO> bl)
         {
+            _webHostEnvironment = webHostEnvironment;
+            _configuration = configuration;
             _logger = logger;
             _bl = bl;
 
@@ -75,15 +81,22 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.RegisterAsync(new ClientDTO
+                var dto = new ClientDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
-                });
-                return RedirectToAction(nameof(Index));
+                };
+
+                var result = await _bl.RegisterAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"), false);
+                if (result.SuccessfulOperation)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                var clientDTO = ClientDTO.FromCredentialDTO(result);
+                return View(ClientModel.FromDto(clientDTO));
             }
             catch (Exception ex)
             {

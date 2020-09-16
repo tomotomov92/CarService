@@ -18,6 +18,7 @@ CREATE TABLE `CarService`.`Clients` (
   `EmailAddress` varchar(100) NOT NULL,
   `Password` varchar(200) NOT NULL,
   `RequirePasswordChange` bit NOT NULL DEFAULT 0,
+  `Activated` bit NOT NULL DEFAULT 0,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
 	UNIQUE INDEX `ui_Clients_EmailAddress_idx` (`EmailAddress`)
@@ -119,4 +120,20 @@ CREATE TABLE `CarService`.`Schedules` (
   PRIMARY KEY (`Id`),
   KEY `fk_Schedules_Employees_idx` (`EmployeeId`),
   CONSTRAINT `fk_Schedules_Employees` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+CREATE TABLE `CarService`.`Tokens` (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `ClientId` int(11) NULL,
+  `EmployeeId` int(11) NULL,
+  `Token` varchar(100) NOT NULL,
+  `ExpirationDate` datetime(6) NULL,
+  `IsValid` bit NOT NULL DEFAULT 0,
+  PRIMARY KEY (`Id`),
+  KEY `fk_Tokens_Clients_idx` (`ClientId`),
+  KEY `fk_Tokens_Employees_idx` (`EmployeeId`),
+  CONSTRAINT `fk_Tokens_Clients` FOREIGN KEY (`ClientId`) REFERENCES `Clients` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Tokens_Employees` FOREIGN KEY (`EmployeeId`) REFERENCES `Employees` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

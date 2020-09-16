@@ -2,6 +2,8 @@
 using BusinessLogic.DTOs;
 using BusinessLogic.Enums;
 using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -9,7 +11,10 @@ namespace BusinessLogic.BLs
 {
     public class ClientBL : BaseBL<ClientDTO>, ICredentialBL<ClientDTO>
     {
-        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @archived);";
+        private readonly EmailBL _emailBl;
+        private readonly EmailSender.EmailSender _emailSender;
+
+        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Activated, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @activated, @archived);";
 
         public override string SelectSQL => @"
 SELECT Clients.Id,
@@ -18,6 +23,7 @@ SELECT Clients.Id,
        Clients.EmailAddress,
        Clients.Password,
        Clients.RequirePasswordChange,
+       Clients.Activated,
        Clients.Archived
 FROM Clients";
 
@@ -35,13 +41,16 @@ FROM Clients";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
-        public ClientBL(AppDb db)
+        private string InsertClientTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
+
+        public ClientBL(AppDb db, EmailBL emailBl, EmailSender.EmailSender emailSender)
             : base(db)
         {
-
+            _emailBl = emailBl;
+            _emailSender = emailSender;
         }
 
-        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto)
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath, string base_url, bool selfRegistration)
         {
             var result = new CredentialDTO
             {
@@ -70,7 +79,66 @@ FROM Clients";
                     if (clientDTO.Id > 0)
                     {
                         result.Id = clientDTO.Id;
-                        result.SuccessfulOperation = true;
+
+                        var tokenDTO = new TokenDTO
+                        {
+                            ClientId = clientDTO.Id,
+                            ExpirationDate = null,
+                            IsValid = true,
+
+                            EmailAddress = clientDTO.EmailAddress,
+                            FirstName = clientDTO.FirstName,
+                            LastName = clientDTO.LastName,
+                            EmailSubject = "Welcome!",
+                        };
+
+                        using var cmd = Db.Connection.CreateCommand();
+                        cmd.CommandText = InsertClientTokenSQL;
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@clientId",
+                            DbType = DbType.Int32,
+                            Value = tokenDTO.ClientId,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@token",
+                            DbType = DbType.String,
+                            Value = tokenDTO.Token,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@expirationDate",
+                            DbType = DbType.DateTime,
+                            Value = tokenDTO.ExpirationDate,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@isValid",
+                            DbType = DbType.Boolean,
+                            Value = tokenDTO.IsValid,
+                        });
+
+                        var tokenResult = await cmd.ExecuteNonQueryAsync();
+                        if (tokenResult > 0)
+                        {
+                            var htmlPath = selfRegistration ? "EmailTemplates//Client_Registration_Self.html" : "EmailTemplates//Client_Registration_Assisted.html";
+                            var emailBody = _emailBl.PopulateHTML(webRootPath, htmlPath, new Dictionary<string, string>
+                            {
+                                { "{FirstName}", tokenDTO.FirstName },
+                                { "{BASE_URL}", base_url },
+                                { "{EmailAddress}", tokenDTO.EmailAddress },
+                                { "{Token}", tokenDTO.Token },
+                            });
+
+                            tokenDTO.EmailBody = emailBody;
+                            _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                            result.SuccessfulOperation = true;
+                        }
+                        else
+                        {
+                            result.ErrorMessage = Constants.ErrorDuringTheRegistrationContactSupport;
+                        }
                     }
                     else
                     {
@@ -97,12 +165,25 @@ FROM Clients";
             }
             else if (dto.HashedPassword.Equals(clientDTO.Password))
             {
-                result.Id = clientDTO.Id;
-                result.FirstName = clientDTO.FirstName;
-                result.LastName = clientDTO.LastName;
-                result.RequirePasswordChange = clientDTO.RequirePasswordChange;
-                result.UserRole = UserRoles.Customer;
-                result.SuccessfulOperation = true;
+                if (clientDTO.Archived)
+                {
+                    result.ErrorMessage = Constants.AccountDeactivatedContactSupport;
+                }
+                else if(!clientDTO.Activated)
+                {
+                    result.ErrorMessage = Constants.AccountNotActivated;
+                }
+                else
+                {
+                    result.Id = clientDTO.Id;
+                    result.FirstName = clientDTO.FirstName;
+                    result.LastName = clientDTO.LastName;
+                    result.RequirePasswordChange = clientDTO.RequirePasswordChange;
+                    result.Activated = clientDTO.Activated;
+                    result.Archived = clientDTO.Archived;
+                    result.UserRole = UserRoles.Customer;
+                    result.SuccessfulOperation = true;
+                }
             }
             else
             {
@@ -133,18 +214,64 @@ FROM Clients";
             return false;
         }
 
-        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto)
+        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath, string base_url)
         {
             var clientDTO = ReadByEmailAddress(dto.EmailAddress);
-            if (clientDTO != null)
+            if (clientDTO != null && !clientDTO.Archived && clientDTO.Activated)
             {
+                var tokenDTO = new TokenDTO
+                {
+                    ClientId = clientDTO.Id,
+                    ExpirationDate = DateTime.Now.AddDays(1),
+                    IsValid = true,
+
+                    EmailAddress = clientDTO.EmailAddress,
+                    FirstName = clientDTO.FirstName,
+                    LastName = clientDTO.LastName,
+                    EmailSubject = "Forgotten Password",
+                };
+
                 using var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = UpdatePasswordSQL;
-                BindParams(cmd, ClientDTO.FromCredentialDTO(dto));
-                await cmd.ExecuteNonQueryAsync();
+                cmd.CommandText = InsertClientTokenSQL;
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@clientId",
+                    DbType = DbType.Int32,
+                    Value = tokenDTO.ClientId,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@token",
+                    DbType = DbType.String,
+                    Value = tokenDTO.Token,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@expirationDate",
+                    DbType = DbType.DateTime,
+                    Value = tokenDTO.ExpirationDate,
+                });
+                cmd.Parameters.Add(new MySqlParameter
+                {
+                    ParameterName = "@isValid",
+                    DbType = DbType.Boolean,
+                    Value = tokenDTO.IsValid,
+                });
                 var result = await cmd.ExecuteNonQueryAsync();
                 if (result > 0)
+                {
+                    var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Client_ForgottenPassword.html", new Dictionary<string, string>
+                    {
+                        { "{FirstName}", tokenDTO.FirstName },
+                        { "{BASE_URL}", base_url },
+                        { "{EmailAddress}", tokenDTO.EmailAddress },
+                        { "{Token}", tokenDTO.Token },
+                    });
+
+                    tokenDTO.EmailBody = emailBody;
+                    _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
                     return true;
+                }
             }
             return false;
         }
@@ -207,6 +334,12 @@ FROM Clients";
             });
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@activated",
+                DbType = DbType.Boolean,
+                Value = dto.Activated,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@archived",
                 DbType = DbType.Boolean,
                 Value = dto.Archived,
@@ -223,6 +356,7 @@ FROM Clients";
                 EmailAddress = reader.GetString("EmailAddress"),
                 Password = reader.GetString("Password"),
                 RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
+                Activated = reader.GetBoolean("Activated"),
                 Archived = reader.GetBoolean("Archived"),
             };
         }

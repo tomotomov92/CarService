@@ -13,8 +13,6 @@ namespace CarService.Models
 
         public EmployeeRoleModel EmployeeRole { get; set; }
 
-        public bool Archived { get; set; }
-
         public SelectList EmployeeRoleOptions { get; set; }
 
         public static EmployeeModel FromDto(EmployeeDTO dto)
@@ -32,6 +30,7 @@ namespace CarService.Models
                 EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
                 RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
+                ErrorMessage = dto.ErrorMessage,
             };
         }
 
@@ -50,6 +49,7 @@ namespace CarService.Models
                 EmployeeRole = EmployeeRoleModel.FromDto(dto.EmployeeRole),
                 RequirePasswordChange = dto.RequirePasswordChange,
                 Archived = dto.Archived,
+                ErrorMessage = dto.ErrorMessage,
             });
         }
 
@@ -68,6 +68,7 @@ namespace CarService.Models
                 EmployeeRole = EmployeeRoleModel.ToDto(model.EmployeeRole),
                 RequirePasswordChange = model.RequirePasswordChange,
                 Archived = model.Archived,
+                ErrorMessage = model.ErrorMessage,
             };
         }
     }

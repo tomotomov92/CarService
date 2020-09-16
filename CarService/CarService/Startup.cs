@@ -2,6 +2,7 @@ using BusinessLogic;
 using BusinessLogic.BLs;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
+using BusinessLogic.EmailSender;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Net;
+using System.Net.Mail;
 
 namespace CarService
 {
@@ -33,10 +36,21 @@ namespace CarService
                 options.Cookie.IsEssential = true;
             });
 
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllersWithViews();
-            services.AddTransient<AppDb>(_ => new AppDb(Configuration["ConnectionStrings:DefaultConnection"]));
+            services.AddTransient<AppDb>(_ => new AppDb(Configuration.GetValue<string>("ConnectionStrings:DefaultConnection")));
+            services.AddTransient<SmtpClient>(_ => new SmtpClient
+            {
+                Host = Configuration.GetValue<string>("SmtpClient:Host"),
+                Port = Configuration.GetValue<int>("SmtpClient:Port"),
+                EnableSsl = Configuration.GetValue<bool>("SmtpClient:EnableSsl"),
+                DeliveryMethod = Configuration.GetValue<SmtpDeliveryMethod>("SmtpClient:DeliveryMethod"),
+                UseDefaultCredentials = Configuration.GetValue<bool>("SmtpClient:UseDefaultCredentials"),
+                Credentials = new NetworkCredential(Configuration.GetValue<string>("SmtpClient:FromAddress"), Configuration.GetValue<string>("SmtpClient:FromPassword"))
+            });
+            services.AddTransient<MailAddress>(_ => new MailAddress(Configuration.GetValue<string>("SmtpClient:FromAddress"), Configuration.GetValue<string>("SmtpClient:DisplayName")));
 
             services.AddTransient<IBaseBL<CarBrandDTO>, CarBrandBL>();
             services.AddTransient<ICredentialBL<ClientDTO>, ClientBL>();
@@ -46,6 +60,8 @@ namespace CarService
             services.AddTransient<IInspectionBL<InspectionDTO>, InspectionBL>();
             services.AddTransient<IInvoiceBL<InvoiceDTO>, InvoiceBL>();
             services.AddTransient<IBaseBL<ScheduleDTO>, ScheduleBL>();
+            services.AddTransient<EmailSender>();
+            services.AddTransient<EmailBL>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
