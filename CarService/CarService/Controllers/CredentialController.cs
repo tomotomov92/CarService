@@ -1,11 +1,11 @@
 ﻿using BusinessLogic;
 using BusinessLogic.BLs.Interfaces;
 using BusinessLogic.DTOs;
-using BusinessLogic.EmailSender;
 using CarService.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -15,19 +15,19 @@ namespace CarService.Controllers
     public class CredentialController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<ClientDTO> _clientBl;
         private readonly ICredentialBL<EmployeeDTO> _employeeBl;
-        private readonly EmailSender _emailSender;
         private readonly string _userName;
 
-        public CredentialController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl, EmailSender emailSender)
+        public CredentialController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IConfiguration configuration, ILogger<EmployeeController> logger, ICredentialBL<ClientDTO> clientBl, ICredentialBL<EmployeeDTO> employeeBl)
         {
             _webHostEnvironment = webHostEnvironment;
+            _configuration = configuration;
             _logger = logger;
             _clientBl = clientBl;
             _employeeBl = employeeBl;
-            _emailSender = emailSender;
 
             _userName = httpContextAccessor.HttpContext.Session.GetString(Constants.SessionKeyUserName);
         }
@@ -51,28 +51,41 @@ namespace CarService.Controllers
         {
             try
             {
-                var loginResult = await _clientBl.RegisterAsync(new CredentialDTO
+                var dto = new CredentialDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
                     EmailAddress = collection["EmailAddress"],
                     Password = collection["Password"],
                     RepeatPassword = collection["RepeatPassword"],
-                }, _webHostEnvironment.WebRootPath);
-                if (loginResult.SuccessfulOperation)
+                };
+
+                var result = await _clientBl.RegisterAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"), true);
+                if (result.SuccessfulOperation)
                 {
-                    HttpContext.Session.SetInt32(Constants.SessionKeyUserId, loginResult.Id);
-                    HttpContext.Session.SetString(Constants.SessionKeyUserName, loginResult.EmailAddress);
-                    HttpContext.Session.SetInt32(Constants.SessionKeyUserRole, (int)loginResult.UserRole);
                     return RedirectToAction(nameof(HomeController.Index), "Home");
                 }
-                return View(CredentialModel.FromDto(loginResult));
+                return View(CredentialModel.FromDto(result));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, nameof(CredentialController.SignUp));
                 return View();
             }
+        }
+
+        [Route("ConfirmAccount")]
+        public ActionResult ConfirmAccount(string emailAddress, string confirmationToken)
+        {
+            if (string.IsNullOrEmpty(_userName))
+            {
+                return View(new CredentialModel
+                {
+                    EmailAddress = emailAddress,
+                    ConfirmationToken = confirmationToken,
+                });
+            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [Route("SignIn")]
@@ -191,11 +204,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                 };
                 
-                var clientToken = await _clientBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath);
-                if (clientToken != null)
-                {
-                    _emailSender.SendEmail(clientToken.EmailAddress, clientToken.EmailSubject, clientToken.EmailBody);
-                }
+                var result = await _clientBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"));
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch (Exception ex)
@@ -359,11 +368,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                 };
 
-                var clientToken = await _employeeBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath);
-                if (clientToken != null)
-                {
-                    _emailSender.SendEmail(clientToken.EmailAddress, clientToken.EmailSubject, clientToken.EmailBody);
-                }
+                var clientToken = await _employeeBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"));
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch (Exception ex)

@@ -35,6 +35,10 @@ namespace CarService.Models
         [Required, DisplayName("Employee Role")]
         public UserRoles UserRole { get; set; }
 
+        public bool Activated { get; set; }
+
+        public bool Archived { get; set; }
+
         public string ConfirmationToken { get; set; }
 
         public bool SuccessfulOperation { get; set; }
@@ -56,6 +60,8 @@ namespace CarService.Models
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
                 UserRole = dto.UserRole,
+                Activated = dto.Activated,
+                Archived = dto.Archived,
                 SuccessfulOperation = dto.SuccessfulOperation,
                 RequirePasswordChange = dto.RequirePasswordChange,
                 ErrorMessage = dto.ErrorMessage,
@@ -75,6 +81,8 @@ namespace CarService.Models
                 EmployeeRoleId = model.EmployeeRoleId,
                 UserRole = model.UserRole,
                 DateOfStart = model.DateOfStart,
+                Activated = model.Activated,
+                Archived = model.Archived,
                 SuccessfulOperation = model.SuccessfulOperation,
                 RequirePasswordChange = model.RequirePasswordChange,
                 ErrorMessage = model.ErrorMessage,

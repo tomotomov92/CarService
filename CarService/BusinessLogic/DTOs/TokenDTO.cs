@@ -12,7 +12,7 @@ namespace BusinessLogic.DTOs
 
         public string Token => GenerateToken();
 
-        public DateTime ExpirationDate { get; set; }
+        public DateTime? ExpirationDate { get; set; }
 
         public bool IsValid { get; set; }
 

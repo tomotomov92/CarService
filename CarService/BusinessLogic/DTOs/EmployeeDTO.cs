@@ -2,10 +2,6 @@
 {
     public class EmployeeDTO : CredentialDTO, IBaseDTO
     {
-        public EmployeeRoleDTO EmployeeRole { get; set; }
-
-        public bool Archived { get; set; }
-
         public static EmployeeDTO FromCredentialDTO(CredentialDTO dto)
         {
             return new EmployeeDTO
@@ -17,6 +13,13 @@
                 Password = dto.HashedPassword,
                 DateOfStart = dto.DateOfStart,
                 EmployeeRoleId = dto.EmployeeRoleId,
+                EmployeeRole = dto.EmployeeRole,
+                Activated = dto.Activated,
+                Archived = dto.Archived,
+                UserRole = dto.UserRole,
+                SuccessfulOperation = dto.SuccessfulOperation,
+                RequirePasswordChange = dto.RequirePasswordChange,
+                ErrorMessage = dto.ErrorMessage,
             };
         }
     }

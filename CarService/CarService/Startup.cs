@@ -36,6 +36,7 @@ namespace CarService
                 options.Cookie.IsEssential = true;
             });
 
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllersWithViews();

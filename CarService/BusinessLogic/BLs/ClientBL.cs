@@ -12,8 +12,9 @@ namespace BusinessLogic.BLs
     public class ClientBL : BaseBL<ClientDTO>, ICredentialBL<ClientDTO>
     {
         private readonly EmailBL _emailBl;
+        private readonly EmailSender.EmailSender _emailSender;
 
-        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @archived);";
+        public override string InsertSQL => "INSERT INTO Clients (FirstName, LastName, EmailAddress, Password, RequirePasswordChange, Activated, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @requirePasswordChange, @activated, @archived);";
 
         public override string SelectSQL => @"
 SELECT Clients.Id,
@@ -22,6 +23,7 @@ SELECT Clients.Id,
        Clients.EmailAddress,
        Clients.Password,
        Clients.RequirePasswordChange,
+       Clients.Activated,
        Clients.Archived
 FROM Clients";
 
@@ -41,13 +43,14 @@ FROM Clients";
 
         private string InsertClientTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
 
-        public ClientBL(AppDb db, EmailBL emailBl)
+        public ClientBL(AppDb db, EmailBL emailBl, EmailSender.EmailSender emailSender)
             : base(db)
         {
             _emailBl = emailBl;
+            _emailSender = emailSender;
         }
 
-        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath)
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath, string base_url, bool selfRegistration)
         {
             var result = new CredentialDTO
             {
@@ -76,8 +79,66 @@ FROM Clients";
                     if (clientDTO.Id > 0)
                     {
                         result.Id = clientDTO.Id;
-                        result.SuccessfulOperation = true;
 
+                        var tokenDTO = new TokenDTO
+                        {
+                            ClientId = clientDTO.Id,
+                            ExpirationDate = null,
+                            IsValid = true,
+
+                            EmailAddress = clientDTO.EmailAddress,
+                            FirstName = clientDTO.FirstName,
+                            LastName = clientDTO.LastName,
+                            EmailSubject = "Welcome!",
+                        };
+
+                        using var cmd = Db.Connection.CreateCommand();
+                        cmd.CommandText = InsertClientTokenSQL;
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@clientId",
+                            DbType = DbType.Int32,
+                            Value = tokenDTO.ClientId,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@token",
+                            DbType = DbType.String,
+                            Value = tokenDTO.Token,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@expirationDate",
+                            DbType = DbType.DateTime,
+                            Value = tokenDTO.ExpirationDate,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@isValid",
+                            DbType = DbType.Boolean,
+                            Value = tokenDTO.IsValid,
+                        });
+
+                        var tokenResult = await cmd.ExecuteNonQueryAsync();
+                        if (tokenResult > 0)
+                        {
+                            var htmlPath = selfRegistration ? "EmailTemplates//Client_Registration_Self.html" : "EmailTemplates//Client_Registration_Assisted.html";
+                            var emailBody = _emailBl.PopulateHTML(webRootPath, htmlPath, new Dictionary<string, string>
+                            {
+                                { "{FirstName}", tokenDTO.FirstName },
+                                { "{BASE_URL}", base_url },
+                                { "{EmailAddress}", tokenDTO.EmailAddress },
+                                { "{Token}", tokenDTO.Token },
+                            });
+
+                            tokenDTO.EmailBody = emailBody;
+                            _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                            result.SuccessfulOperation = true;
+                        }
+                        else
+                        {
+                            result.ErrorMessage = Constants.ErrorDuringTheRegistrationContactSupport;
+                        }
                     }
                     else
                     {
@@ -104,12 +165,25 @@ FROM Clients";
             }
             else if (dto.HashedPassword.Equals(clientDTO.Password))
             {
-                result.Id = clientDTO.Id;
-                result.FirstName = clientDTO.FirstName;
-                result.LastName = clientDTO.LastName;
-                result.RequirePasswordChange = clientDTO.RequirePasswordChange;
-                result.UserRole = UserRoles.Customer;
-                result.SuccessfulOperation = true;
+                if (clientDTO.Archived)
+                {
+                    result.ErrorMessage = Constants.AccountDeactivatedContactSupport;
+                }
+                else if(!clientDTO.Activated)
+                {
+                    result.ErrorMessage = Constants.AccountNotActivated;
+                }
+                else
+                {
+                    result.Id = clientDTO.Id;
+                    result.FirstName = clientDTO.FirstName;
+                    result.LastName = clientDTO.LastName;
+                    result.RequirePasswordChange = clientDTO.RequirePasswordChange;
+                    result.Activated = clientDTO.Activated;
+                    result.Archived = clientDTO.Archived;
+                    result.UserRole = UserRoles.Customer;
+                    result.SuccessfulOperation = true;
+                }
             }
             else
             {
@@ -140,10 +214,10 @@ FROM Clients";
             return false;
         }
 
-        public async Task<TokenDTO> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath)
+        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath, string base_url)
         {
             var clientDTO = ReadByEmailAddress(dto.EmailAddress);
-            if (clientDTO != null && !clientDTO.Archived)
+            if (clientDTO != null && !clientDTO.Archived && clientDTO.Activated)
             {
                 var tokenDTO = new TokenDTO
                 {
@@ -189,15 +263,17 @@ FROM Clients";
                     var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Client_ForgottenPassword.html", new Dictionary<string, string>
                     {
                         { "{FirstName}", tokenDTO.FirstName },
+                        { "{BASE_URL}", base_url },
                         { "{EmailAddress}", tokenDTO.EmailAddress },
                         { "{Token}", tokenDTO.Token },
                     });
 
                     tokenDTO.EmailBody = emailBody;
-                    return tokenDTO;
+                    _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                    return true;
                 }
             }
-            return null;
+            return false;
         }
 
         public ClientDTO ReadByEmailAddress(string emailAddress)
@@ -258,6 +334,12 @@ FROM Clients";
             });
             cmd.Parameters.Add(new MySqlParameter
             {
+                ParameterName = "@activated",
+                DbType = DbType.Boolean,
+                Value = dto.Activated,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
                 ParameterName = "@archived",
                 DbType = DbType.Boolean,
                 Value = dto.Archived,
@@ -274,25 +356,9 @@ FROM Clients";
                 EmailAddress = reader.GetString("EmailAddress"),
                 Password = reader.GetString("Password"),
                 RequirePasswordChange = reader.GetBoolean("RequirePasswordChange"),
+                Activated = reader.GetBoolean("Activated"),
                 Archived = reader.GetBoolean("Archived"),
             };
-        }
-
-        private string GetForgottenPasswordEmailBody(TokenDTO clientTokenDTO)
-        {
-            return 
-"Please confirm your identity to access your eBay account" +
-$"Hi {clientTokenDTO.FirstName}," +
-"It looks like you’re having trouble signing into your account." +
-"Please select the ‘confirm’ button to verify your identity and access your account. (It’s only good for 24 hours.)" +
-"<td valign=\"top\" align=\"center\" bgcolor=\"#0079bc\" style=\"background-image:linear-gradient(to bottom,#0079bc 0%,#00519e 100%);background-color:#0079bc;padding:10px 17px;border:0px solid #00519e;border-radius:3px\">"+
-$"<a href=\"https://accounts.ebay.com/acctxs/email?id={clientTokenDTO.Token}\" style=\"text-decoration:none;color:#ffffff;font-size:14px;line-height:normal;font-weight:bold;font-family:Helvetica Neue,Helvetica,Arial;padding:10px 15px\" target=\"_blank\"> Confirm </a>"+
-"</td> ";
-        }
-
-        private string GenerateToken(ClientDTO clientDTO)
-        {
-            return "";
         }
     }
 }

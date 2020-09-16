@@ -24,6 +24,12 @@ namespace BusinessLogic.DTOs
 
         public int EmployeeRoleId { get; set; }
 
+        public EmployeeRoleDTO EmployeeRole { get; set; }
+
+        public bool Activated { get; set; }
+
+        public bool Archived { get; set; }
+
         public UserRoles UserRole { get; set; }
 
         public bool SuccessfulOperation { get; set; }
@@ -34,6 +40,11 @@ namespace BusinessLogic.DTOs
 
         private string HashPassword()
         {
+            if (string.IsNullOrEmpty(Password))
+            {
+                return null;
+            }
+
             var hash = new SHA256Managed();
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(Password);
             var hashBytes = hash.ComputeHash(plainTextBytes);

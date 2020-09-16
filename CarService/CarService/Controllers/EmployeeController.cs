@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -17,14 +18,16 @@ namespace CarService.Controllers
     public class EmployeeController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<EmployeeController> _logger;
         private readonly ICredentialBL<EmployeeDTO> _bl;
         private readonly IBaseBL<EmployeeRoleDTO> _employeeRoleBl;
         private readonly UserRoles _userRole = UserRoles.NA;
 
-        public EmployeeController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, ILogger<EmployeeController> logger, ICredentialBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
+        public EmployeeController(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment webHostEnvironment, IConfiguration configuration, ILogger<EmployeeController> logger, ICredentialBL<EmployeeDTO> bl, IBaseBL<EmployeeRoleDTO> employeeRoleBl)
         {
             _webHostEnvironment = webHostEnvironment;
+            _configuration = configuration;
             _logger = logger;
             _bl = bl;
             _employeeRoleBl = employeeRoleBl;
@@ -92,7 +95,7 @@ namespace CarService.Controllers
         {
             try
             {
-                await _bl.RegisterAsync(new EmployeeDTO
+                var dto = new EmployeeDTO
                 {
                     FirstName = collection["FirstName"],
                     LastName = collection["LastName"],
@@ -101,8 +104,18 @@ namespace CarService.Controllers
                     RepeatPassword = collection["RepeatPassword"],
                     DateOfStart = DateTime.Parse(collection["DateOfStart"]),
                     EmployeeRoleId = int.Parse(collection["EmployeeRoleId"]),
-                }, _webHostEnvironment.WebRootPath);
-                return RedirectToAction(nameof(Index));
+                    EmployeeRole = _employeeRoleBl.ReadById(int.Parse(collection["EmployeeRoleId"])),
+                };
+
+                var result = await _bl.RegisterAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"), false);
+                if (result.SuccessfulOperation)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                var employeeDTO = EmployeeDTO.FromCredentialDTO(result);
+                var employeeModel = EmployeeModel.FromDto(employeeDTO);
+                employeeModel.EmployeeRoleOptions = GetEmployeeRoleOptions();
+                return View(employeeModel);
             }
             catch (Exception ex)
             {
@@ -227,14 +240,18 @@ namespace CarService.Controllers
 
         private ActionResult GetActionForRecordById(int id)
         {
+            var resultAsDTO = _bl.ReadById(id);
+            var resultAsModel = EmployeeModel.FromDto(resultAsDTO);
+            resultAsModel.EmployeeRoleOptions = GetEmployeeRoleOptions();
+            return View(resultAsModel);
+        }
+
+        private SelectList GetEmployeeRoleOptions()
+        {
             var activeEmployeeRoles = _employeeRoleBl.ReadActive();
             var activeEmployeeRolesAsModel = EmployeeRoleModel.FromDtos(activeEmployeeRoles);
             var employeeRolesOptions = new SelectList(activeEmployeeRolesAsModel, nameof(EmployeeRoleModel.Id), nameof(EmployeeRoleModel.EmployeeRoleName));
-
-            var resultAsDTO = _bl.ReadById(id);
-            var resultAsModel = EmployeeModel.FromDto(resultAsDTO);
-            resultAsModel.EmployeeRoleOptions = employeeRolesOptions;
-            return View(resultAsModel);
+            return employeeRolesOptions;
         }
     }
 }

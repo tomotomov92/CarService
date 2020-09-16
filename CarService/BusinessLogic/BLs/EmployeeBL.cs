@@ -12,7 +12,8 @@ namespace BusinessLogic.BLs
     public class EmployeeBL : BaseBL<EmployeeDTO>, ICredentialBL<EmployeeDTO>
     {
         private readonly EmailBL _emailBl;
-        
+        private readonly EmailSender.EmailSender _emailSender;
+
         public override string InsertSQL => "INSERT INTO Employees (FirstName, LastName, EmailAddress, Password, DateOfStart, EmployeeRoleId, RequirePasswordChange, Archived) VALUES (@firstName, @lastName, @emailAddress, @password, @dateOfStart, @employeeRoleId, @requirePasswordChange, @archived);";
 
         public override string SelectSQL => @"
@@ -47,19 +48,23 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         private string InsertEmployeeTokenSQL => "INSERT INTO Tokens (EmployeeId, Token, ExpirationDate, IsValid) VALUES (@employeeId, @token, @expirationDate, @isValid);";
 
-        public EmployeeBL(AppDb db, EmailBL emailBl)
+        public EmployeeBL(AppDb db, EmailBL emailBl, EmailSender.EmailSender emailSender)
             : base(db)
         {
             _emailBl = emailBl;
+            _emailSender = emailSender;
         }
 
-        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath)
+        public async Task<CredentialDTO> RegisterAsync(CredentialDTO dto, string webRootPath, string base_url, bool selfRegistration)
         {
             var result = new CredentialDTO
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 EmailAddress = dto.EmailAddress,
+                DateOfStart = dto.DateOfStart,
+                EmployeeRoleId = dto.EmployeeRoleId,
+                EmployeeRole = dto.EmployeeRole,
                 SuccessfulOperation = false,
             };
             var employeeDTO = ReadByEmailAddress(dto.EmailAddress);
@@ -84,7 +89,65 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                     if (employeeDTO.Id > 0)
                     {
                         result.Id = employeeDTO.Id;
-                        result.SuccessfulOperation = true;
+
+                        var tokenDTO = new TokenDTO
+                        {
+                            EmployeeId = employeeDTO.Id,
+                            ExpirationDate = null,
+                            IsValid = true,
+
+                            EmailAddress = employeeDTO.EmailAddress,
+                            FirstName = employeeDTO.FirstName,
+                            LastName = employeeDTO.LastName,
+                            EmailSubject = "Welcome!",
+                        };
+
+                        using var cmd = Db.Connection.CreateCommand();
+                        cmd.CommandText = InsertEmployeeTokenSQL;
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@employeeId",
+                            DbType = DbType.Int32,
+                            Value = tokenDTO.EmployeeId,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@token",
+                            DbType = DbType.String,
+                            Value = tokenDTO.Token,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@expirationDate",
+                            DbType = DbType.DateTime,
+                            Value = tokenDTO.ExpirationDate,
+                        });
+                        cmd.Parameters.Add(new MySqlParameter
+                        {
+                            ParameterName = "@isValid",
+                            DbType = DbType.Boolean,
+                            Value = tokenDTO.IsValid,
+                        });
+
+                        var tokenResult = await cmd.ExecuteNonQueryAsync();
+                        if (tokenResult > 0)
+                        {
+                            var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_Registration.html", new Dictionary<string, string>
+                            {
+                                { "{FirstName}", tokenDTO.FirstName },
+                                { "{BASE_URL}", base_url },
+                                { "{EmailAddress}", tokenDTO.EmailAddress },
+                                { "{Token}", tokenDTO.Token },
+                            });
+
+                            tokenDTO.EmailBody = emailBody;
+                            _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                            result.SuccessfulOperation = true;
+                        }
+                        else
+                        {
+                            result.ErrorMessage = Constants.ErrorDuringTheRegistrationContactSupport;
+                        }
                     }
                     else
                     {
@@ -111,12 +174,19 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             }
             else if (dto.HashedPassword.Equals(employeeDTO.Password))
             {
-                result.Id = employeeDTO.Id;
-                result.FirstName = employeeDTO.FirstName;
-                result.LastName = employeeDTO.LastName;
-                result.RequirePasswordChange = employeeDTO.RequirePasswordChange;
-                result.UserRole = (UserRoles)employeeDTO.EmployeeRoleId;
-                result.SuccessfulOperation = true;
+                if (employeeDTO.Archived)
+                {
+                    result.ErrorMessage = Constants.AccountDeactivatedContactSupport;
+                }
+                else
+                {
+                    result.Id = employeeDTO.Id;
+                    result.FirstName = employeeDTO.FirstName;
+                    result.LastName = employeeDTO.LastName;
+                    result.RequirePasswordChange = employeeDTO.RequirePasswordChange;
+                    result.UserRole = (UserRoles)employeeDTO.EmployeeRoleId;
+                    result.SuccessfulOperation = true;
+                }
             }
             else
             {
@@ -147,7 +217,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             return false;
         }
 
-        public async Task<TokenDTO> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath)
+        public async Task<bool> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath, string base_url)
         {
             var employeeDTO = ReadByEmailAddress(dto.EmailAddress);
             if (employeeDTO != null && !employeeDTO.Archived)
@@ -196,15 +266,17 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                     var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_ForgottenPassword.html", new Dictionary<string, string>
                     {
                         { "{FirstName}", tokenDTO.FirstName },
+                        { "{BASE_URL}", base_url },
                         { "{EmailAddress}", tokenDTO.EmailAddress },
                         { "{Token}", tokenDTO.Token },
                     });
 
                     tokenDTO.EmailBody = emailBody;
-                    return tokenDTO;
+                    _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                    return true;
                 };
             }
-            return null;
+            return false;
         }
 
         public EmployeeDTO ReadByEmailAddress(string emailAddress)

@@ -17,15 +17,13 @@ namespace BusinessLogic.EmailSender
         {
             var toAddress = new MailAddress(to);
 
-            using (var message = new MailMessage(_fromAddress, toAddress)
+            using var message = new MailMessage(_fromAddress, toAddress)
             {
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = true,
-            })
-            {
-                _smtpClient.Send(message);
-            }
+            };
+            _smtpClient.Send(message);
         }
     }
 }

@@ -10,8 +10,6 @@ namespace CarService.Models
         [DisplayName("Client Full Name")]
         public string FullName => $"{LastName}, {FirstName}";
 
-        public bool Archived { get; set; }
-
         public static ClientModel FromDto(ClientDTO dto)
         {
             return new ClientModel
@@ -23,7 +21,9 @@ namespace CarService.Models
                 Password = dto.Password,
                 RepeatPassword = dto.RepeatPassword,
                 RequirePasswordChange = dto.RequirePasswordChange,
+                Activated = dto.Activated,
                 Archived = dto.Archived,
+                ErrorMessage = dto.ErrorMessage,
             };
         }
 
@@ -38,7 +38,9 @@ namespace CarService.Models
                 Password = dto.Password,
                 RepeatPassword = dto.RepeatPassword,
                 RequirePasswordChange = dto.RequirePasswordChange,
+                Activated = dto.Activated,
                 Archived = dto.Archived,
+                ErrorMessage = dto.ErrorMessage,
             });
         }
 
@@ -53,7 +55,9 @@ namespace CarService.Models
                 Password = model.Password,
                 RepeatPassword = model.RepeatPassword,
                 RequirePasswordChange = model.RequirePasswordChange,
+                Activated = model.Activated,
                 Archived = model.Archived,
+                ErrorMessage = model.ErrorMessage,
             };
         }
     }

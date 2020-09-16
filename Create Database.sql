@@ -18,6 +18,7 @@ CREATE TABLE `CarService`.`Clients` (
   `EmailAddress` varchar(100) NOT NULL,
   `Password` varchar(200) NOT NULL,
   `RequirePasswordChange` bit NOT NULL DEFAULT 0,
+  `Activated` bit NOT NULL DEFAULT 0,
   `Archived` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
 	UNIQUE INDEX `ui_Clients_EmailAddress_idx` (`EmailAddress`)
@@ -128,7 +129,7 @@ CREATE TABLE `CarService`.`Tokens` (
   `ClientId` int(11) NULL,
   `EmployeeId` int(11) NULL,
   `Token` varchar(100) NOT NULL,
-  `ExpirationDate` datetime(6) NOT NULL,
+  `ExpirationDate` datetime(6) NULL,
   `IsValid` bit NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
   KEY `fk_Tokens_Clients_idx` (`ClientId`),
