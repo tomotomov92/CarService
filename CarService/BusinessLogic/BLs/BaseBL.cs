@@ -126,7 +126,60 @@ namespace BusinessLogic.BLs
 
         protected abstract void BindParams(MySqlCommand cmd, T dto);
 
+        protected void BindParams(MySqlCommand cmd, TokenDTO dto)
+        {
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@id",
+                DbType = DbType.Int32,
+                Value = dto.Id,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@clientId",
+                DbType = DbType.Int32,
+                Value = dto.ClientId,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@employeeId",
+                DbType = DbType.Int32,
+                Value = dto.EmployeeId,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@token",
+                DbType = DbType.String,
+                Value = dto.Token,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@expirationDate",
+                DbType = DbType.DateTime,
+                Value = dto.ExpirationDate,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@isValid",
+                DbType = DbType.Boolean,
+                Value = dto.IsValid,
+            });
+        }
+
         protected abstract T BindToObject(MySqlDataReader reader);
+
+        protected TokenDTO BindToTokenObject(MySqlDataReader reader)
+        {
+            return new TokenDTO
+            {
+                Id = reader.GetInt32("Id"),
+                ClientId = reader.IsDBNull("ClientId") ? null : (int?)reader.GetInt32("ClientId"),
+                EmployeeId = reader.IsDBNull("EmployeeId") ? null : (int?)reader.GetInt32("EmployeeId"),
+                Token = reader.GetString("Token"),
+                ExpirationDate = reader.IsDBNull("ExpirationDate") ? null : (DateTime?)reader.GetDateTime("ExpirationDate"),
+                IsValid = reader.GetBoolean("IsValid"),
+            };
+        }
 
         public void Dispose()
         {

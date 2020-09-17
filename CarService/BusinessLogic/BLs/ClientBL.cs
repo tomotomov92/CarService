@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
@@ -41,7 +42,11 @@ FROM Clients";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
-        private string InsertClientTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
+        public string InsertTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
+
+        public string SelectTokenSQL => "SELECT Id, ClientId, EmployeeId, Token, ExpirationDate, IsValid FROM Tokens WHERE ClientId = @clientId;";
+
+        public string UpdateTokenSQL => "UPDATE Tokens SET IsValid = @isValid WHERE Id = @id;";
 
         public ClientBL(AppDb db, EmailBL emailBl, EmailSender.EmailSender emailSender)
             : base(db)
@@ -68,6 +73,7 @@ FROM Clients";
                 }
                 else
                 {
+                    var transaction = Db.Connection.BeginTransaction();
                     clientDTO = await CreateAsync(new ClientDTO
                     {
                         FirstName = dto.FirstName,
@@ -92,35 +98,9 @@ FROM Clients";
                             EmailSubject = "Welcome!",
                         };
 
-                        using var cmd = Db.Connection.CreateCommand();
-                        cmd.CommandText = InsertClientTokenSQL;
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@clientId",
-                            DbType = DbType.Int32,
-                            Value = tokenDTO.ClientId,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@token",
-                            DbType = DbType.String,
-                            Value = tokenDTO.Token,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@expirationDate",
-                            DbType = DbType.DateTime,
-                            Value = tokenDTO.ExpirationDate,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@isValid",
-                            DbType = DbType.Boolean,
-                            Value = tokenDTO.IsValid,
-                        });
+                        tokenDTO = await CreateTokenAsync(tokenDTO);
 
-                        var tokenResult = await cmd.ExecuteNonQueryAsync();
-                        if (tokenResult > 0)
+                        if (tokenDTO.Id > 0)
                         {
                             var htmlPath = selfRegistration ? "EmailTemplates//Client_Registration_Self.html" : "EmailTemplates//Client_Registration_Assisted.html";
                             var emailBody = _emailBl.PopulateHTML(webRootPath, htmlPath, new Dictionary<string, string>
@@ -134,15 +114,18 @@ FROM Clients";
                             tokenDTO.EmailBody = emailBody;
                             _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
                             result.SuccessfulOperation = true;
+                            transaction.Commit();
                         }
                         else
                         {
                             result.ErrorMessage = Constants.ErrorDuringTheRegistrationContactSupport;
+                            transaction.Rollback();
                         }
                     }
                     else
                     {
                         result.ErrorMessage = Constants.ErrorDuringTheRegistrationTryAgain;
+                        transaction.Rollback();
                     }
                 }
             }
@@ -231,34 +214,9 @@ FROM Clients";
                     EmailSubject = "Forgotten Password",
                 };
 
-                using var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = InsertClientTokenSQL;
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@clientId",
-                    DbType = DbType.Int32,
-                    Value = tokenDTO.ClientId,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@token",
-                    DbType = DbType.String,
-                    Value = tokenDTO.Token,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@expirationDate",
-                    DbType = DbType.DateTime,
-                    Value = tokenDTO.ExpirationDate,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@isValid",
-                    DbType = DbType.Boolean,
-                    Value = tokenDTO.IsValid,
-                });
-                var result = await cmd.ExecuteNonQueryAsync();
-                if (result > 0)
+                tokenDTO = await CreateTokenAsync(tokenDTO);
+
+                if (tokenDTO.Id > 0)
                 {
                     var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Client_ForgottenPassword.html", new Dictionary<string, string>
                     {
@@ -292,6 +250,57 @@ FROM Clients";
                 return BindToObject(reader);
             else
                 return null;
+        }
+
+        public async Task<TokenDTO> CreateTokenAsync(TokenDTO dto)
+        {
+            var existingTokens = ReadTokenByUserId(dto).Where(x => x.IsValid == true);
+            foreach (var tokenDTO in existingTokens)
+            {
+                tokenDTO.IsValid = false;
+                await UpdateTokenAsync(tokenDTO);
+            }
+
+            using var insertCmd = Db.Connection.CreateCommand();
+            insertCmd.CommandText = InsertTokenSQL;
+            BindParams(insertCmd, dto);
+            var insertResult = await insertCmd.ExecuteNonQueryAsync();
+            if (insertResult > 0)
+            {
+                dto.Id = (int)insertCmd.LastInsertedId;
+            }
+            return dto;
+        }
+
+        public IEnumerable<TokenDTO> ReadTokenByUserId(TokenDTO dto)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectTokenSQL;
+            BindParams(cmd, dto);
+            using var reader = cmd.ExecuteReader();
+
+            var tokens = new List<TokenDTO>();
+            while (reader.Read())
+            {
+                var tokenDTO = BindToTokenObject(reader);
+                tokens.Add(tokenDTO);
+            }
+            reader.Close();
+            return tokens;
+        }
+
+        public IEnumerable<TokenDTO> ReadActiveTokenByUserId(TokenDTO dto)
+        {
+            return ReadTokenByUserId(dto).Where(x => x.IsValid == true);
+        }
+
+        public async Task<TokenDTO> UpdateTokenAsync(TokenDTO dto)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = UpdateTokenSQL;
+            BindParams(cmd, dto);
+            await cmd.ExecuteNonQueryAsync();
+            return dto;
         }
 
         protected override void BindParams(MySqlCommand cmd, ClientDTO dto)

@@ -4,13 +4,18 @@ namespace BusinessLogic.DTOs
 {
     public class TokenDTO : IBaseDTO
     {
+        public TokenDTO()
+        {
+            GenerateToken();
+        }
+
         public int Id { get; set; }
 
         public int? ClientId { get; set; }
 
         public int? EmployeeId { get; set; }
 
-        public string Token => GenerateToken();
+        public string Token { get; set; }
 
         public DateTime? ExpirationDate { get; set; }
 
@@ -26,7 +31,7 @@ namespace BusinessLogic.DTOs
 
         public string EmailBody { get; set; }
 
-        private string GenerateToken()
+        private void GenerateToken()
         {
             var rd = new Random();
             var stringLength = 50;
@@ -38,7 +43,7 @@ namespace BusinessLogic.DTOs
                 chars[i] = allowedChars[rd.Next(0, allowedChars.Length)];
             }
 
-            return new string(chars);
+            Token = new string(chars);
         }
     }
 }

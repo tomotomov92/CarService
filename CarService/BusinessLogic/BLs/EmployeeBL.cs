@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BusinessLogic.BLs
@@ -46,7 +47,11 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
-        private string InsertEmployeeTokenSQL => "INSERT INTO Tokens (EmployeeId, Token, ExpirationDate, IsValid) VALUES (@employeeId, @token, @expirationDate, @isValid);";
+        public string InsertTokenSQL => "INSERT INTO Tokens (EmployeeId, Token, ExpirationDate, IsValid) VALUES (@employeeId, @token, @expirationDate, @isValid);";
+
+        public string SelectTokenSQL => "SELECT Id, ClientId, EmployeeId, Token, ExpirationDate, IsValid FROM Tokens WHERE EmployeeId = @employeeId;";
+
+        public string UpdateTokenSQL => "UPDATE Tokens SET IsValid = @isValid WHERE Id = @id;";
 
         public EmployeeBL(AppDb db, EmailBL emailBl, EmailSender.EmailSender emailSender)
             : base(db)
@@ -92,62 +97,23 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
                         var tokenDTO = new TokenDTO
                         {
-                            EmployeeId = employeeDTO.Id,
-                            ExpirationDate = null,
-                            IsValid = true,
-
                             EmailAddress = employeeDTO.EmailAddress,
                             FirstName = employeeDTO.FirstName,
                             LastName = employeeDTO.LastName,
-                            EmailSubject = "Welcome!",
+                            EmailSubject = "Welcome to our team!",
                         };
 
-                        using var cmd = Db.Connection.CreateCommand();
-                        cmd.CommandText = InsertEmployeeTokenSQL;
-                        cmd.Parameters.Add(new MySqlParameter
+                        var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_Registration.html", new Dictionary<string, string>
                         {
-                            ParameterName = "@employeeId",
-                            DbType = DbType.Int32,
-                            Value = tokenDTO.EmployeeId,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@token",
-                            DbType = DbType.String,
-                            Value = tokenDTO.Token,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@expirationDate",
-                            DbType = DbType.DateTime,
-                            Value = tokenDTO.ExpirationDate,
-                        });
-                        cmd.Parameters.Add(new MySqlParameter
-                        {
-                            ParameterName = "@isValid",
-                            DbType = DbType.Boolean,
-                            Value = tokenDTO.IsValid,
+                            { "{FirstName}", tokenDTO.FirstName },
+                            { "{BASE_URL}", base_url },
+                            { "{EmailAddress}", tokenDTO.EmailAddress },
+                            { "{Token}", tokenDTO.Token },
                         });
 
-                        var tokenResult = await cmd.ExecuteNonQueryAsync();
-                        if (tokenResult > 0)
-                        {
-                            var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_Registration.html", new Dictionary<string, string>
-                            {
-                                { "{FirstName}", tokenDTO.FirstName },
-                                { "{BASE_URL}", base_url },
-                                { "{EmailAddress}", tokenDTO.EmailAddress },
-                                { "{Token}", tokenDTO.Token },
-                            });
-
-                            tokenDTO.EmailBody = emailBody;
-                            _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
-                            result.SuccessfulOperation = true;
-                        }
-                        else
-                        {
-                            result.ErrorMessage = Constants.ErrorDuringTheRegistrationContactSupport;
-                        }
+                        tokenDTO.EmailBody = emailBody;
+                        _emailSender.SendEmail(tokenDTO.EmailAddress, tokenDTO.EmailSubject, tokenDTO.EmailBody);
+                        result.SuccessfulOperation = true;
                     }
                     else
                     {
@@ -234,34 +200,9 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                     EmailSubject = "Forgotten Password",
                 };
 
-                using var cmd = Db.Connection.CreateCommand();
-                cmd.CommandText = InsertEmployeeTokenSQL;
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@employeeId",
-                    DbType = DbType.Int32,
-                    Value = tokenDTO.EmployeeId,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@token",
-                    DbType = DbType.String,
-                    Value = tokenDTO.Token,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@expirationDate",
-                    DbType = DbType.DateTime,
-                    Value = tokenDTO.ExpirationDate,
-                });
-                cmd.Parameters.Add(new MySqlParameter
-                {
-                    ParameterName = "@isValid",
-                    DbType = DbType.Boolean,
-                    Value = tokenDTO.IsValid,
-                });
-                var result = await cmd.ExecuteNonQueryAsync();
-                if (result > 0)
+                tokenDTO = await CreateTokenAsync(tokenDTO);
+
+                if (tokenDTO.Id > 0)
                 {
                     var emailBody = _emailBl.PopulateHTML(webRootPath, "EmailTemplates//Employee_ForgottenPassword.html", new Dictionary<string, string>
                     {
@@ -295,6 +236,57 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
                 return BindToObject(reader);
             else
                 return null;
+        }
+
+        public async Task<TokenDTO> CreateTokenAsync(TokenDTO dto)
+        {
+            var existingTokens = ReadActiveTokenByUserId(dto);
+            foreach (var tokenDTO in existingTokens)
+            {
+                tokenDTO.IsValid = false;
+                await UpdateTokenAsync(tokenDTO);
+            }
+
+            using var insertCmd = Db.Connection.CreateCommand();
+            insertCmd.CommandText = InsertTokenSQL;
+            BindParams(insertCmd, dto);
+            var insertResult = await insertCmd.ExecuteNonQueryAsync();
+            if (insertResult > 0)
+            {
+                dto.Id = (int)insertCmd.LastInsertedId;
+            }
+            return dto;
+        }
+
+        public IEnumerable<TokenDTO> ReadTokenByUserId(TokenDTO dto)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = SelectTokenSQL;
+            BindParams(cmd, dto);
+            using var reader = cmd.ExecuteReader();
+
+            var tokens = new List<TokenDTO>();
+            while (reader.Read())
+            {
+                var tokenDTO = BindToTokenObject(reader);
+                tokens.Add(tokenDTO);
+            }
+            reader.Close();
+            return tokens;
+        }
+
+        public IEnumerable<TokenDTO> ReadActiveTokenByUserId(TokenDTO dto)
+        {
+            return ReadTokenByUserId(dto).Where(x => x.IsValid == true);
+        }
+
+        public async Task<TokenDTO> UpdateTokenAsync(TokenDTO dto)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = UpdateTokenSQL;
+            BindParams(cmd, dto);
+            await cmd.ExecuteNonQueryAsync();
+            return dto;
         }
 
         protected override void BindParams(MySqlCommand cmd, EmployeeDTO dto)
