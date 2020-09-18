@@ -46,7 +46,13 @@ namespace CarService.Controllers
 
         public ActionResult Details(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                        return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            } 
         }
 
         public ActionResult Create()

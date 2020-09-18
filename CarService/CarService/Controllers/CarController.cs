@@ -264,15 +264,6 @@ namespace CarService.Controllers
                 case UserRoles.Owner:
                 case UserRoles.CustomerSupport:
                     return GetActionForRecordById(id);
-                case UserRoles.Customer:
-                    {
-                        var record = GetRecordById(id);
-                        if (record.ClientId == _userId)
-                        {
-                            return GetActionForRecordById(id);
-                        }
-                        return RedirectToAction(nameof(HomeController.Index), "Home");
-                    }
                 default:
                     return RedirectToAction(nameof(HomeController.Index), "Home");
             }

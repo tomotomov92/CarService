@@ -7,6 +7,7 @@ namespace BusinessLogic.BLs.Interfaces
     public interface ICredentialBL<T> : IBaseBL<T>
         where T : IBaseDTO
     {
+        string ConfirmAccountSQL { get; }
         string InsertTokenSQL { get; }
         string SelectTokenSQL { get; }
         string UpdateTokenSQL { get; }
@@ -20,6 +21,10 @@ namespace BusinessLogic.BLs.Interfaces
         Task<bool> ChangePasswordAsync(CredentialDTO dto);
 
         Task<bool> ForgottenPasswordAsync(CredentialDTO dto, string webRootPath, string base_url);
+
+        Task<bool> ConfirmAccountAsync(T dto, TokenDTO tokenDTO);
+
+        T ReadByEmailAddress(string emailAddress);
 
         Task<TokenDTO> CreateTokenAsync(TokenDTO dto);
 

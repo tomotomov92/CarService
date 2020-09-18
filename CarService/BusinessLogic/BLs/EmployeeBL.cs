@@ -47,6 +47,8 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         private string UpdatePasswordSQL => "UPDATE Employees SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
+        public string ConfirmAccountSQL => "UPDATE Employees SET Activated = @activated WHERE Id = @id";
+
         public string InsertTokenSQL => "INSERT INTO Tokens (EmployeeId, Token, ExpirationDate, IsValid) VALUES (@employeeId, @token, @expirationDate, @isValid);";
 
         public string SelectTokenSQL => "SELECT Id, ClientId, EmployeeId, Token, ExpirationDate, IsValid FROM Tokens WHERE EmployeeId = @employeeId;";
@@ -220,6 +222,18 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
             return false;
         }
 
+        public async Task<bool> ConfirmAccountAsync(EmployeeDTO dto, TokenDTO tokenDTO)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = UpdateTokenSQL;
+            BindParams(cmd, dto);
+            await cmd.ExecuteNonQueryAsync();
+
+            tokenDTO.IsValid = false;
+            await UpdateTokenAsync(tokenDTO);
+            return true;
+        }
+
         public EmployeeDTO ReadByEmailAddress(string emailAddress)
         {
             using var cmd = Db.Connection.CreateCommand();
@@ -277,7 +291,7 @@ INNER JOIN EmployeeRoles ON EmployeeRoles.Id = Employees.EmployeeRoleId";
 
         public IEnumerable<TokenDTO> ReadActiveTokenByUserId(TokenDTO dto)
         {
-            return ReadTokenByUserId(dto).Where(x => x.IsValid == true);
+            return ReadTokenByUserId(dto).Where(x => x.IsValid == true && (x.ExpirationDate == null || x.ExpirationDate >= DateTime.Now));
         }
 
         public async Task<TokenDTO> UpdateTokenAsync(TokenDTO dto)

@@ -42,6 +42,8 @@ FROM Clients";
 
         private string UpdatePasswordSQL => "UPDATE Clients SET Password = @password, RequirePasswordChange = @requirePasswordChange WHERE Id = @id";
 
+        public string ConfirmAccountSQL => "UPDATE Clients SET Activated = @activated WHERE Id = @id";
+
         public string InsertTokenSQL => "INSERT INTO Tokens (ClientId, Token, ExpirationDate, IsValid) VALUES (@clientId, @token, @expirationDate, @isValid);";
 
         public string SelectTokenSQL => "SELECT Id, ClientId, EmployeeId, Token, ExpirationDate, IsValid FROM Tokens WHERE ClientId = @clientId;";
@@ -234,6 +236,17 @@ FROM Clients";
             return false;
         }
 
+        public async Task<bool> ConfirmAccountAsync(ClientDTO dto, TokenDTO tokenDTO)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = ConfirmAccountSQL;
+            BindParams(cmd, dto);
+            await cmd.ExecuteNonQueryAsync();
+
+            await UpdateTokenAsync(tokenDTO);
+            return true;
+        }
+
         public ClientDTO ReadByEmailAddress(string emailAddress)
         {
             using var cmd = Db.Connection.CreateCommand();
@@ -291,7 +304,7 @@ FROM Clients";
 
         public IEnumerable<TokenDTO> ReadActiveTokenByUserId(TokenDTO dto)
         {
-            return ReadTokenByUserId(dto).Where(x => x.IsValid == true);
+            return ReadTokenByUserId(dto).Where(x => x.IsValid == true && (x.ExpirationDate == null || x.ExpirationDate >= DateTime.Now));
         }
 
         public async Task<TokenDTO> UpdateTokenAsync(TokenDTO dto)

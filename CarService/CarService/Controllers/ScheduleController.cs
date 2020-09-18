@@ -35,9 +35,19 @@ namespace CarService.Controllers
 
         public ActionResult Index()
         {
-            var resultsAsDTO = _bl.ReadAll();
-            var resultsAsModel = ScheduleModel.FromDtos(resultsAsDTO);
-            return View(resultsAsModel);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.Mechanic:
+                case UserRoles.CustomerSupport:
+                    {
+                        var resultsAsDTO = _bl.ReadAll();
+                        var resultsAsModel = ScheduleModel.FromDtos(resultsAsDTO);
+                        return View(resultsAsModel);
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         public ActionResult Details(int id)

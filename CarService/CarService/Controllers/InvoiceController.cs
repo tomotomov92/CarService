@@ -16,13 +16,17 @@ namespace CarService.Controllers
     {
         private readonly ILogger<InvoiceController> _logger;
         private readonly IInvoiceBL<InvoiceDTO> _bl;
+        private readonly IClientCarBL<CarDTO> _clientCarBl;
+        private readonly IInspectionBL<InspectionDTO> _inspectionBl;
         private readonly UserRoles _userRole = UserRoles.NA;
         private readonly int _userId = 0;
 
-        public InvoiceController(IHttpContextAccessor httpContextAccessor, ILogger<InvoiceController> logger, IInvoiceBL<InvoiceDTO> bl)
+        public InvoiceController(IHttpContextAccessor httpContextAccessor, ILogger<InvoiceController> logger, IInvoiceBL<InvoiceDTO> bl, IClientCarBL<CarDTO> clientCarBl, IInspectionBL<InspectionDTO> inspectionBl)
         {
             _logger = logger;
             _bl = bl;
+            _clientCarBl = clientCarBl;
+            _inspectionBl = inspectionBl;
 
             var userRoleInt = httpContextAccessor.HttpContext.Session.GetInt32(Constants.SessionKeyUserRole);
             if (userRoleInt != null)
@@ -59,16 +63,54 @@ namespace CarService.Controllers
 
         public ActionResult Details(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                case UserRoles.Customer:
+                    {
+                        var record = GetRecordById(id);
+                        if (record.Inspection.ClientId == _userId)
+                        {
+                            return GetActionForRecordById(id);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         public ActionResult Create(int inspectionId)
         {
-            var model = new InvoiceModel
+            switch (_userRole)
             {
-                InspectionId = inspectionId,
-            };
-            return View(model);
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    {
+                        var model = new InvoiceModel
+                        {
+                            InspectionId = inspectionId,
+                        };
+                        return View(model);
+                    }
+                case UserRoles.Customer:
+                    {
+                        var record = GetInspectionRecordById(inspectionId);
+                        if (record.ClientId == _userId)
+                        {
+                            var model = new InvoiceModel
+                            {
+                                InspectionId = inspectionId,
+                            };
+                            return View(model);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -100,7 +142,23 @@ namespace CarService.Controllers
 
         public ActionResult Edit(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                case UserRoles.Customer:
+                    {
+                        var record = GetRecordById(id);
+                        if (record.Inspection.ClientId == _userId)
+                        {
+                            return GetActionForRecordById(id);
+                        }
+                        return RedirectToAction(nameof(HomeController.Index), "Home");
+                    }
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -215,7 +273,14 @@ namespace CarService.Controllers
 
         public ActionResult Delete(int id)
         {
-            return GetActionForRecordById(id);
+            switch (_userRole)
+            {
+                case UserRoles.Owner:
+                case UserRoles.CustomerSupport:
+                    return GetActionForRecordById(id);
+                default:
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
 
         [HttpPost]
@@ -242,11 +307,20 @@ namespace CarService.Controllers
                 {
                     case UserRoles.Owner:
                     case UserRoles.CustomerSupport:
-                    case UserRoles.Customer:
                         {
                             var resultsAsDTO = _bl.ReadForClientId(clientId);
                             var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
                             return View("Index", resultsAsModel);
+                        }
+                    case UserRoles.Customer:
+                        {
+                            if (_userId == clientId)
+                            {
+                                var resultsAsDTO = _bl.ReadForClientId(clientId);
+                                var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                                return View("Index", resultsAsModel);
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
                         }
                     default:
                         return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -267,11 +341,21 @@ namespace CarService.Controllers
                 {
                     case UserRoles.Owner:
                     case UserRoles.CustomerSupport:
-                    case UserRoles.Customer:
                         {
                             var resultsAsDTO = _bl.ReadForCarId(carId);
                             var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
                             return View("Index", resultsAsModel);
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetCarRecordById(carId);
+                            if (record.ClientId == _userId)
+                            {
+                                var resultsAsDTO = _bl.ReadForCarId(carId);
+                                var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                                return View("Index", resultsAsModel);
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
                         }
                     default:
                         return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -292,11 +376,21 @@ namespace CarService.Controllers
                 {
                     case UserRoles.Owner:
                     case UserRoles.CustomerSupport:
-                    case UserRoles.Customer:
                         {
                             var resultsAsDTO = _bl.ReadForInspectionId(inspectionId);
                             var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
                             return View("Index", resultsAsModel);
+                        }
+                    case UserRoles.Customer:
+                        {
+                            var record = GetInspectionRecordById(inspectionId);
+                            if (record.ClientId == _userId)
+                            {
+                                var resultsAsDTO = _bl.ReadForInspectionId(inspectionId);
+                                var resultsAsModel = InvoiceModel.FromDtos(resultsAsDTO);
+                                return View("Index", resultsAsModel);
+                            }
+                            return RedirectToAction(nameof(HomeController.Index), "Home");
                         }
                     default:
                         return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -312,6 +406,16 @@ namespace CarService.Controllers
         private InvoiceDTO GetRecordById(int id)
         {
             return _bl.ReadById(id);
+        }
+
+        private InspectionDTO GetInspectionRecordById(int id)
+        {
+            return _inspectionBl.ReadById(id);
+        }
+
+        private CarDTO GetCarRecordById(int id)
+        {
+            return _clientCarBl.ReadById(id);
         }
 
         private ActionResult GetActionForRecordById(int id)

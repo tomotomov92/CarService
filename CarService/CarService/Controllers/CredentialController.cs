@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CarService.Controllers
@@ -75,15 +76,23 @@ namespace CarService.Controllers
         }
 
         [Route("ConfirmAccount")]
-        public ActionResult ConfirmAccount(string emailAddress, string confirmationToken)
+        public async Task<ActionResult> ConfirmAccount(string emailAddress, string confirmationToken)
         {
             if (string.IsNullOrEmpty(_userName))
             {
-                return View(new CredentialModel
+                var clientResult = _clientBl.ReadByEmailAddress(emailAddress);
+                var activeTokens = _clientBl.ReadActiveTokenByUserId(new TokenDTO
                 {
-                    EmailAddress = emailAddress,
-                    ConfirmationToken = confirmationToken,
+                    ClientId = clientResult.Id
                 });
+                if (activeTokens.Any(x => x.Token.Equals(confirmationToken)))
+                {
+                    clientResult.Activated = true;
+                    var tokenDto = activeTokens.First(x => x.Token.Equals(confirmationToken));
+                    tokenDto.IsValid = false;
+                    await _clientBl.ConfirmAccountAsync(clientResult, tokenDto);
+                    return RedirectToAction(nameof(CredentialController.SignIn), "Credential");
+                }
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
@@ -215,36 +224,28 @@ namespace CarService.Controllers
         }
 
         [Route("ChangeForgottenPassword")]
-        public ActionResult ChangeForgottenPassword(string emailAddress, string confirmationToken)
+        public async Task<ActionResult> ChangeForgottenPassword(string emailAddress, string confirmationToken)
         {
             if (string.IsNullOrEmpty(_userName))
             {
-                return View(new CredentialModel
+                var clientResult = _clientBl.ReadByEmailAddress(emailAddress);
+                var activeTokens = _clientBl.ReadActiveTokenByUserId(new TokenDTO
                 {
-                    EmailAddress = emailAddress,
-                    ConfirmationToken = confirmationToken,
+                    ClientId = clientResult.Id
                 });
+                if (activeTokens.Any(x => x.Token.Equals(confirmationToken)))
+                {
+                    var tokenDto = activeTokens.First(x => x.Token.Equals(confirmationToken));
+                    tokenDto.IsValid = false;
+                    await _clientBl.UpdateTokenAsync(tokenDto);
+
+                    return View("ChangePassword", new CredentialModel
+                    {
+                        Id = clientResult.Id
+                    }) ;
+                }
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        [Route("ChangeForgottenPassword")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ChangeForgottenPassword(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPassword));
-                return View(new CredentialModel
-                {
-                    Id = id,
-                });
-            }
         }
 
         #endregion Client
@@ -379,36 +380,28 @@ namespace CarService.Controllers
         }
 
         [Route("ChangeForgottenPasswordEmployee")]
-        public ActionResult ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
+        public async Task<ActionResult> ChangeForgottenPasswordEmployee(string emailAddress, string confirmationToken)
         {
             if (string.IsNullOrEmpty(_userName))
             {
-                return View(new CredentialModel
+                var employeeResult = _employeeBl.ReadByEmailAddress(emailAddress);
+                var activeTokens = _employeeBl.ReadActiveTokenByUserId(new TokenDTO
                 {
-                    EmailAddress = emailAddress,
-                    ConfirmationToken = confirmationToken,
+                    ClientId = employeeResult.Id
                 });
+                if (activeTokens.Any(x => x.Token.Equals(confirmationToken)))
+                {
+                    var tokenDto = activeTokens.First(x => x.Token.Equals(confirmationToken));
+                    tokenDto.IsValid = false;
+                    await _employeeBl.UpdateTokenAsync(tokenDto);
+
+                    return View("ChangePasswordEmployee", new CredentialModel
+                    {
+                        Id = employeeResult.Id
+                    });
+                }
             }
             return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        [Route("ChangeForgottenPasswordEmployee")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ChangeForgottenPasswordEmployee(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, nameof(CredentialController.ChangeForgottenPassword));
-                return View(new CredentialModel
-                {
-                    Id = id,
-                });
-            }
         }
 
         #endregion Employee
