@@ -61,7 +61,7 @@ namespace CarService.Controllers
                     RepeatPassword = collection["RepeatPassword"],
                 };
 
-                var result = await _clientBl.RegisterAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"), true);
+                var result = await _clientBl.RegisterAsync(dto, _webHostEnvironment.ContentRootPath, _configuration.GetValue<string>("BASE_URL"), true);
                 if (result.SuccessfulOperation)
                 {
                     return RedirectToAction(nameof(HomeController.Index), "Home");
@@ -213,7 +213,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                 };
                 
-                var result = await _clientBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"));
+                var result = await _clientBl.ForgottenPasswordAsync(dto, _webHostEnvironment.ContentRootPath, _configuration.GetValue<string>("BASE_URL"));
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch (Exception ex)
@@ -369,7 +369,7 @@ namespace CarService.Controllers
                     EmailAddress = collection["EmailAddress"],
                 };
 
-                var clientToken = await _employeeBl.ForgottenPasswordAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"));
+                var clientToken = await _employeeBl.ForgottenPasswordAsync(dto, _webHostEnvironment.ContentRootPath, _configuration.GetValue<string>("BASE_URL"));
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
             catch (Exception ex)

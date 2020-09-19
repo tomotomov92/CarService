@@ -107,7 +107,7 @@ namespace CarService.Controllers
                     EmployeeRole = _employeeRoleBl.ReadById(int.Parse(collection["EmployeeRoleId"])),
                 };
 
-                var result = await _bl.RegisterAsync(dto, _webHostEnvironment.WebRootPath, _configuration.GetValue<string>("BASE_URL"), false);
+                var result = await _bl.RegisterAsync(dto, _webHostEnvironment.ContentRootPath, _configuration.GetValue<string>("BASE_URL"), false);
                 if (result.SuccessfulOperation)
                 {
                     return RedirectToAction(nameof(Index));

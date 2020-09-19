@@ -8,50 +8,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\EmailTemplates\Client_ApproachingInspection.html" />
-    <Content Remove="wwwroot\EmailTemplates\Client_ForgottenPassword.html" />
-    <Content Remove="wwwroot\EmailTemplates\Client_Registration_Assisted.html" />
-    <Content Remove="wwwroot\EmailTemplates\Client_Registration_Self.html" />
-    <Content Remove="wwwroot\EmailTemplates\Employee_ForgottenPassword.html" />
-    <Content Remove="wwwroot\EmailTemplates\Employee_Registration.html" />
-    <Content Remove="wwwroot\EmailTemplates\Employee_Schedule_Created.html" />
-    <Content Remove="wwwroot\EmailTemplates\Employee_Schedule_Removed.html" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\EmailTemplates\Client_ApproachingInspection.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Employee_ForgottenPassword.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Client_ForgottenPassword.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Client_Registration_Assisted.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Client_Registration_Self.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Employee_Registration.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Employee_Schedule_Created.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="wwwroot\EmailTemplates\Employee_Schedule_Removed.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="EmailTemplates\Client_ApproachingInspection.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Client_ForgottenPassword.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Client_Registration_Assisted.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Client_Registration_Self.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Employee_ForgottenPassword.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Employee_Registration.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Employee_Schedule_Created.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="EmailTemplates\Employee_Schedule_Removed.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
