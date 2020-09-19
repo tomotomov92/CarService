@@ -80,7 +80,6 @@ namespace BusinessLogic.BLs
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = UpdateSQL;
-            BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             return dto;
@@ -90,7 +89,6 @@ namespace BusinessLogic.BLs
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = ArchiveSQL;
-            BindId(cmd, dto);
             BindParams(cmd, dto);
             await cmd.ExecuteNonQueryAsync();
             return dto;
@@ -102,16 +100,6 @@ namespace BusinessLogic.BLs
             cmd.CommandText = DeleteSQL;
             BindId(cmd, id);
             await cmd.ExecuteNonQueryAsync();
-        }
-
-        protected void BindId(MySqlCommand cmd, T dto)
-        {
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@id",
-                DbType = DbType.Int32,
-                Value = dto.Id,
-            });
         }
 
         protected void BindId(MySqlCommand cmd, int id)
