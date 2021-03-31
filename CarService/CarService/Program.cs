@@ -21,6 +21,11 @@ namespace CarService
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddEnvironmentVariables();
+                    config.AddCommandLine(args);
                 });
     }
 }
